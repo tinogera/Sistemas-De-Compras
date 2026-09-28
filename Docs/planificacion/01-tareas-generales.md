@@ -25,8 +25,8 @@ En esta tarea hay que dejar el repo limpio y que cada integrante tenga su base d
 
 **Documentación:**
 - [git rm (sacar archivos del repo)](https://git-scm.com/docs/git-rm)
-- [Plantillas de Pull Request en GitHub](https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository)
-- [Reglas de ramas (rulesets) en GitHub](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
+- [Plantillas de Pull Request en GitHub (en español)](https://docs.github.com/es/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository)
+- [Reglas de ramas (rulesets) en GitHub (en español)](https://docs.github.com/es/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
 - [Soporte de Docker Compose en Spring Boot](https://docs.spring.io/spring-boot/4.1.1/reference/features/dev-services.html#features.dev-services.docker-compose)
 - Guía con los comandos exactos: `guias/sprint-0-paso-a-paso.md`
 
@@ -56,7 +56,7 @@ En esta tarea hay que crear lo que usan todos los módulos. Hay que definir un f
 - [Validación en Spring Boot](https://docs.spring.io/spring-boot/4.1.1/reference/io/validation.html)
 - [Paginación con Spring Data](https://docs.spring.io/spring-data/jpa/reference/repositories/query-methods-details.html)
 - [springdoc-openapi (Swagger)](https://springdoc.org/)
-- [GitHub Actions con Java y Maven](https://docs.github.com/en/actions/tutorials/build-and-test-code/java-with-maven)
+- [GitHub Actions con Java y Maven (en español)](https://docs.github.com/es/actions/tutorials/build-and-test-code/java-with-maven)
 
 ---
 
@@ -202,8 +202,8 @@ En esta tarea hay que conectar el sistema con n8n para los avisos. Hay que levan
 **Qué hay que crear:** servicios en `compose.yaml`, cliente de webhooks, endpoints de recordatorios, API key para n8n, 3 workflows exportados.
 
 **Documentación:**
-- [n8n: documentación](https://docs.n8n.io/) e [instalación con Docker](https://docs.n8n.io/hosting/installation/docker/)
-- [n8n: nodo Webhook](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/), [Schedule Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger/), [Send Email](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.sendemail/) y [HTTP Request](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest/)
+- [n8n: documentación](https://docs.n8n.io/) e [instalación con Docker](https://docs.n8n.io/deploy/host-n8n/install-options/install-with-docker)
+- [n8n: nodo Webhook](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook), [Schedule Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger), [Send Email](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.sendemail) y [HTTP Request](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest)
 - [Mailpit](https://mailpit.axllent.org/docs/)
 - [Spring: clientes REST (`RestClient`)](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 - Diseño §7.5; enunciado "¿Y n8n para qué?" y "Urgencia y recordatorios"
@@ -229,10 +229,10 @@ En esta tarea hay que armar la estructura del frontend. Hay que instalar React R
 **Qué hay que crear:** estructura de carpetas, rutas, layout, cliente HTTP, contexto de usuario, login, rutas protegidas, componentes comunes.
 
 **Documentación:**
-- [React: aprender](https://react.dev/learn) y [manejo de estado](https://react.dev/learn/managing-state)
+- [React: aprender](https://es.react.dev/learn) y [manejo de estado](https://es.react.dev/learn/managing-state) (en español)
 - [React Router](https://reactrouter.com/home)
-- [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
-- [Vite: variables de entorno](https://vite.dev/guide/env-and-mode.html)
+- [Fetch API (en español)](https://developer.mozilla.org/es/docs/Web/API/Fetch_API/Using_Fetch)
+- [Vite: variables de entorno (en español)](https://es.vite.dev/guide/env-and-mode)
 
 ### T18 · Pantallas del Solicitante — S2
 
@@ -241,7 +241,7 @@ En esta tarea hay que hacer lo que usa cualquier empleado. Hay que crear el form
 **Qué hay que crear:** páginas de nueva solicitud, mis solicitudes y detalle; funciones de API de solicitudes y categorías.
 
 **Documentación:**
-- [React: formularios](https://react.dev/reference/react-dom/components/form)
+- [React: formularios (en español)](https://es.react.dev/reference/react-dom/components/form)
 - Enunciado: "Cómo funciona, con un ejemplo" (pasos 1, 2 y 8)
 
 ### T19 · Pantallas del Encargado — S3 y S4
@@ -251,7 +251,7 @@ En esta tarea hay que hacer lo que usa el Encargado de compras. Hay que crear la
 **Qué hay que crear:** páginas de bandeja, gestión del ítem, órdenes y catálogo; funciones de API de compras, órdenes y catálogo.
 
 **Documentación:**
-- [React: manejo de estado](https://react.dev/learn/managing-state)
+- [React: manejo de estado (en español)](https://es.react.dev/learn/managing-state)
 - Enunciado: "Cómo funciona, con un ejemplo" (pasos 3 a 7)
 
 ### T20 · Administración, reportes, adjuntos e historial en el front — S4
@@ -261,8 +261,8 @@ En esta tarea hay que completar las pantallas restantes: administración de usua
 **Qué hay que crear:** páginas de admin y reportes, componentes de adjuntos e historial.
 
 **Documentación:**
-- [Recharts (gráficos en React)](https://recharts.org/)
-- [FormData (subir archivos)](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
+- [Recharts (gráficos en React)](https://recharts.github.io/en-US/guide/getting-started/)
+- [FormData, para subir archivos (en español)](https://developer.mozilla.org/es/docs/Web/API/FormData)
 
 ---
 
@@ -282,4 +282,4 @@ En esta tarea hay que preparar la entrega: actualizar el documento de diseño co
 
 **Documentación:**
 - [Spring Boot: Dockerfiles](https://docs.spring.io/spring-boot/4.1.1/reference/packaging/container-images/dockerfiles.html)
-- [Vite: build para producción](https://vite.dev/guide/static-deploy.html)
+- [Vite: build para producción (en español)](https://es.vite.dev/guide/static-deploy)
