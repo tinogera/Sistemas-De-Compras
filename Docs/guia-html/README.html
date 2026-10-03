@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>README</title><style>
+:root { color-scheme: light; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       max-width: 900px; margin: 0 auto; padding: 32px 24px; line-height: 1.55;
+       color: #1f2328; background: #fff; font-size: 15px; }
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; }
+h1 { border-bottom: 2px solid #d0d7de; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .25em; }
+a { color: #0969da; }
+code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: .9em;
+       background: #f2f4f7; padding: .1em .35em; border-radius: 4px; }
+pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; }
+blockquote { margin: 1em 0; padding: .2em 1em; color: #57606a; border-left: 4px solid #d0d7de; }
+hr { border: 0; border-top: 1px solid #d0d7de; margin: 2em 0; }
+.doc + .doc { margin-top: 3em; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 11pt; }
+  .doc + .doc { page-break-before: always; margin-top: 0; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  pre, tr, blockquote { page-break-inside: avoid; }
+  a { color: inherit; }
+}
+</style></head><body>
+<h1 id="guía-de-aprendizaje-plugins-y-dependencias-del-proyecto">Guía de aprendizaje: plugins y dependencias del proyecto</h1>
+<p>Links a la documentación oficial de cada dependencia del backend (<code>back/pom.xml</code>) y del frontend, ordenados en el orden sugerido para aprenderlos.</p>
+<p>Versiones del proyecto: <strong>Spring Boot 4.1.1</strong>, <strong>Spring Modulith 2.1.1</strong>, <strong>Java 25</strong>. Los links de Spring Boot apuntan a la versión exacta 4.1.1. Los de Spring Modulith apuntan a la última versión publicada (puede ser un poco más nueva que la 2.1.1).</p>
+<hr />
+<h2 id="0-base-spring-boot-y-maven">0. Base: Spring Boot y Maven</h2>
+<table>
+<thead>
+<tr>
+<th>Qué</th>
+<th>Para qué sirve en el proyecto</th>
+<th>Links</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spring Boot (referencia general)</td>
+<td>El framework sobre el que corre todo el backend</td>
+<td><a href="https://docs.spring.io/spring-boot/4.1.1/reference/index.html">Documentación de referencia</a></td>
+</tr>
+<tr>
+<td>Configuración externa</td>
+<td>Cómo <code>application.properties</code> lee variables del <code>.env</code></td>
+<td><a href="https://docs.spring.io/spring-boot/4.1.1/reference/features/external-config.html">Externalized Configuration</a></td>
+</tr>
+<tr>
+<td>Maven</td>
+<td>Compila, testea y empaqueta el proyecto (<code>./mvnw</code>)</td>
+<td><a href="https://maven.apache.org/guides/index.html">Guías de Maven</a></td>
+</tr>
+<tr>
+<td><code>spring-boot-maven-plugin</code></td>
+<td><code>./mvnw spring-boot:run</code>, generar el <code>.jar</code> o una imagen Docker</td>
+<td><a href="https://docs.spring.io/spring-boot/4.1.1/maven-plugin">Referencia del plugin</a> · <a href="https://docs.spring.io/spring-boot/4.1.1/maven-plugin/build-image.html">Crear una imagen OCI</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-api-rest-spring-boot-starter-webmvc">1. API REST: <code>spring-boot-starter-webmvc</code></h2>
+<p>Sirve para crear los endpoints <code>/api/...</code> que consume el frontend.</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/web/servlet.html">Spring Boot: aplicaciones web servlet</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc.html">Spring Framework: Web MVC (controladores, <code>@RestController</code>, <code>@RequestMapping</code>)</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/gs/rest-service/">Building a RESTful Web Service</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/tutorials/rest/">Building REST services with Spring</a></li>
+</ul>
+<h2 id="2-validación-spring-boot-starter-validation">2. Validación: <code>spring-boot-starter-validation</code></h2>
+<p>Sirve para validar los datos que llegan a la API (<code>@NotNull</code>, <code>@Size</code>, <code>@Valid</code>, etc.).</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/io/validation.html">Spring Boot: Validation</a></li>
+<li><a href="https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/">Hibernate Validator: referencia completa de anotaciones</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/gs/validating-form-input/">Validating Form Input</a></li>
+</ul>
+<h2 id="3-lombok">3. Lombok</h2>
+<p>Genera getters, setters, constructores y builders con anotaciones (<code>@Getter</code>, <code>@Builder</code>, <code>@RequiredArgsConstructor</code>...).</p>
+<ul>
+<li><a href="https://projectlombok.org/features/">Lista de features de Lombok</a></li>
+</ul>
+<h2 id="4-base-de-datos">4. Base de datos</h2>
+<h3 id="postgresql--driver-postgresql">PostgreSQL + driver <code>postgresql</code></h3>
+<ul>
+<li><a href="https://www.postgresql.org/docs/current/">Documentación de PostgreSQL</a></li>
+<li><a href="https://jdbc.postgresql.org/documentation/">Driver JDBC de PostgreSQL</a></li>
+<li><a href="https://hub.docker.com/_/postgres">Imagen oficial de Postgres en Docker Hub</a> (la que usa <code>back/compose.yaml</code>)</li>
+</ul>
+<h3 id="jpa-spring-boot-starter-data-jpa">JPA: <code>spring-boot-starter-data-jpa</code></h3>
+<p>Sirve para mapear tablas a clases Java (<code>@Entity</code>) y consultar con repositorios (<code>JpaRepository</code>).</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/data/sql.html#data.sql.jpa-and-spring-data">Spring Boot: JPA y Spring Data</a></li>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/">Spring Data JPA: referencia (repositorios, queries derivadas, <code>@Query</code>)</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/gs/accessing-data-jpa/">Accessing Data with JPA</a></li>
+</ul>
+<h3 id="migraciones-spring-boot-starter-flyway--flyway-database-postgresql">Migraciones: <code>spring-boot-starter-flyway</code> + <code>flyway-database-postgresql</code></h3>
+<p>Crea y modifica las tablas con scripts SQL versionados (<code>src/main/resources/db/migration/V1__descripcion.sql</code>).</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway">Spring Boot: usar Flyway</a></li>
+<li><a href="https://documentation.red-gate.com/fd">Documentación oficial de Flyway</a></li>
+</ul>
+<h2 id="5-entorno-de-desarrollo">5. Entorno de desarrollo</h2>
+<h3 id="spring-boot-docker-compose"><code>spring-boot-docker-compose</code></h3>
+<p>Al correr la app, levanta solo el Postgres definido en <code>back/compose.yaml</code>.</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/features/dev-services.html#features.dev-services.docker-compose">Spring Boot: Docker Compose Support</a></li>
+<li><a href="https://docs.docker.com/compose/">Documentación de Docker Compose</a></li>
+</ul>
+<h3 id="spring-boot-devtools"><code>spring-boot-devtools</code></h3>
+<p>Reinicia la app automáticamente cuando cambias código.</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/using/devtools.html">Spring Boot: DevTools</a></li>
+</ul>
+<h2 id="6-arquitectura-modular-spring-modulith">6. Arquitectura modular: Spring Modulith</h2>
+<p><code>spring-modulith-starter-core</code>, <code>spring-modulith-starter-jpa</code>, <code>spring-modulith-runtime</code></p>
+<p>Organiza el backend en módulos (un subpaquete de <code>com.Sistem.Solicitude_Compra</code> por funcionalidad) que se comunican con eventos.</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/">Referencia de Spring Modulith (inicio)</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/fundamentals.html">Fundamentos: qué es un módulo</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/verification.html">Verificar la estructura de módulos</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Eventos entre módulos (y la tabla <code>event_publication</code>)</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/runtime.html">Soporte en tiempo de ejecución</a></li>
+</ul>
+<h2 id="7-monitoreo-actuator-y-observabilidad">7. Monitoreo: Actuator y observabilidad</h2>
+<p><code>spring-boot-starter-actuator</code>, <code>spring-modulith-actuator</code>, <code>spring-modulith-observability-api</code>, <code>spring-modulith-observability-core</code></p>
+<p>Exponen endpoints de salud y métricas (<code>/actuator/health</code>, etc.) y trazas por módulo.</p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/actuator/index.html">Spring Boot: Actuator</a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/actuator/endpoints.html">Lista de endpoints de Actuator</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/production-ready.html">Spring Modulith: Actuator y observabilidad</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/gs/actuator-service/">Building a RESTful Web Service with Spring Boot Actuator</a></li>
+</ul>
+<h2 id="8-tests">8. Tests</h2>
+<p><code>spring-boot-starter-*-test</code>, <code>spring-modulith-starter-test</code></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/testing/index.html">Spring Boot: Testing</a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/testing/spring-boot-applications.html">Testear aplicaciones Spring Boot (<code>@SpringBootTest</code>, <code>@WebMvcTest</code>, <code>@DataJpaTest</code>)</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/testing.html">Spring Modulith: tests por módulo (<code>@ApplicationModuleTest</code>)</a></li>
+<li>Guía práctica: <a href="https://spring.io/guides/gs/testing-web/">Testing the Web Layer</a></li>
+</ul>
+<hr />
+<h2 id="frontend-react--vite">Frontend (React + Vite)</h2>
+<ul>
+<li><a href="https://react.dev/learn">Aprender React</a></li>
+<li><a href="https://vite.dev/guide/env-and-mode.html">Vite: variables de entorno y <code>.env</code></a></li>
+<li><a href="https://vite.dev/config/server-options.html#server-proxy">Vite: proxy del servidor de desarrollo (<code>/api</code> → backend)</a></li>
+</ul>
+
+</body></html>

@@ -1,0 +1,1497 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>03-area-dificultad-fechas</title><style>
+:root { color-scheme: light; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       max-width: 900px; margin: 0 auto; padding: 32px 24px; line-height: 1.55;
+       color: #1f2328; background: #fff; font-size: 15px; }
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; }
+h1 { border-bottom: 2px solid #d0d7de; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .25em; }
+a { color: #0969da; }
+code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: .9em;
+       background: #f2f4f7; padding: .1em .35em; border-radius: 4px; }
+pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; }
+blockquote { margin: 1em 0; padding: .2em 1em; color: #57606a; border-left: 4px solid #d0d7de; }
+hr { border: 0; border-top: 1px solid #d0d7de; margin: 2em 0; }
+.doc + .doc { margin-top: 3em; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 11pt; }
+  .doc + .doc { page-break-before: always; margin-top: 0; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  pre, tr, blockquote { page-break-inside: avoid; }
+  a { color: inherit; }
+}
+</style></head><body>
+<h1 id="nivel-3--área-dificultad-y-fechas">Nivel 3 — Área, dificultad y fechas</h1>
+<p>Tablero de todas las subtareas. El detalle de cada una está en <code>02-tareas-especificas.md</code> (buscar por ID).</p>
+<ul>
+<li><strong>Área:</strong> dónde se trabaja. Back = <code>back/</code> · Front = <code>frontend/</code> · Infra = Docker, base de datos, CI · n8n = workflows · Repo = Git/GitHub · Docs = documentación.</li>
+<li><strong>Dificultad (D):</strong> 1 trivial · 2 fácil · 3 media · 4 difícil · 5 muy difícil.</li>
+<li><strong>Importancia (I):</strong> 3 imprescindible (sin esto el flujo del enunciado no funciona) · 2 importante (lo pide el enunciado, pero el flujo anda sin eso) · 1 deseable.</li>
+<li><strong>Peso = D × I.</strong> Las de peso alto conviene tomarlas primero dentro del sprint.</li>
+<li><strong>Fecha límite:</strong> las subtareas que bloquean a otras vencen a mitad de sprint; el resto, al final.</li>
+<li><strong>Responsable:</strong> quien toma la tarea pone su nombre. <strong>Estado:</strong> ⬜ pendiente · 🟨 en curso · ✅ terminada.</li>
+</ul>
+<h2 id="resumen">Resumen</h2>
+<table>
+<thead>
+<tr>
+<th>Sprint</th>
+<th>Subtareas</th>
+<th>Peso total</th>
+<th>Por área</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S0</td>
+<td>7</td>
+<td>26</td>
+<td>Back 3, Repo 2, Infra 2</td>
+</tr>
+<tr>
+<td>S1</td>
+<td>25</td>
+<td>134</td>
+<td>Back 20, Front 4, Infra 1</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>22</td>
+<td>134</td>
+<td>Back 19, Front 3</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>16</td>
+<td>112</td>
+<td>Back 13, Front 3</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>24</td>
+<td>100</td>
+<td>Back 14, Front 5, n8n 4, Infra 1</td>
+</tr>
+<tr>
+<td>Cierre</td>
+<td>6</td>
+<td>26</td>
+<td>Docs 4, Back + Front 1, Infra 1</td>
+</tr>
+<tr>
+<td>Continuo</td>
+<td>2</td>
+<td>15</td>
+<td>Back 2</td>
+</tr>
+<tr>
+<td>Si sobra</td>
+<td>1</td>
+<td>4</td>
+<td>Back 1</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>103</strong></td>
+<td><strong>551</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>S1 y S2 son los sprints más cargados (peso 134 cada uno): en S1 se arma toda la base, y en S2 el circuito de Compras. Si al cierre de un sprint hay atraso, se mueven primero las subtareas de importancia 1.</p>
+<h2 id="s0--fundamentos-2809--0410">S0 — Fundamentos (28/09 → 04/10)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T02.1</td>
+<td>Paquetes de los 8 módulos y test de arquitectura</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>04/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T02.2</td>
+<td>Migraciones iniciales y validación de Hibernate</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>04/10</td>
+<td>T01.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T02.3</td>
+<td>Tests con Testcontainers</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>04/10</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T01.3</td>
+<td>Base de datos y <code>.env</code> de cada integrante</td>
+<td>Infra</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>04/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T01.1</td>
+<td>Limpiar el repo</td>
+<td>Repo</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>04/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T01.2</td>
+<td>Plantilla de PR y protección de <code>main</code></td>
+<td>Repo</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>04/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T01.4</td>
+<td>Fijar la versión de Postgres</td>
+<td>Infra</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>04/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s1--base-del-dominio-0510--1810">S1 — Base del dominio (05/10 → 18/10)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T03.1</td>
+<td>Módulo <code>compartido</code></td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T02.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T03.2</td>
+<td>Formato de errores y manejador global</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T04.1</td>
+<td>Schema y dominio de <code>auth</code></td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T02.2, T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.1</td>
+<td>Schema y dominio del catálogo</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.2</td>
+<td>Repositories del catálogo</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T06.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.1</td>
+<td>Schema y dominio de solicitudes</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T02.2, T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.3</td>
+<td>Definir los eventos del sistema</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T17.1</td>
+<td>Estructura, rutas y layout</td>
+<td>Front</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T17.2</td>
+<td>Cliente HTTP</td>
+<td>Front</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>11/10</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T04.2</td>
+<td>Repositories de <code>auth</code></td>
+<td>Back</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>11/10</td>
+<td>T04.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.2</td>
+<td>Repositories de solicitudes</td>
+<td>Back</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>11/10</td>
+<td>T07.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T03.3</td>
+<td>Respuesta paginada estándar</td>
+<td>Back</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>11/10</td>
+<td>T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T04.4</td>
+<td>Login con JWT y configuración de seguridad</td>
+<td>Back</td>
+<td>4</td>
+<td>3</td>
+<td>12</td>
+<td>18/10</td>
+<td>T04.2, T03.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.4</td>
+<td>Crear una solicitud</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>18/10</td>
+<td>T07.2, T07.3, T06.5, T04.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T17.3</td>
+<td>Login, usuario actual y rutas protegidas</td>
+<td>Front</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>18/10</td>
+<td>T17.1, T17.2, T04.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T04.5</td>
+<td>Usuario logueado y <code>AuthApi</code></td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>18/10</td>
+<td>T04.2, T04.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.3</td>
+<td>ABM de proveedores</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>18/10</td>
+<td>T06.2, T03.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.5</td>
+<td><code>CatalogoApi</code> para otros módulos</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>18/10</td>
+<td>T06.2, T07.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.5</td>
+<td>Consultar solicitudes</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>18/10</td>
+<td>T07.2, T03.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.4</td>
+<td>Búsqueda de categorías</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>18/10</td>
+<td>T06.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T07.6</td>
+<td>Tests del módulo Solicitudes</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>18/10</td>
+<td>T07.4, T07.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T17.4</td>
+<td>Componentes comunes</td>
+<td>Front</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>18/10</td>
+<td>T17.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T03.4</td>
+<td>Swagger</td>
+<td>Back</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>18/10</td>
+<td>T02.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T03.5</td>
+<td>CI con GitHub Actions</td>
+<td>Infra</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>18/10</td>
+<td>T02.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T04.3</td>
+<td>Datos de prueba</td>
+<td>Back</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>18/10</td>
+<td>T04.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s2--circuito-de-compras-1910--0111">S2 — Circuito de Compras (19/10 → 01/11)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T10.3</td>
+<td>Aprobar un ítem</td>
+<td>Back</td>
+<td>4</td>
+<td>3</td>
+<td>12</td>
+<td>01/11</td>
+<td>T10.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T09.4</td>
+<td>Tomar y reasignar</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>01/11</td>
+<td>T09.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T18.1</td>
+<td>Nueva solicitud</td>
+<td>Front</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>01/11</td>
+<td>T17.3, T07.4, T06.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T18.3</td>
+<td>Detalle de una solicitud</td>
+<td>Front</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>01/11</td>
+<td>T18.2, T08.1, T08.2, T08.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T05.1</td>
+<td>Permisos por rol en todos los endpoints</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T04.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.1</td>
+<td>Editar un ítem Pendiente</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T07.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.2</td>
+<td>Borrar (cancelar) un ítem Pendiente</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T07.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.3</td>
+<td>Cancelar la solicitud entera</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T07.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.4</td>
+<td>Sincronizar ediciones y cancelaciones con Compras</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>01/11</td>
+<td>T08.1, T08.2, T08.3, T09.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T09.3</td>
+<td>Bandeja</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T09.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T09.5</td>
+<td>Test de concurrencia</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>01/11</td>
+<td>T09.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T10.2</td>
+<td>Cargar y listar cotizaciones</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T10.1, T09.4, T06.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T10.4</td>
+<td>Rechazar un ítem</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>01/11</td>
+<td>T09.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T05.3</td>
+<td>ABM de usuarios</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>01/11</td>
+<td>T05.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T10.5</td>
+<td>Proveedores sugeridos para un ítem</td>
+<td>Back</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>01/11</td>
+<td>T06.7, T09.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T05.2</td>
+<td>ABM de sectores</td>
+<td>Back</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>01/11</td>
+<td>T05.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.6</td>
+<td>Confirmar una categoría Nueva</td>
+<td>Back</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>01/11</td>
+<td>T06.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T09.2</td>
+<td>Crear las gestiones al entrar una solicitud</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>25/10</td>
+<td>T09.1, T07.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T09.1</td>
+<td>Schema y dominio de Compras</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>25/10</td>
+<td>T02.2, T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T10.1</td>
+<td>Schema y dominio de cotizaciones</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>25/10</td>
+<td>T09.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T18.2</td>
+<td>Mis solicitudes</td>
+<td>Front</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>25/10</td>
+<td>T17.4, T07.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.7</td>
+<td>Proveedores sugeridos (con unificadas)</td>
+<td>Back</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>25/10</td>
+<td>T06.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s3--órdenes-y-cierre-del-flujo-0211--1511">S3 — Órdenes y cierre del flujo (02/11 → 15/11)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T11.2</td>
+<td>Generar la orden al aprobarse un ítem</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>08/11</td>
+<td>T11.1, T10.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T19.1</td>
+<td>Bandeja</td>
+<td>Front</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>08/11</td>
+<td>T09.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.5</td>
+<td>Actualizar el estado de los ítems desde Compras</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>08/11</td>
+<td>T09.4, T10.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T11.1</td>
+<td>Schema y dominio de órdenes</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>08/11</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T12.1</td>
+<td>Reintento de eventos pendientes</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>08/11</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T13.1</td>
+<td>Schema, dominio y repository de auditoría</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>08/11</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T14.1</td>
+<td>Servicio de almacenamiento de archivos</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>08/11</td>
+<td>T03.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.6</td>
+<td>Estado automático de la solicitud</td>
+<td>Back</td>
+<td>4</td>
+<td>3</td>
+<td>12</td>
+<td>15/11</td>
+<td>T08.5, T11.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T19.2</td>
+<td>Gestión de un ítem</td>
+<td>Front</td>
+<td>4</td>
+<td>3</td>
+<td>12</td>
+<td>15/11</td>
+<td>T10.3, T10.4, T10.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T13.2</td>
+<td>Registrar los eventos en el historial</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>15/11</td>
+<td>T13.1, T07.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T11.4</td>
+<td>Marcar una orden como enviada</td>
+<td>Back</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>15/11</td>
+<td>T11.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T12.2</td>
+<td>Listeners idempotentes</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>15/11</td>
+<td>T11.2, T13.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T12.3</td>
+<td>Tests entre módulos</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>15/11</td>
+<td>T11.2, T08.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T14.2</td>
+<td>Adjuntos de un ítem</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>15/11</td>
+<td>T14.1, T07.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T19.3</td>
+<td>Órdenes</td>
+<td>Front</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>15/11</td>
+<td>T11.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T11.3</td>
+<td>Listar órdenes</td>
+<td>Back</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>15/11</td>
+<td>T11.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="s4--avisos-y-reportes-1611--2911">S4 — Avisos y reportes (16/11 → 29/11)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T15.5</td>
+<td>Endpoints de recordatorios</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>22/11</td>
+<td>T09.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T16.2</td>
+<td>Alimentar los reportes con eventos</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>22/11</td>
+<td>T16.1, T11.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T13.3</td>
+<td>Consultar el historial</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>22/11</td>
+<td>T13.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T14.3</td>
+<td>Adjuntos de una cotización</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>22/11</td>
+<td>T14.2, T10.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.1</td>
+<td>n8n y Mailpit en Docker</td>
+<td>Infra</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>22/11</td>
+<td>T01.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.2</td>
+<td>Enviar los avisos a n8n</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>22/11</td>
+<td>T15.1, T08.6</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T16.1</td>
+<td>Schema y dominio de reportes</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>22/11</td>
+<td>T02.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.4</td>
+<td>Workflow: resultado al solicitante</td>
+<td>n8n</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>29/11</td>
+<td>T15.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.6</td>
+<td>Workflow: recordatorios diarios</td>
+<td>n8n</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>29/11</td>
+<td>T15.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T16.3</td>
+<td>Reporte de gasto</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>29/11</td>
+<td>T16.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T19.4</td>
+<td>Catálogo (proveedores y categorías)</td>
+<td>Front</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>29/11</td>
+<td>T06.6, T06.8</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T20.2</td>
+<td>Reportes</td>
+<td>Front</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>29/11</td>
+<td>T16.3, T16.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.3</td>
+<td>Workflow: aviso de solicitud nueva</td>
+<td>n8n</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>29/11</td>
+<td>T15.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T16.4</td>
+<td>Tiempo de resolución</td>
+<td>Back</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>29/11</td>
+<td>T16.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T20.1</td>
+<td>Administración de usuarios y sectores</td>
+<td>Front</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>29/11</td>
+<td>T05.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T20.3</td>
+<td>Adjuntos</td>
+<td>Front</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>29/11</td>
+<td>T14.2, T14.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T05.4</td>
+<td>Reglas del último Encargado y quitar el rol</td>
+<td>Back</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>29/11</td>
+<td>T05.3, T09.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T06.8</td>
+<td>Unificar categorías duplicadas</td>
+<td>Back</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>29/11</td>
+<td>T06.6</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T11.5</td>
+<td>Orden en PDF</td>
+<td>Back</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>29/11</td>
+<td>T11.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T08.7</td>
+<td>Evitar duplicados por doble click</td>
+<td>Back</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>29/11</td>
+<td>T07.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T10.6</td>
+<td>Marcar cotizaciones vencidas en la bandeja</td>
+<td>Back</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>29/11</td>
+<td>T10.2</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.7</td>
+<td>Seguridad de la integración</td>
+<td>Back</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>29/11</td>
+<td>T15.5</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T15.8</td>
+<td>Exportar los workflows al repo</td>
+<td>n8n</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>29/11</td>
+<td>T15.3, T15.4, T15.6</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T20.4</td>
+<td>Historial</td>
+<td>Front</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>29/11</td>
+<td>T13.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="cierre-3011--0412">Cierre (30/11 → 04/12)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T21.3</td>
+<td>Prueba completa (ejemplo de Laura y casos borde)</td>
+<td>Back + Front</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>02/12</td>
+<td>Todo S3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T22.4</td>
+<td>Datos y guion de la demo</td>
+<td>Docs</td>
+<td>2</td>
+<td>3</td>
+<td>6</td>
+<td>03/12</td>
+<td>T21.3</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T22.1</td>
+<td>Actualizar el diseño</td>
+<td>Docs</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>03/12</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T22.2</td>
+<td>README de instalación</td>
+<td>Docs</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>03/12</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T22.3</td>
+<td>Empaquetado para la demo</td>
+<td>Infra</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>03/12</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T22.5</td>
+<td>Escalado y manejo de fallas</td>
+<td>Docs</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>03/12</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="continuo-durante-todo-el-proyecto">Continuo (durante todo el proyecto)</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T21.1</td>
+<td>Tests de reglas de dominio</td>
+<td>Back</td>
+<td>3</td>
+<td>3</td>
+<td>9</td>
+<td>29/11</td>
+<td>—</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+<tr>
+<td>T21.2</td>
+<td>Tests de endpoints</td>
+<td>Back</td>
+<td>3</td>
+<td>2</td>
+<td>6</td>
+<td>29/11</td>
+<td>T04.4</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+<h2 id="si-sobra-tiempo">Si sobra tiempo</h2>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Subtarea</th>
+<th>Área</th>
+<th>D</th>
+<th>I</th>
+<th>Peso</th>
+<th>Fecha límite</th>
+<th>Depende de</th>
+<th>Responsable</th>
+<th>Estado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T14.4</td>
+<td>(Opcional) Almacenamiento S3/MinIO</td>
+<td>Back</td>
+<td>4</td>
+<td>1</td>
+<td>4</td>
+<td>—</td>
+<td>T14.1</td>
+<td>—</td>
+<td>⬜</td>
+</tr>
+</tbody>
+</table>
+
+</body></html>

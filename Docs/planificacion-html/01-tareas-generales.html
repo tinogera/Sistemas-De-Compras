@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>01-tareas-generales</title><style>
+:root { color-scheme: light; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       max-width: 900px; margin: 0 auto; padding: 32px 24px; line-height: 1.55;
+       color: #1f2328; background: #fff; font-size: 15px; }
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; }
+h1 { border-bottom: 2px solid #d0d7de; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .25em; }
+a { color: #0969da; }
+code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: .9em;
+       background: #f2f4f7; padding: .1em .35em; border-radius: 4px; }
+pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; }
+blockquote { margin: 1em 0; padding: .2em 1em; color: #57606a; border-left: 4px solid #d0d7de; }
+hr { border: 0; border-top: 1px solid #d0d7de; margin: 2em 0; }
+.doc + .doc { margin-top: 3em; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 11pt; }
+  .doc + .doc { page-break-before: always; margin-top: 0; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  pre, tr, blockquote { page-break-inside: avoid; }
+  a { color: inherit; }
+}
+</style></head><body>
+<h1 id="nivel-1--tareas-generales">Nivel 1 — Tareas generales</h1>
+<p>Las 22 tareas grandes del proyecto. Cada una explica qué hay que configurar y qué hay que crear, sin código. El detalle de cada parte está en <code>02-tareas-especificas.md</code> y las fechas en <code>03-area-dificultad-fechas.md</code>.</p>
+<p>Las secciones con § se refieren a <code>Docs/diseno-del-sistema.md</code>. Las convenciones de carpetas y nombres están en <code>README.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Tareas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fundamentos</td>
+<td>T01 · T02 · T03</td>
+</tr>
+<tr>
+<td>Usuarios y seguridad</td>
+<td>T04 · T05</td>
+</tr>
+<tr>
+<td>Módulos de negocio (backend)</td>
+<td>T06 Catálogo · T07-T08 Solicitudes · T09-T10 Compras · T11 Órdenes</td>
+</tr>
+<tr>
+<td>Transversales (backend)</td>
+<td>T12 Eventos · T13 Auditoría · T14 Adjuntos · T15 Notificaciones · T16 Reportes</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>T17 · T18 · T19 · T20</td>
+</tr>
+<tr>
+<td>Cierre</td>
+<td>T21 Calidad · T22 Documentación y demo</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="fundamentos">Fundamentos</h2>
+<h3 id="t01--preparar-el-repositorio-y-el-entorno--s0">T01 · Preparar el repositorio y el entorno — S0</h3>
+<p>En esta tarea hay que dejar el repo limpio y que cada integrante tenga su base de datos funcionando. Hay que sacar del repo los archivos que no corresponden (configuración de IntelliJ, <code>HELP.md</code>, la carpeta <code>back/resources/</code> que quedó fuera de Maven), corregir el <code>.gitignore</code>, crear una plantilla de Pull Request y proteger la rama <code>main</code> para que todo entre por PR con revisión. Después, cada integrante configura su base PostgreSQL (con el Docker Compose que ya existe, o una base instalada) y completa su <code>back/.env</code> con credenciales propias.</p>
+<p><strong>Qué hay que crear o configurar:</strong> plantilla de PR, reglas de la rama <code>main</code>, <code>back/.env</code> de cada integrante, versión fija de Postgres en <code>compose.yaml</code>.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://git-scm.com/docs/git-rm">git rm (sacar archivos del repo)</a></li>
+<li><a href="https://docs.github.com/es/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository">Plantillas de Pull Request en GitHub (en español)</a></li>
+<li><a href="https://docs.github.com/es/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets">Reglas de ramas (rulesets) en GitHub (en español)</a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/features/dev-services.html#features.dev-services.docker-compose">Soporte de Docker Compose en Spring Boot</a></li>
+<li>Guía con los comandos exactos: <code>guias/sprint-0-paso-a-paso.md</code></li>
+</ul>
+<h3 id="t02--esqueleto-modular-migraciones-base-y-tests--s0">T02 · Esqueleto modular, migraciones base y tests — S0</h3>
+<p>En esta tarea hay que armar la estructura sobre la que se construye todo el backend. Hay que crear los 8 paquetes de módulos (<code>auth</code>, <code>catalogo</code>, <code>solicitudes</code>, <code>compras</code>, <code>ordenes</code>, <code>reportes</code>, <code>integraciones</code>, <code>auditoria</code>) y un test que verifique que ningún módulo usa el interior de otro. Hay que crear las primeras migraciones de Flyway: un schema de PostgreSQL por módulo y la tabla donde Spring Modulith guarda los eventos. Hay que configurar Hibernate para que solo valide las tablas y no las cree. Por último, hay que hacer que los tests tengan una base de datos propia con Testcontainers, porque hoy <code>./mvnw test</code> falla.</p>
+<p><strong>Qué hay que crear o configurar:</strong> paquetes de módulos, test de arquitectura, migraciones iniciales (schemas + <code>event_publication</code>), configuración de tests con Testcontainers.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/fundamentals.html">Spring Modulith: fundamentos</a> y <a href="https://docs.spring.io/spring-modulith/reference/verification.html">verificación de módulos</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/appendix.html#schemas.postgresql">Spring Modulith: SQL de <code>event_publication</code> para PostgreSQL</a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/how-to/data-initialization.html#howto.data-initialization.migration-tool.flyway">Flyway en Spring Boot</a></li>
+<li><a href="https://www.postgresql.org/docs/current/ddl-schemas.html">Schemas en PostgreSQL</a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/testing/testcontainers.html">Testcontainers en Spring Boot</a> y <a href="https://java.testcontainers.org/modules/databases/postgres/">módulo PostgreSQL de Testcontainers</a></li>
+<li>Guía con el código probado: <code>guias/sprint-0-paso-a-paso.md</code></li>
+</ul>
+<h3 id="t03--base-común-del-backend--s1">T03 · Base común del backend — S1</h3>
+<p>En esta tarea hay que crear lo que usan todos los módulos. Hay que definir un formato único de errores para toda la API (código, mensaje y, si aplica, los campos inválidos) y un manejador global que traduzca cada tipo de error a su código HTTP: 400 datos inválidos, 401 sin login, 403 sin permiso, 404 no existe, 409 conflicto de versión, 422 regla de negocio. Hay que definir la forma estándar de las respuestas paginadas. Hay que agregar la documentación automática de la API (Swagger) para que el front vea los endpoints, y configurar GitHub Actions para que compile y corra los tests en cada PR.</p>
+<p><strong>Qué hay que crear o configurar:</strong> excepciones de negocio, manejador global de errores, DTO de página, Swagger, workflow de CI.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html">Spring MVC: errores en APIs REST (ProblemDetail)</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-advice.html">Spring MVC: <code>@RestControllerAdvice</code></a></li>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/io/validation.html">Validación en Spring Boot</a></li>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/repositories/query-methods-details.html">Paginación con Spring Data</a></li>
+<li><a href="https://springdoc.org/">springdoc-openapi (Swagger)</a></li>
+<li><a href="https://docs.github.com/es/actions/tutorials/build-and-test-code/java-with-maven">GitHub Actions con Java y Maven (en español)</a></li>
+</ul>
+<hr />
+<h2 id="usuarios-y-seguridad">Usuarios y seguridad</h2>
+<h3 id="t04--usuarios-sectores-y-login-módulo-auth--s1">T04 · Usuarios, sectores y login (módulo <code>auth</code>) — S1</h3>
+<p>En esta tarea hay que crear el módulo de usuarios y el login. Hay que crear el <strong>schema</strong> <code>auth</code> con las tablas de sectores y usuarios (§6.1, más la contraseña cifrada que el diseño no tiene), el <strong>dominio</strong> (Sector, Usuario y el enum de roles Solicitante, Encargado y Administrador), los <strong>repositories</strong> y datos de prueba (sectores y un usuario por rol). Después hay que configurar Spring Security para que la API use tokens JWT: un endpoint de login recibe email y contraseña, las valida y devuelve un token firmado; todos los demás endpoints exigen ese token. La clave para firmar va en el <code>.env</code>. También hay que exponer un endpoint que devuelva el usuario logueado, que el front necesita.</p>
+<p><strong>Qué hay que crear:</strong> schema <code>auth</code>, dominio, repositories, datos semilla, configuración de seguridad, service y endpoint de login, endpoint de usuario actual, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/web/spring-security.html">Spring Boot y Spring Security</a></li>
+<li><a href="https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html">Spring Security: JWT en un resource server</a></li>
+<li><a href="https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html">Spring Security: guardado de contraseñas (BCrypt)</a></li>
+<li><a href="https://docs.spring.io/spring-data/commons/reference/repositories/core-concepts.html">Spring Data JPA: repositories</a></li>
+</ul>
+<h3 id="t05--permisos-por-rol-y-administración-de-usuarios--s2-y-s4">T05 · Permisos por rol y administración de usuarios — S2 y S4</h3>
+<p>En esta tarea hay que restringir cada endpoint según el rol: el Solicitante solo ve y maneja lo suyo, solo el Encargado cotiza, aprueba, rechaza y maneja órdenes, y solo el Administrador maneja usuarios y sectores. Hay que crear el ABM (alta, baja, modificación) de sectores y usuarios para el Administrador, y una API interna del módulo para que otros módulos consulten datos de usuarios (por ejemplo, los emails de los Encargados para los avisos). En S4 hay que cubrir dos casos borde: no se puede desactivar al último Encargado, y si a un Encargado se le quita el rol, sus ítems vuelven a la bandeja general.</p>
+<p><strong>Qué hay que crear:</strong> reglas de autorización, services y endpoints de ABM, <code>AuthApi</code> para otros módulos, evento de Encargado desasignado.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html">Spring Security: autorizar requests HTTP</a></li>
+<li><a href="https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html">Spring Security: seguridad a nivel de método (<code>@PreAuthorize</code>)</a></li>
+<li>Casos borde 15 y 16 del diseño (§10)</li>
+</ul>
+<hr />
+<h2 id="módulos-de-negocio-backend">Módulos de negocio (backend)</h2>
+<h3 id="t06--catálogo-de-categorías-y-proveedores-módulo-catalogo--s1-s2-y-s4">T06 · Catálogo de categorías y proveedores (módulo <code>catalogo</code>) — S1, S2 y S4</h3>
+<p>En esta tarea hay que crear el catálogo. Hay que crear el <strong>schema</strong> <code>catalogo</code> (§6.3) con categorías, proveedores y la relación entre ambos (un proveedor ofrece varias categorías), el <strong>dominio</strong>, los <strong>repositories</strong> con las búsquedas necesarias y los <strong>services</strong> con sus endpoints (§7.3): ABM de proveedores, búsqueda de categorías para el autocompletado del formulario, alta de categorías Nuevas desde una solicitud, promoción a Conocida y unificación de duplicados. También una API interna para que Compras pida los proveedores activos de una categoría. Reglas del enunciado: los proveedores no guardan precios, y el nombre de una categoría es único por tipo sin distinguir mayúsculas.</p>
+<p><strong>Qué hay que crear:</strong> schema, dominio (Categoria, Proveedor), repositories, services, endpoints, <code>CatalogoApi</code>, evento <code>CategoriaCreada</code>, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html">Spring Data JPA: métodos de consulta</a></li>
+<li><a href="https://spring.io/guides/gs/accessing-data-jpa/">Guía: Accessing Data with JPA</a></li>
+<li><a href="https://spring.io/guides/gs/rest-service/">Guía: Building a RESTful Web Service</a></li>
+<li>Enunciado: &quot;Categoría&quot; y &quot;Proveedor&quot;; diseño casos borde 9 a 11</li>
+</ul>
+<h3 id="t07--solicitudes-crear-y-consultar-módulo-solicitudes--s1">T07 · Solicitudes: crear y consultar (módulo <code>solicitudes</code>) — S1</h3>
+<p>En esta tarea hay que crear el corazón del sistema. Hay que crear el <strong>schema</strong> <code>solicitudes</code> (§6.2) con solicitudes e ítems, el <strong>dominio</strong> con sus enums (urgencia, tipo, estados de solicitud y de ítem) y control de versión para detectar ediciones simultáneas, y los <strong>repositories</strong>. Antes de programar la lógica hay que definir <strong>todos los eventos del sistema</strong> (qué módulo publica y cuál escucha cada uno), porque los usan todos los módulos. Después, el <strong>service</strong> y los endpoints (§7.1) para crear una solicitud con sus ítems (publicando <code>SolicitudCreada</code>) y para que el solicitante vea sus solicitudes y el detalle de cada una. Reglas: al menos un ítem, cantidad mayor a 0, el sector se copia del usuario al crear.</p>
+<p><strong>Qué hay que crear:</strong> schema, dominio, repositories, eventos del sistema, service, endpoints de alta y consulta, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Spring Modulith: eventos entre módulos</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestbody.html">Spring MVC: <code>@RequestBody</code> y validación</a></li>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html">Spring Data JPA: bloqueo optimista (<code>@Version</code>)</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html">Transacciones (<code>@Transactional</code>)</a></li>
+</ul>
+<h3 id="t08--solicitudes-editar-cancelar-y-estado-automático--s2-s3-y-s4">T08 · Solicitudes: editar, cancelar y estado automático — S2, S3 y S4</h3>
+<p>En esta tarea hay que completar el ciclo de vida de la solicitud. Hay que agregar al <strong>service</strong> y a los endpoints (§7.1) editar y borrar ítems que sigan Pendientes, y cancelar la solicitud entera si todos sus ítems siguen Pendientes. Como Compras tiene su propia copia de cada ítem, hay que avisarle de estos cambios con eventos, y resolver el caso en que el Encargado toma el ítem justo mientras el solicitante lo cancela. Después, en S3, hay que hacer que el estado de los ítems y de la solicitud se actualice solo escuchando los eventos de Compras y Órdenes: la solicitud pasa a Lista cuando todos sus ítems están resueltos (y ahí se avisa), a Cerrada cuando todas sus órdenes se enviaron, y a Cancelada si todos sus ítems se cancelaron. En S4, protección contra doble envío del formulario.</p>
+<p><strong>Qué hay que crear:</strong> métodos de service y endpoints de edición y cancelación, eventos de sincronización con Compras, listeners de eventos de Compras y Órdenes, cálculo del estado de la solicitud, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Spring Modulith: <code>@ApplicationModuleListener</code></a></li>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html">Spring Data JPA: bloqueo optimista</a></li>
+<li>Enunciado: &quot;Estados de un ítem&quot; y &quot;Estados de una solicitud&quot;; diseño casos borde 2, 3, 12, 13 y 14</li>
+</ul>
+<h3 id="t09--compras-bandeja-y-asignación-módulo-compras--s2">T09 · Compras: bandeja y asignación (módulo <code>compras</code>) — S2</h3>
+<p>En esta tarea hay que crear la bandeja del Encargado. Hay que crear el <strong>schema</strong> <code>compras</code> (§6.4) con la gestión de cada ítem, el <strong>dominio</strong> y los <strong>repositories</strong>. Un <strong>listener</strong> escucha <code>SolicitudCreada</code> y crea una gestión por cada ítem, copiando lo necesario para ordenar la bandeja sin consultar otro módulo (urgencia, fecha necesaria, categoría, cantidad). El <strong>service</strong> y los endpoints (§7.2) muestran la bandeja ordenada por urgencia (Alta primero) y fecha necesaria, y permiten tomar un ítem o reasignarse uno de otro Encargado. Si dos Encargados toman el mismo ítem a la vez, solo uno gana y el otro recibe un error 409.</p>
+<p><strong>Qué hay que crear:</strong> schema, dominio, repositories, listener de <code>SolicitudCreada</code> (y de edición y cancelación), service y endpoints de bandeja, tomar y reasignar, evento <code>ItemAsignado</code>, tests de concurrencia.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Spring Modulith: eventos</a></li>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html">Spring Data JPA: bloqueo optimista</a></li>
+<li><a href="https://www.postgresql.org/docs/current/indexes-partial.html">Índices parciales en PostgreSQL</a></li>
+<li>Enunciado: &quot;Urgencia y recordatorios&quot;; diseño caso borde 1</li>
+</ul>
+<h3 id="t10--compras-cotizaciones-aprobar-y-rechazar--s2-y-s4">T10 · Compras: cotizaciones, aprobar y rechazar — S2 y S4</h3>
+<p>En esta tarea hay que completar el trabajo del Encargado. Hay que agregar al <strong>dominio</strong> y al <strong>schema</strong> las cotizaciones (§6.4): proveedor, moneda (ARS o USD), precio unitario, total calculado, fecha de validez. El <strong>service</strong> y los endpoints (§7.2) permiten cargar cotizaciones, ver los proveedores sugeridos para el ítem (preguntándole al Catálogo), aprobar el ítem eligiendo una cotización vigente, o rechazarlo con un motivo. Al aprobar se publica <code>ItemAprobado</code> con todo lo que Órdenes necesita para generar la orden; al aprobar o rechazar se publica <code>ItemResuelto</code>. Reglas: una cotización vencida no se puede elegir, aprobado exige cotización elegida, rechazado exige motivo, y se puede rechazar sin haber cotizado.</p>
+<p><strong>Qué hay que crear:</strong> dominio y schema de cotizaciones, repositories, service y endpoints de cotizar, aprobar, rechazar y proveedores sugeridos, eventos <code>ItemAprobado</code> e <code>ItemResuelto</code>, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html">Spring MVC: errores REST (422 para reglas de negocio)</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html">Transacciones</a></li>
+<li>Enunciado: &quot;Cotización&quot; y &quot;Reglas para no olvidarse&quot;; diseño casos borde 4 a 8</li>
+</ul>
+<h3 id="t11--órdenes-de-pedido-módulo-ordenes--s3-y-s4">T11 · Órdenes de pedido (módulo <code>ordenes</code>) — S3 y S4</h3>
+<p>En esta tarea hay que generar las órdenes. Hay que crear el <strong>schema</strong> <code>ordenes</code> (§6.5) con la orden de pedido y una secuencia para el número correlativo, el <strong>dominio</strong> y el <strong>repository</strong>. Un <strong>listener</strong> escucha <code>ItemAprobado</code> y genera la orden en el momento, una por ítem, copiando los datos del proveedor y el precio (la orden es un documento y no cambia si después se edita el proveedor). Tiene que ser idempotente: si el evento llega dos veces, no se generan dos órdenes. El <strong>service</strong> y los endpoints (§7.4) permiten listar las órdenes y marcarlas como Enviadas, publicando <code>OrdenEnviada</code>. En S4, descargar la orden en PDF.</p>
+<p><strong>Qué hay que crear:</strong> schema con secuencia, dominio, repository, listener de <code>ItemAprobado</code>, service y endpoints, eventos <code>OrdenGenerada</code> y <code>OrdenEnviada</code>, PDF, tests.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://www.postgresql.org/docs/current/sql-createsequence.html">Secuencias en PostgreSQL</a></li>
+<li><a href="https://github.com/LibrePDF/OpenPDF">OpenPDF (generar PDF en Java)</a></li>
+<li>Enunciado: &quot;Orden de pedido&quot;; diseño §9 (&quot;Un evento se entrega dos veces&quot;) y caso borde 23</li>
+</ul>
+<hr />
+<h2 id="transversales-backend">Transversales (backend)</h2>
+<h3 id="t12--eventos-confiables-e-idempotencia--s3">T12 · Eventos confiables e idempotencia — S3</h3>
+<p>En esta tarea hay que asegurar que ningún evento entre módulos se pierda ni se procese dos veces. Hay que configurar Spring Modulith para que, si la app se cae después de guardar un cambio pero antes de procesar su evento, el evento se vuelva a procesar al reiniciar. Hay que revisar que cada listener soporte recibir el mismo evento dos veces sin duplicar nada. Hay que escribir tests de módulo que publiquen un evento y verifiquen el resultado en el otro módulo.</p>
+<p><strong>Qué hay que configurar y crear:</strong> propiedades del registro de eventos, controles de idempotencia en los listeners, tests con la API <code>Scenario</code>.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Spring Modulith: Event Publication Registry</a></li>
+<li><a href="https://docs.spring.io/spring-modulith/reference/testing.html">Spring Modulith: tests de módulos</a></li>
+<li>Diseño §4 (decisión 2) y §9</li>
+</ul>
+<h3 id="t13--historial-de-auditoría-módulo-auditoria--s3-y-s4">T13 · Historial de auditoría (módulo <code>auditoria</code>) — S3 y S4</h3>
+<p>En esta tarea hay que registrar todo cambio. Hay que crear el <strong>schema</strong> <code>auditoria</code> con la tabla de historial (§6.7), en la que solo se inserta y nunca se edita ni se borra, el <strong>dominio</strong> y el <strong>repository</strong>. Un conjunto de <strong>listeners</strong> escucha los eventos de cambio de todos los módulos (creación, asignación, reasignación, aprobación, rechazo, cancelación, orden generada y enviada) y registra quién hizo qué, cuándo y el estado anterior y nuevo. En S4, un endpoint para consultar el historial de una solicitud o ítem.</p>
+<p><strong>Qué hay que crear:</strong> schema, dominio, repository, listeners, endpoint de consulta.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-modulith/reference/events.html">Spring Modulith: eventos</a></li>
+<li>Enunciado: &quot;Historial&quot; y regla 11</li>
+</ul>
+<h3 id="t14--adjuntos--s3-y-s4">T14 · Adjuntos — S3 y S4</h3>
+<p>En esta tarea hay que permitir subir archivos. Hay que crear un servicio de almacenamiento que guarde los archivos en una carpeta del servidor (configurada en el <code>.env</code>) con nombres únicos. Hay que crear las tablas de metadatos de adjuntos (§6.2 y §6.4), y los endpoints para subir (multipart) y descargar adjuntos de un ítem y de una cotización. Reglas: solo PDF o imágenes, hasta 10 MB, y se valida el tipo real del contenido, no solo la extensión.</p>
+<p><strong>Qué hay que crear:</strong> servicio de almacenamiento, schema de adjuntos, endpoints de subida y descarga, validaciones.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://spring.io/guides/gs/uploading-files/">Guía: Uploading Files</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet/multipart.html">Spring MVC: multipart</a></li>
+<li><a href="https://tika.apache.org/">Apache Tika (detectar el tipo real de un archivo)</a></li>
+<li>Enunciado: &quot;Adjuntos&quot;; diseño caso borde 21</li>
+</ul>
+<h3 id="t15--notificaciones-y-recordatorios-con-n8n-módulo-integraciones--s4">T15 · Notificaciones y recordatorios con n8n (módulo <code>integraciones</code>) — S4</h3>
+<p>En esta tarea hay que conectar el sistema con n8n para los avisos. Hay que levantar n8n y un servidor de mail de prueba (Mailpit) en Docker. En el backend, el módulo <code>integraciones</code> escucha <code>SolicitudCreada</code> y <code>SolicitudLista</code> y llama a webhooks de n8n con los datos del aviso. En n8n hay que armar tres workflows: aviso a los Encargados cuando entra una solicitud, mail al solicitante cuando su solicitud está Lista (con el resultado de cada ítem), y un workflow diario que pide al backend los recordatorios pendientes (Alta cada 3 días, Media y Baja cada 3 semanas), manda los mails y avisa al backend que los envió. Los workflows se exportan al repo para que todos los importen.</p>
+<p><strong>Qué hay que crear:</strong> servicios en <code>compose.yaml</code>, cliente de webhooks, endpoints de recordatorios, API key para n8n, 3 workflows exportados.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.n8n.io/">n8n: documentación</a> e <a href="https://docs.n8n.io/deploy/host-n8n/install-options/install-with-docker">instalación con Docker</a></li>
+<li><a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook">n8n: nodo Webhook</a>, <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.scheduletrigger">Schedule Trigger</a>, <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.sendemail">Send Email</a> y <a href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.httprequest">HTTP Request</a></li>
+<li><a href="https://mailpit.axllent.org/docs/">Mailpit</a></li>
+<li><a href="https://docs.spring.io/spring-framework/reference/integration/rest-clients.html">Spring: clientes REST (<code>RestClient</code>)</a></li>
+<li>Diseño §7.5; enunciado &quot;¿Y n8n para qué?&quot; y &quot;Urgencia y recordatorios&quot;</li>
+</ul>
+<h3 id="t16--reportes-módulo-reportes--s4">T16 · Reportes (módulo <code>reportes</code>) — S4</h3>
+<p>En esta tarea hay que armar los reportes de gasto. Hay que crear el <strong>schema</strong> <code>reportes</code> (§6.6) con dos tablas de lectura que el módulo alimenta solo, escuchando eventos: una fila de gasto por cada orden generada y una fila de tiempo de resolución por cada ítem resuelto. El <strong>service</strong> y los endpoints (§7.4) calculan el gasto por sector, categoría o proveedor en un rango de fechas, con pesos y dólares siempre separados, y el tiempo promedio de resolución, general y por urgencia.</p>
+<p><strong>Qué hay que crear:</strong> schema, dominio, repositories con consultas agrupadas, listeners, service y endpoints.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html">Spring Data JPA: consultas con <code>@Query</code></a></li>
+<li>Enunciado: &quot;Reportes&quot;; regla 10</li>
+</ul>
+<hr />
+<h2 id="frontend">Frontend</h2>
+<h3 id="t17--base-del-frontend-login-y-navegación--s1">T17 · Base del frontend, login y navegación — S1</h3>
+<p>En esta tarea hay que armar la estructura del frontend. Hay que instalar React Router y definir las rutas y el layout con un menú que cambia según el rol. Hay que crear un cliente HTTP que agregue el token a cada llamada, redirija al login si el token venció y muestre los errores de la API. Hay que crear la pantalla de login, guardar el usuario logueado en un contexto accesible desde toda la app y proteger las rutas según el rol. También los componentes comunes: tabla paginada, mensaje de error, etiqueta de estado.</p>
+<p><strong>Qué hay que crear:</strong> estructura de carpetas, rutas, layout, cliente HTTP, contexto de usuario, login, rutas protegidas, componentes comunes.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://es.react.dev/learn">React: aprender</a> y <a href="https://es.react.dev/learn/managing-state">manejo de estado</a> (en español)</li>
+<li><a href="https://reactrouter.com/home">React Router</a></li>
+<li><a href="https://developer.mozilla.org/es/docs/Web/API/Fetch_API/Using_Fetch">Fetch API (en español)</a></li>
+<li><a href="https://es.vite.dev/guide/env-and-mode">Vite: variables de entorno (en español)</a></li>
+</ul>
+<h3 id="t18--pantallas-del-solicitante--s2">T18 · Pantallas del Solicitante — S2</h3>
+<p>En esta tarea hay que hacer lo que usa cualquier empleado. Hay que crear el formulario de nueva solicitud, con ítems que se agregan y quitan, autocompletado de categoría (o crear una nueva escribiéndola) y validaciones antes de enviar. Hay que crear la lista de &quot;mis solicitudes&quot; con filtro por estado, y el detalle de una solicitud con el estado de cada ítem, el resultado (a qué proveedor se aprobó o por qué se rechazó) y las acciones permitidas: editar o borrar un ítem Pendiente y cancelar la solicitud.</p>
+<p><strong>Qué hay que crear:</strong> páginas de nueva solicitud, mis solicitudes y detalle; funciones de API de solicitudes y categorías.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://es.react.dev/reference/react-dom/components/form">React: formularios (en español)</a></li>
+<li>Enunciado: &quot;Cómo funciona, con un ejemplo&quot; (pasos 1, 2 y 8)</li>
+</ul>
+<h3 id="t19--pantallas-del-encargado--s3-y-s4">T19 · Pantallas del Encargado — S3 y S4</h3>
+<p>En esta tarea hay que hacer lo que usa el Encargado de compras. Hay que crear la bandeja (lista ordenada, filtros, tomar y reasignar, aviso si otro lo tomó antes), la pantalla de un ítem (sus datos, proveedores sugeridos, alta rápida de proveedor, carga y comparación de cotizaciones, aprobar eligiendo una o rechazar con motivo) y la lista de órdenes para marcarlas como enviadas. En S4, el ABM de proveedores y categorías (promover Nuevas y unificar duplicadas).</p>
+<p><strong>Qué hay que crear:</strong> páginas de bandeja, gestión del ítem, órdenes y catálogo; funciones de API de compras, órdenes y catálogo.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://es.react.dev/learn/managing-state">React: manejo de estado (en español)</a></li>
+<li>Enunciado: &quot;Cómo funciona, con un ejemplo&quot; (pasos 3 a 7)</li>
+</ul>
+<h3 id="t20--administración-reportes-adjuntos-e-historial-en-el-front--s4">T20 · Administración, reportes, adjuntos e historial en el front — S4</h3>
+<p>En esta tarea hay que completar las pantallas restantes: administración de usuarios y sectores, reportes (filtros de fecha, tablas por moneda y un gráfico), subir y descargar adjuntos en ítems y cotizaciones, y ver el historial de cambios en el detalle de una solicitud.</p>
+<p><strong>Qué hay que crear:</strong> páginas de admin y reportes, componentes de adjuntos e historial.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://recharts.github.io/en-US/guide/getting-started/">Recharts (gráficos en React)</a></li>
+<li><a href="https://developer.mozilla.org/es/docs/Web/API/FormData">FormData, para subir archivos (en español)</a></li>
+</ul>
+<hr />
+<h2 id="cierre">Cierre</h2>
+<h3 id="t21--calidad-y-prueba-completa--continuo-y-cierre">T21 · Calidad y prueba completa — continuo y cierre</h3>
+<p>En esta tarea hay que asegurar que todo funcione. Cada subtarea de backend trae sus tests (reglas de dominio y endpoints). Al cierre hay que recorrer el ejemplo de Laura completo desde la interfaz y probar los casos borde de concurrencia.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/testing/spring-boot-applications.html">Spring Boot: testing</a></li>
+<li><a href="https://spring.io/guides/gs/testing-web/">Guía: Testing the Web Layer</a></li>
+</ul>
+<h3 id="t22--documentación-empaquetado-y-demo--cierre">T22 · Documentación, empaquetado y demo — cierre</h3>
+<p>En esta tarea hay que preparar la entrega: actualizar el documento de diseño con las decisiones reales, escribir un README de instalación, empaquetar la app con Docker para la demo, preparar datos de ejemplo y el guion de la presentación, y explicar en el diseño cómo escalaría el sistema y cómo maneja fallas.</p>
+<p><strong>Documentación:</strong></p>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/4.1.1/reference/packaging/container-images/dockerfiles.html">Spring Boot: Dockerfiles</a></li>
+<li><a href="https://es.vite.dev/guide/static-deploy">Vite: build para producción (en español)</a></li>
+</ul>
+
+</body></html>

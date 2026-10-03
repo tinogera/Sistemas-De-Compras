@@ -25,7 +25,15 @@ No hay roles fijos: cualquiera toma cualquier tarea.
    git switch -c feature/T02.1-esqueleto-modulos
    ```
 4. Commits con el ID adelante: `T02.1: agrega paquetes de módulos`.
-5. Al terminar: `git push -u origin <rama>`, abrir un PR a `main` y pedir revisión a otra persona. Cuando se mergea, marcar ✅.
+5. Al terminar, merge directo a `main` (sin PR):
+   ```bash
+   git switch main
+   git pull
+   git merge <rama>
+   ./mvnw test        # desde back/: comprobar que main sigue en verde antes de subir
+   git push
+   ```
+   Cuando está en `main`, marcar ✅.
 
 ## Orden de trabajo
 

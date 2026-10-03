@@ -45,7 +45,7 @@ Si se atrasa un sprint, se recortan primero las subtareas de importancia 1.
 2. Avisar al grupo, poner tu nombre en "Responsable" y el estado en 🟨.
 3. Crear la rama desde `main` actualizado: `feature/T07.4-crear-solicitud`.
 4. Commits con el ID adelante: `T07.4: endpoint para crear solicitud`.
-5. PR a `main` con revisión de otra persona. Al mergear, estado ✅.
+5. Merge directo a `main` (sin PR). En el último commit poner `Closes #<n>` para que GitHub cierre el issue solo. Al mergear, estado ✅.
 
 Una tarea en curso por persona. Si alguien hace el backend de una funcionalidad, conviene que otra persona haga su pantalla, así todos conocen las dos partes.
 

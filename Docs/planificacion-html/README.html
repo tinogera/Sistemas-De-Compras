@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>README</title><style>
+:root { color-scheme: light; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       max-width: 900px; margin: 0 auto; padding: 32px 24px; line-height: 1.55;
+       color: #1f2328; background: #fff; font-size: 15px; }
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; }
+h1 { border-bottom: 2px solid #d0d7de; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .25em; }
+a { color: #0969da; }
+code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: .9em;
+       background: #f2f4f7; padding: .1em .35em; border-radius: 4px; }
+pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; }
+blockquote { margin: 1em 0; padding: .2em 1em; color: #57606a; border-left: 4px solid #d0d7de; }
+hr { border: 0; border-top: 1px solid #d0d7de; margin: 2em 0; }
+.doc + .doc { margin-top: 3em; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 11pt; }
+  .doc + .doc { page-break-before: always; margin-top: 0; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  pre, tr, blockquote { page-break-inside: avoid; }
+  a { color: inherit; }
+}
+</style></head><body>
+<h1 id="planificación-del-proyecto">Planificación del proyecto</h1>
+<p>Fuentes: <code>Docs/enunciado.md</code> (qué hay que hacer) y <code>Docs/diseno-del-sistema.md</code> (cómo está diseñado).</p>
+<h2 id="los-tres-niveles">Los tres niveles</h2>
+<table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Archivo</th>
+<th>Qué tiene</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 — Tareas generales</strong></td>
+<td><code>01-tareas-generales.md</code></td>
+<td>Las 22 tareas grandes del proyecto (T01 a T22). Cada una explica en texto qué hay que configurar y crear (dominio, repository, service, endpoints, schema, pantallas), sin código, y con links a la documentación.</td>
+</tr>
+<tr>
+<td><strong>2 — Tareas específicas</strong></td>
+<td><code>02-tareas-especificas.md</code></td>
+<td>Cada tarea general dividida en subtareas (T07.1, T07.2...). Detalla qué campos lleva cada entidad, qué métodos cada repository, qué endpoints tiene que cumplir el service, qué reglas del enunciado aplica y dónde está la documentación.</td>
+</tr>
+<tr>
+<td><strong>3 — Área, dificultad y fechas</strong></td>
+<td><code>03-area-dificultad-fechas.md</code></td>
+<td>Tabla de todas las subtareas con su área (Back, Front, Infra, n8n, Docs), dificultad, importancia, peso, fecha límite, dependencias, responsable y estado. Es el tablero para seguir el avance.</td>
+</tr>
+<tr>
+<td>Anexos</td>
+<td><code>guias/</code></td>
+<td>Guías paso a paso con código ya probado. Hoy: <code>guias/sprint-0-paso-a-paso.md</code> (T01 y T02).</td>
+</tr>
+</tbody>
+</table>
+<p>Para trabajar: elegir una subtarea en el Nivel 3, leer su detalle en el Nivel 2, y si hace falta contexto leer la tarea general en el Nivel 1.</p>
+<h2 id="calendario">Calendario</h2>
+<ul>
+<li><strong>Equipo:</strong> 2 o 3 personas. No hay roles fijos: todos trabajan en backend, frontend e infraestructura.</li>
+<li><strong>Entrega final:</strong> principios de diciembre. Se planifica para el <strong>viernes 4/12/2026</strong>. ⚠️ Confirmar con la cátedra.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Sprint</th>
+<th>Fechas</th>
+<th>Mitad de sprint</th>
+<th>Qué tiene que funcionar al final</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S0</strong> — Fundamentos</td>
+<td>28/09 → 04/10</td>
+<td>—</td>
+<td>Todos corren back, front y tests en su máquina</td>
+</tr>
+<tr>
+<td><strong>S1</strong> — Base del dominio</td>
+<td>05/10 → 18/10</td>
+<td>11/10</td>
+<td>Un solicitante se loguea y crea una solicitud desde la API</td>
+</tr>
+<tr>
+<td><strong>S2</strong> — Circuito de Compras</td>
+<td>19/10 → 01/11</td>
+<td>25/10</td>
+<td>El backend funciona hasta aprobar o rechazar un ítem; el solicitante tiene sus pantallas</td>
+</tr>
+<tr>
+<td><strong>S3</strong> — Órdenes y cierre del flujo</td>
+<td>02/11 → 15/11</td>
+<td>08/11</td>
+<td>El ejemplo de Laura funciona de punta a punta desde la interfaz</td>
+</tr>
+<tr>
+<td><strong>S4</strong> — Avisos y reportes</td>
+<td>16/11 → 29/11</td>
+<td>22/11</td>
+<td>Todo terminado (feature freeze)</td>
+</tr>
+<tr>
+<td><strong>Cierre</strong></td>
+<td>30/11 → 04/12</td>
+<td>—</td>
+<td>Pruebas completas, documentación y demo</td>
+</tr>
+</tbody>
+</table>
+<p>Las subtareas que bloquean a otras (entidades, schemas, cliente del front) vencen a <strong>mitad de sprint</strong>; el resto, al final.</p>
+<h2 id="alcance">Alcance</h2>
+<table>
+<thead>
+<tr>
+<th>Se implementa</th>
+<th>Se simplifica</th>
+<th>Solo se documenta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Todo el flujo del enunciado: solicitud → bandeja → cotización → aprobación/rechazo → orden → aviso</td>
+<td><strong>Outbox manual</strong> → registro de eventos de Spring Modulith (<code>event_publication</code>), que cumple la misma función</td>
+<td>Escalado (§8 del diseño)</td>
+</tr>
+<tr>
+<td>Login con roles (Solicitante, Encargado, Admin)</td>
+<td><strong>Adjuntos</strong> → carpeta en el servidor con subida directa, en vez de S3 con URL prefirmada</td>
+<td>Failover, backups, deploy gradual (§9)</td>
+</tr>
+<tr>
+<td>Catálogo, auditoría, reportes, avisos con n8n</td>
+<td><strong>n8n</strong> → corre local en Docker con un servidor de mail de prueba (Mailpit)</td>
+<td>Prometheus/Grafana, ShedLock</td>
+</tr>
+</tbody>
+</table>
+<p>Si se atrasa un sprint, se recortan primero las subtareas de importancia 1.</p>
+<h2 id="cómo-tomar-una-tarea">Cómo tomar una tarea</h2>
+<ol>
+<li>Elegir una subtarea en <code>03-area-dificultad-fechas.md</code> que no tenga responsable y cuyas dependencias estén terminadas. Conviene empezar por las de peso alto.</li>
+<li>Avisar al grupo, poner tu nombre en &quot;Responsable&quot; y el estado en 🟨.</li>
+<li>Crear la rama desde <code>main</code> actualizado: <code>feature/T07.4-crear-solicitud</code>.</li>
+<li>Commits con el ID adelante: <code>T07.4: endpoint para crear solicitud</code>.</li>
+<li>Merge directo a <code>main</code> (sin PR). En el último commit poner <code>Closes #&lt;n&gt;</code> para que GitHub cierre el issue solo. Al mergear, estado ✅.</li>
+</ol>
+<p>Una tarea en curso por persona. Si alguien hace el backend de una funcionalidad, conviene que otra persona haga su pantalla, así todos conocen las dos partes.</p>
+<h2 id="convenciones-de-código-valen-para-todas-las-tareas">Convenciones de código (valen para todas las tareas)</h2>
+<h3 id="backend-estructura-de-cada-módulo">Backend: estructura de cada módulo</h3>
+<p>Cada módulo es un paquete dentro de <code>back/src/main/java/com/Sistem/Solicitude_Compra/</code>:</p>
+<pre><code>&lt;modulo&gt;/
+├── package-info.java      declara el módulo para Spring Modulith
+├── &lt;Evento&gt;.java          eventos que publica el módulo (públicos: otros módulos los escuchan)
+├── &lt;Modulo&gt;Api.java       métodos que otros módulos pueden llamar (si hace falta)
+├── dominio/               entidades JPA y enums
+├── repositorio/           interfaces Spring Data JPA
+├── servicio/              lógica de negocio y reglas; publica eventos
+└── web/                   controllers REST y DTOs (records de entrada y salida)
+</code></pre>
+<ul>
+<li>Solo lo que está en la raíz del paquete es visible para otros módulos. <code>dominio</code>, <code>repositorio</code>, <code>servicio</code> y <code>web</code> son internos, y <code>ModularityTests</code> falla si otro módulo los usa.</li>
+<li>Los módulos se comunican con <strong>eventos</strong> (<code>@ApplicationModuleListener</code>), no llamándose entre sí. La excepción son las consultas simples a otro módulo, a través de su <code>&lt;Modulo&gt;Api</code>.</li>
+<li>Las entidades nunca salen por la API: los controllers devuelven DTOs.</li>
+<li>Los endpoints van bajo <code>/api/v1/...</code> (diseño §7).</li>
+</ul>
+<h3 id="backend-migraciones-flyway">Backend: migraciones Flyway</h3>
+<ul>
+<li>Van en <code>back/src/main/resources/db/migration/</code>. Cada tabla nueva se crea con una migración.</li>
+<li>Para que dos personas no usen el mismo número de versión, el nombre lleva la fecha: <code>V20261005_1__auth_tablas.sql</code> (año, mes, día, número del día).</li>
+<li>Una migración ya mergeada <strong>nunca se edita</strong>. Si hay que cambiar algo, se hace una nueva.</li>
+</ul>
+<h3 id="frontend-estructura">Frontend: estructura</h3>
+<p>Dentro de <code>frontend/src/</code>:</p>
+<pre><code>api/          cliente HTTP y una función por endpoint (solicitudes.js, compras.js...)
+auth/         contexto de usuario, login y rutas protegidas
+components/   componentes reutilizables (tabla paginada, mensajes de error, badges de estado)
+pages/        una carpeta por área: solicitante/, encargado/, admin/, reportes/
+</code></pre>
+<ul>
+<li>Siempre se llama a rutas relativas <code>/api/v1/...</code>: el proxy de Vite las manda al backend.</li>
+</ul>
+<h2 id="ciclo-de-refinamiento-al-cierre-de-cada-sprint">Ciclo de refinamiento (al cierre de cada sprint)</h2>
+<ol>
+<li>Actualizar estados en <code>03-area-dificultad-fechas.md</code> y <code>Claude/contexto/estado.md</code>.</li>
+<li>Pasar lo no terminado al sprint siguiente. Si no entra, recortar lo de importancia 1.</li>
+<li>Releer en el enunciado y el diseño las secciones que usa el próximo sprint. Si aparecen subtareas nuevas o una resulta más grande, agregarla o dividirla en los niveles 2 y 3.</li>
+<li>Si conviene, escribir una guía paso a paso con código probado en <code>guias/</code> para las subtareas difíciles del próximo sprint.</li>
+</ol>
+
+</body></html>

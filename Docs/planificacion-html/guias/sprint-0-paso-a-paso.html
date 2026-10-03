@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>sprint-0-paso-a-paso</title><style>
+:root { color-scheme: light; }
+body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+       max-width: 900px; margin: 0 auto; padding: 32px 24px; line-height: 1.55;
+       color: #1f2328; background: #fff; font-size: 15px; }
+h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; }
+h1 { border-bottom: 2px solid #d0d7de; padding-bottom: .3em; }
+h2 { border-bottom: 1px solid #d0d7de; padding-bottom: .25em; }
+a { color: #0969da; }
+code { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: .9em;
+       background: #f2f4f7; padding: .1em .35em; border-radius: 4px; }
+pre { background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px;
+      padding: 12px 14px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .92em; }
+th, td { border: 1px solid #d0d7de; padding: 6px 10px; text-align: left; vertical-align: top; }
+th { background: #f6f8fa; }
+blockquote { margin: 1em 0; padding: .2em 1em; color: #57606a; border-left: 4px solid #d0d7de; }
+hr { border: 0; border-top: 1px solid #d0d7de; margin: 2em 0; }
+.doc + .doc { margin-top: 3em; }
+@media print {
+  body { max-width: none; padding: 0; font-size: 11pt; }
+  .doc + .doc { page-break-before: always; margin-top: 0; }
+  h1, h2, h3, h4 { page-break-after: avoid; }
+  pre, tr, blockquote { page-break-inside: avoid; }
+  a { color: inherit; }
+}
+</style></head><body>
+<h1 id="guía-paso-a-paso--sprint-0-tareas-t01-y-t02">Guía paso a paso — Sprint 0 (tareas T01 y T02)</h1>
+<p>Anexo con el código probado de las subtareas T01.1 a T02.3. Las tareas y sus fechas están en <code>../02-tareas-especificas.md</code> y <code>../03-area-dificultad-fechas.md</code>.</p>
+<p><strong>Fechas:</strong> lunes 28/09 → domingo 04/10/2026
+<strong>Objetivo:</strong> que todo el equipo pueda correr el back, el front y los tests en su máquina, y que exista el esqueleto de módulos sobre el que se construye el resto.
+<strong>Hito H0:</strong> cualquier integrante clona el repo, completa sus <code>.env</code>, y <code>./mvnw test</code> y <code>npm run dev</code> funcionan.</p>
+<p>Es un sprint liviano a propósito: también es la semana para que todos lean <code>Docs/enunciado.md</code> y la sección de Spring Modulith de <code>Docs/guia/README.md</code>.</p>
+<blockquote>
+<p>Todo lo que está en este archivo se probó el 27/09 en una copia del proyecto: con estos pasos, los 3 tests pasan y Modulith detecta los 8 módulos.</p>
+</blockquote>
+<hr />
+<h2 id="cómo-tomar-una-tarea">Cómo tomar una tarea</h2>
+<p>No hay roles fijos: cualquiera toma cualquier tarea.</p>
+<ol>
+<li>Elegir una tarea sin responsable cuyas dependencias estén terminadas (columna &quot;Depende de&quot; en <code>../03-area-dificultad-fechas.md</code>).</li>
+<li>Avisar al grupo y anotarse como responsable en <code>../03-area-dificultad-fechas.md</code> (estado 🟨).</li>
+<li>Crear la rama desde <code>main</code> actualizado:<pre><code class="language-bash">git switch main
+git pull
+git switch -c feature/T02.1-esqueleto-modulos
+</code></pre>
+</li>
+<li>Commits con el ID adelante: <code>T02.1: agrega paquetes de módulos</code>.</li>
+<li>Al terminar, merge directo a <code>main</code> (sin PR):
+<pre><code>git switch main
+git pull
+git merge &lt;rama&gt;
+./mvnw test        # desde back/: comprobar que main sigue en verde antes de subir
+git push
+</code></pre>
+Cuando está en <code>main</code>, marcar ✅.</li>
+</ol>
+<h2 id="orden-de-trabajo">Orden de trabajo</h2>
+<pre><code>Día 1-2   T01.1-2 (limpieza)   T01.3 (base de datos)      T02.1 (esqueleto de módulos)
+             │                      │                            │
+Día 2-4      │                  T02.2 (migraciones Flyway) ◄────┘
+             │                      │
+Día 3-5      │                  T02.3 (tests con Testcontainers)
+             ▼                      ▼
+Día 6-7   Verificar H0 en la máquina de cada integrante
+</code></pre>
+<p>T01.1-T01.2, T01.3 y T02.1 no dependen entre sí: pueden hacerlas tres personas distintas a la vez.
+T02.2 y T02.3 tocan archivos distintos, pero T02.3 necesita las migraciones de T02.2 para que el test de contexto pase. Si las hace la misma persona, mejor.</p>
+<hr />
+<h2 id="t011-y-t012--limpieza-del-repo-plantilla-de-pr-y-protección-de-main">T01.1 y T01.2 · Limpieza del repo, plantilla de PR y protección de <code>main</code></h2>
+<p><strong>Área: repo/Git · Depende de: nada</strong></p>
+<h3 id="qué-hay-que-hacer-y-por-qué">Qué hay que hacer y por qué</h3>
+<p>El repo tiene archivos que no deberían estar versionados, y un <code>.gitignore</code> con reglas equivocadas:</p>
+<table>
+<thead>
+<tr>
+<th>Qué</th>
+<th>Por qué sacarlo o cambiarlo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.idea/</code> (5 archivos)</td>
+<td>Configuración personal de IntelliJ. Cada uno tiene la suya y genera conflictos en los PR. Ya está en <code>.gitignore</code>, pero se subió antes de ignorarla.</td>
+</tr>
+<tr>
+<td><code>HELP.md</code></td>
+<td>Archivo autogenerado por Spring Initializr. Sus links ya están en <code>Docs/guia/README.md</code>.</td>
+</tr>
+<tr>
+<td><code>back/resources/</code></td>
+<td>Carpeta creada por error fuera del árbol de Maven. Maven solo lee <code>back/src/main/resources/</code>, así que nada de lo que hay acá se usa. Tiene <code>aplication.properties</code> vacío (mal escrito) y una carpeta <code>db/migration/</code> vacía.</td>
+</tr>
+<tr>
+<td>Líneas <code>mvnw</code> y <code>mvnw.cmd</code> en <code>.gitignore</code></td>
+<td>El wrapper de Maven <strong>tiene</strong> que estar en el repo, porque es lo que usa cada integrante para compilar sin instalar Maven. Hoy está subido, pero la regla confunde.</td>
+</tr>
+<tr>
+<td>Línea <code>.gitignore</code> dentro de <code>.gitignore</code></td>
+<td>El archivo se ignora a sí mismo. No tiene efecto porque ya está subido, pero es un error.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pasos">Pasos</h3>
+<ol>
+<li>Crear la rama:<pre><code class="language-bash">git switch main &amp;&amp; git pull
+git switch -c feature/T01.1-limpieza-repo
+</code></pre>
+</li>
+<li>Sacar <code>.idea/</code> del repo <strong>sin borrarla del disco</strong> (IntelliJ la sigue usando):<pre><code class="language-bash">git rm -r --cached .idea
+</code></pre>
+</li>
+<li>Borrar <code>HELP.md</code> y la carpeta sobrante:<pre><code class="language-bash">git rm HELP.md
+git rm -r back/resources
+rm -rf back/resources          # borra también las carpetas vacías que git no seguía
+</code></pre>
+</li>
+<li>Editar <code>.gitignore</code> en la raíz del repo:
+<ul>
+<li>Borrar las líneas <code>mvnw</code>, <code>mvnw.cmd</code> y <code>.gitignore</code>.</li>
+<li>Dejar el resto como está (<code>back/target/</code>, <code>frontend/node_modules/</code>, <code>frontend/dist</code>, <code>.idea/</code>, <code>*.iml</code>, <code>.env</code>, <code>CLAUDE.md</code>, <code>Claude/</code>).</li>
+</ul>
+</li>
+<li>Crear la plantilla de PR en <code>.github/pull_request_template.md</code> (carpeta nueva en la raíz):<pre><code class="language-markdown">## Tarea
+ID: &lt;!-- por ejemplo SOL-02 --&gt;
+
+## Qué cambia
+&lt;!-- qué se hizo y en qué archivos --&gt;
+
+## Cómo probarlo
+&lt;!-- comandos o pasos para verificarlo --&gt;
+
+## Checklist
+- [ ] `./mvnw test` pasa (desde `back/`)
+- [ ] `npm run lint` pasa (desde `frontend/`), si se tocó el front
+- [ ] No hay credenciales en el código
+</code></pre>
+</li>
+<li>Commit y push:<pre><code class="language-bash">git add -A
+git commit -m &quot;T01.1: limpieza del repo y plantilla de PR&quot;
+git push -u origin feature/T01.1-limpieza-repo
+</code></pre>
+</li>
+<li>Abrir el PR en GitHub y que lo revise otra persona.</li>
+<li>Proteger <code>main</code> en GitHub (solo el dueño del repo, <strong>tinogera</strong>, puede hacerlo): Settings → Branches → Add branch ruleset:
+<ul>
+<li>Target: rama <code>main</code>.</li>
+<li>Activar &quot;Require a pull request before merging&quot;, con 1 aprobación requerida.</li>
+<li>Activar &quot;Block force pushes&quot;.</li>
+</ul>
+</li>
+<li>Agregar a los integrantes como colaboradores del repo (Settings → Collaborators) si todavía no lo son.</li>
+</ol>
+<h3 id="cómo-verificar">Cómo verificar</h3>
+<ul>
+<li><code>git ls-files | grep -E &quot;^(\.idea|HELP.md|back/resources)&quot;</code> no devuelve nada.</li>
+<li>Intentar hacer <code>git push</code> directo a <code>main</code> es rechazado.</li>
+</ul>
+<h3 id="listo-cuando">Listo cuando</h3>
+<p>El repo solo tiene <code>back/</code>, <code>frontend/</code>, <code>Docs/</code>, <code>.github/</code>, <code>.gitignore</code>, el PR está mergeado y <code>main</code> está protegida.</p>
+<hr />
+<h2 id="t013-y-t014--base-de-datos-y-versión-de-postgres">T01.3 y T01.4 · Base de datos y versión de Postgres</h2>
+<p><strong>Área: infraestructura · Depende de: nada</strong></p>
+<h3 id="qué-hay-que-hacer-y-por-qué-1">Qué hay que hacer y por qué</h3>
+<p>Hoy la app arranca con el Postgres de Docker que levanta Spring solo (<code>back/compose.yaml</code>) y con la contraseña de prueba <code>secret</code>. Hay que decidir qué base usa el equipo en desarrollo y dejarla configurada.</p>
+<h3 id="opción-a--postgres-con-docker-compose-recomendada">Opción A — Postgres con Docker Compose (recomendada)</h3>
+<p>Es lo que ya está armado. Cada integrante tiene su propia base descartable y no hay que instalar nada salvo Docker.</p>
+<ol>
+<li>Editar <code>back/.env</code> (no se sube a git) y poner valores propios:<pre><code class="language-properties">POSTGRES_DB=solicitudes_compra
+POSTGRES_USER=compras_app
+POSTGRES_PASSWORD=&lt;una contraseña propia&gt;
+</code></pre>
+</li>
+<li>Desde <code>back/</code>, arrancar la app:<pre><code class="language-bash">./mvnw spring-boot:run
+</code></pre>
+Spring lee <code>compose.yaml</code>, levanta el contenedor de Postgres con los datos del <code>.env</code> y se conecta solo.</li>
+<li>En el log tiene que aparecer <code>Started SolicitudeCompraApplication</code>.</li>
+<li>Recomendado: fijar la versión de Postgres en <code>back/compose.yaml</code>, cambiando <code>postgres:latest</code> por <code>postgres:17</code>, para que todos usen la misma y no cambie sola.</li>
+</ol>
+<blockquote>
+<p>Si ya habías arrancado la app antes con otra contraseña, Postgres conserva los datos viejos del contenedor. Borrarlo con <code>docker compose down -v</code> desde <code>back/</code> y volver a arrancar.</p>
+</blockquote>
+<h3 id="opción-b--postgres-instalado-en-la-máquina-o-en-la-nube">Opción B — Postgres instalado en la máquina o en la nube</h3>
+<ol>
+<li>Crear el usuario y la base (ejemplo en Fedora con Postgres instalado):<pre><code class="language-bash">sudo -u postgres createuser --pwprompt compras_app
+sudo -u postgres createdb --owner=compras_app solicitudes_compra
+</code></pre>
+</li>
+<li>Completar <code>back/.env</code> con esos datos, más la ubicación de la base:<pre><code class="language-properties">POSTGRES_DB=solicitudes_compra
+POSTGRES_USER=compras_app
+POSTGRES_PASSWORD=&lt;la contraseña elegida&gt;
+DB_HOST=localhost
+DB_PORT=5432
+USAR_DOCKER_COMPOSE=false
+</code></pre>
+</li>
+<li>Para que Spring no levante el Docker, agregar esta línea en <code>back/src/main/resources/application.properties</code>:<pre><code class="language-properties">spring.docker.compose.enabled=${USAR_DOCKER_COMPOSE:true}
+</code></pre>
+Así, quien tenga <code>USAR_DOCKER_COMPOSE=false</code> en su <code>.env</code> usa su base propia, y el resto sigue con Docker.</li>
+<li>Agregar <code>DB_HOST=</code>, <code>DB_PORT=</code> y <code>USAR_DOCKER_COMPOSE=</code> vacíos en <code>back/.env.example</code>, para que se sepa que existen.</li>
+<li>Arrancar la app con <code>./mvnw spring-boot:run</code> desde <code>back/</code> y verificar el log.</li>
+</ol>
+<h3 id="para-los-dos-casos">Para los dos casos</h3>
+<ul>
+<li>Pasarle a cada integrante los valores de su <code>.env</code> por un canal privado (nunca por el repo ni por un issue).</li>
+<li>Anotar en <code>Claude/contexto/estado.md</code> qué opción se eligió.</li>
+</ul>
+<h3 id="listo-cuando-1">Listo cuando</h3>
+<p>La app arranca contra la base elegida en la máquina de al menos dos integrantes.</p>
+<hr />
+<h2 id="t021--esqueleto-de-módulos">T02.1 · Esqueleto de módulos</h2>
+<p><strong>Área: backend · Depende de: nada</strong></p>
+<h3 id="qué-hay-que-hacer-y-por-qué-2">Qué hay que hacer y por qué</h3>
+<p>Spring Modulith trata cada <strong>subpaquete directo</strong> de <code>com.Sistem.Solicitude_Compra</code> como un módulo, y controla que los módulos no se usen entre sí por dentro. Hay que crear los 8 paquetes ahora, aunque estén vacíos, para que todo el código nuevo tenga dónde ir y para que un test avise si alguien rompe las reglas.</p>
+<p>Los módulos salen de la tabla &quot;Los módulos&quot; del enunciado, más <code>auth</code> (usuarios y login) y <code>auditoria</code> (historial), que están en el diseño:</p>
+<table>
+<thead>
+<tr>
+<th>Paquete</th>
+<th>Nombre visible</th>
+<th>Qué va a tener</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>auth</code></td>
+<td>Auth</td>
+<td>Usuarios, sectores, roles, login</td>
+</tr>
+<tr>
+<td><code>catalogo</code></td>
+<td>Catálogo</td>
+<td>Proveedores, categorías</td>
+</tr>
+<tr>
+<td><code>solicitudes</code></td>
+<td>Solicitudes</td>
+<td>Solicitudes e ítems</td>
+</tr>
+<tr>
+<td><code>compras</code></td>
+<td>Compras</td>
+<td>Bandeja, cotizaciones, aprobar y rechazar</td>
+</tr>
+<tr>
+<td><code>ordenes</code></td>
+<td>Órdenes</td>
+<td>Órdenes de pedido</td>
+</tr>
+<tr>
+<td><code>reportes</code></td>
+<td>Reportes</td>
+<td>Gasto y tiempos de resolución</td>
+</tr>
+<tr>
+<td><code>integraciones</code></td>
+<td>Integraciones</td>
+<td>Conexión con n8n</td>
+</tr>
+<tr>
+<td><code>auditoria</code></td>
+<td>Auditoría</td>
+<td>Historial de cambios</td>
+</tr>
+</tbody>
+</table>
+<h3 id="archivos-a-crear">Archivos a crear</h3>
+<p>Todos dentro de <code>back/src/main/java/com/Sistem/Solicitude_Compra/</code>.</p>
+<p><strong>1. Un <code>package-info.java</code> por módulo</strong> (8 archivos). Por ejemplo, <code>back/src/main/java/com/Sistem/Solicitude_Compra/solicitudes/package-info.java</code>:</p>
+<pre><code class="language-java">@org.springframework.modulith.ApplicationModule(displayName = &quot;Solicitudes&quot;)
+package com.Sistem.Solicitude_Compra.solicitudes;
+</code></pre>
+<p>Repetir para cada paquete de la tabla, cambiando el nombre del paquete y el <code>displayName</code>. La anotación hace que Modulith reconozca el módulo aunque todavía no tenga clases.</p>
+<p><strong>2. El test de arquitectura</strong> en <code>back/src/test/java/com/Sistem/Solicitude_Compra/ModularityTests.java</code>:</p>
+<pre><code class="language-java">package com.Sistem.Solicitude_Compra;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.modulith.core.ApplicationModules;
+import org.springframework.modulith.docs.Documenter;
+
+class ModularityTests {
+
+	ApplicationModules modules = ApplicationModules.of(SolicitudeCompraApplication.class);
+
+	@Test
+	void verificaLaEstructuraDeModulos() {
+		modules.forEach(System.out::println);
+		modules.verify();
+	}
+
+	@Test
+	void generaLaDocumentacionDeModulos() {
+		new Documenter(modules).writeDocumentation();
+	}
+}
+</code></pre>
+<ul>
+<li><code>verify()</code> falla si un módulo usa clases internas de otro, o si hay dependencias circulares entre módulos.</li>
+<li><code>Documenter</code> genera diagramas de los módulos en <code>back/target/spring-modulith-docs/</code> (archivos <code>.puml</code> y <code>.adoc</code>). Se pueden ver con el plugin PlantUML de IntelliJ.</li>
+<li>No hace falta agregar dependencias: <code>spring-modulith-starter-test</code>, que ya está en el <code>pom.xml</code>, incluye todo.</li>
+</ul>
+<h3 id="cómo-probar">Cómo probar</h3>
+<p>Desde <code>back/</code>:</p>
+<pre><code class="language-bash">./mvnw test -Dtest=ModularityTests
+</code></pre>
+<p>Este test no necesita base de datos. En la salida aparece un bloque por módulo (<code># Auditoría</code>, <code># Auth</code>, <code># Catálogo</code>, ...).</p>
+<h3 id="listo-cuando-2">Listo cuando</h3>
+<p><code>ModularityTests</code> pasa y la salida lista los 8 módulos.</p>
+<h3 id="regla-para-todo-el-proyecto">Regla para todo el proyecto</h3>
+<p>A partir de acá, cada clase nueva va dentro del paquete de su módulo. Lo que otro módulo puede usar va en la raíz del paquete (por ejemplo <code>solicitudes/SolicitudCreada.java</code>); lo interno va en subpaquetes (por ejemplo <code>solicitudes/internal/</code>). <code>ModularityTests</code> avisa si alguien lo rompe.</p>
+<hr />
+<h2 id="t022--migraciones-flyway-iniciales">T02.2 · Migraciones Flyway iniciales</h2>
+<p><strong>Área: backend / base de datos · Depende de: T01.3</strong></p>
+<h3 id="qué-hay-que-hacer-y-por-qué-3">Qué hay que hacer y por qué</h3>
+<ol>
+<li>El diseño (§6) usa <strong>un schema de PostgreSQL por módulo</strong>. Hay que crearlos.</li>
+<li>Spring Modulith guarda los eventos entre módulos en una tabla <code>event_publication</code>, que hoy no existe. Por eso al cerrar la app aparece <code>relation &quot;event_publication&quot; does not exist</code>, y cuando se publique el primer evento va a fallar.</li>
+<li>Hay que impedir que Hibernate cree o modifique tablas por su cuenta: todas las tablas se crean con migraciones de Flyway, versionadas en el repo.</li>
+</ol>
+<p>Flyway corre solo al arrancar la app: busca los archivos en <code>back/src/main/resources/db/migration/</code> y aplica, en orden, los que todavía no se aplicaron. Anota cuáles aplicó en la tabla <code>flyway_schema_history</code>.</p>
+<p><strong>Regla de oro:</strong> una migración ya mergeada <strong>nunca se edita</strong>. Si hay que cambiar algo, se crea una nueva (<code>V3__...</code>). Si se edita una vieja, Flyway detecta que cambió y la app no arranca en las máquinas de los demás.</p>
+<h3 id="archivos-a-crear-o-modificar">Archivos a crear o modificar</h3>
+<p><strong>1. <code>back/src/main/resources/db/migration/V1__schemas_iniciales.sql</code></strong> (la carpeta <code>db/migration</code> ya existe, vacía):</p>
+<pre><code class="language-sql">CREATE SCHEMA IF NOT EXISTS auth;
+CREATE SCHEMA IF NOT EXISTS catalogo;
+CREATE SCHEMA IF NOT EXISTS solicitudes;
+CREATE SCHEMA IF NOT EXISTS compras;
+CREATE SCHEMA IF NOT EXISTS ordenes;
+CREATE SCHEMA IF NOT EXISTS reportes;
+CREATE SCHEMA IF NOT EXISTS auditoria;
+</code></pre>
+<p><code>integraciones</code> no tiene schema porque no guarda datos propios.</p>
+<p><strong>2. <code>back/src/main/resources/db/migration/V2__event_publication.sql</code></strong>. Es el SQL oficial para PostgreSQL de la <a href="https://docs.spring.io/spring-modulith/reference/appendix.html#schemas.postgresql">documentación de Spring Modulith</a> (&quot;Standard schema&quot;):</p>
+<pre><code class="language-sql">CREATE TABLE IF NOT EXISTS event_publication
+(
+  id                     UUID NOT NULL,
+  listener_id            TEXT NOT NULL,
+  event_type             TEXT NOT NULL,
+  serialized_event       TEXT NOT NULL,
+  publication_date       TIMESTAMP WITH TIME ZONE NOT NULL,
+  completion_date        TIMESTAMP WITH TIME ZONE,
+  status                 TEXT,
+  completion_attempts    INT,
+  last_resubmission_date TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY (id)
+);
+CREATE INDEX IF NOT EXISTS event_publication_serialized_event_hash_idx ON event_publication USING hash(serialized_event);
+CREATE INDEX IF NOT EXISTS event_publication_by_completion_date_idx ON event_publication (completion_date);
+</code></pre>
+<p>La tabla va en el schema <code>public</code> porque así la busca Modulith.</p>
+<p><strong>3. <code>back/src/main/resources/application.properties</code></strong>: agregar al final:</p>
+<pre><code class="language-properties"># Las tablas solo las crea Flyway. Hibernate solo verifica que las entidades coincidan con la base.
+spring.jpa.hibernate.ddl-auto=validate
+</code></pre>
+<p>Con <code>validate</code>, si alguien crea una entidad JPA y se olvida de la migración, la app no arranca y el error dice qué tabla o columna falta. Es mejor enterarse ahí que en producción.</p>
+<h3 id="cómo-probar-1">Cómo probar</h3>
+<ol>
+<li>Desde <code>back/</code>: <code>./mvnw spring-boot:run</code>.</li>
+<li>En el log tienen que aparecer líneas de Flyway como <code>Migrating schema &quot;public&quot; to version &quot;1 - schemas iniciales&quot;</code> y <code>&quot;2 - event publication&quot;</code>, y después <code>Started SolicitudeCompraApplication</code>.</li>
+<li>Cortar la app con Ctrl+C: ya no aparece el error de <code>event_publication</code>.</li>
+<li>Opcional, para ver la base por dentro: con el contenedor corriendo, <code>docker exec -it &lt;nombre-del-contenedor&gt; psql -U &lt;POSTGRES_USER&gt; -d &lt;POSTGRES_DB&gt;</code> y dentro <code>\dn</code> (lista los schemas) y <code>\dt</code> (lista las tablas de <code>public</code>). El nombre del contenedor sale de <code>docker ps</code>.</li>
+</ol>
+<h3 id="listo-cuando-3">Listo cuando</h3>
+<p>La app arranca y se cierra sin errores, y <code>flyway_schema_history</code> tiene las versiones 1 y 2.</p>
+<hr />
+<h2 id="t023--tests-con-base-de-datos-testcontainers">T02.3 · Tests con base de datos (Testcontainers)</h2>
+<p><strong>Área: backend / tests · Depende de: T02.2 (el test de contexto necesita las migraciones)</strong></p>
+<h3 id="qué-hay-que-hacer-y-por-qué-4">Qué hay que hacer y por qué</h3>
+<p><code>./mvnw test</code> falla con <code>Failed to determine a suitable driver class</code>. El test <code>SolicitudeCompraApplicationTests</code> levanta toda la app, y en los tests Spring <strong>no</strong> levanta el Postgres de <code>compose.yaml</code>, así que no hay base.</p>
+<p>La solución es <strong>Testcontainers</strong>: al correr los tests, levanta un Postgres descartable en Docker, la app se conecta sola (gracias a <code>@ServiceConnection</code>), Flyway aplica las migraciones, y al terminar el contenedor se borra. No depende del <code>.env</code> de nadie, así que funciona igual en todas las máquinas y en GitHub Actions.</p>
+<p>Requisito: Docker instalado y corriendo.</p>
+<h3 id="archivos-a-crear-o-modificar-1">Archivos a crear o modificar</h3>
+<p><strong>1. <code>back/pom.xml</code></strong>: agregar estas tres dependencias dentro de <code>&lt;dependencies&gt;</code>, al final, junto a las otras de <code>&lt;scope&gt;test&lt;/scope&gt;</code>. No llevan <code>&lt;version&gt;</code> porque Spring Boot 4.1.1 ya las define (Testcontainers 2.0.5):</p>
+<pre><code class="language-xml">		&lt;dependency&gt;
+			&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+			&lt;artifactId&gt;spring-boot-testcontainers&lt;/artifactId&gt;
+			&lt;scope&gt;test&lt;/scope&gt;
+		&lt;/dependency&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.testcontainers&lt;/groupId&gt;
+			&lt;artifactId&gt;testcontainers-junit-jupiter&lt;/artifactId&gt;
+			&lt;scope&gt;test&lt;/scope&gt;
+		&lt;/dependency&gt;
+		&lt;dependency&gt;
+			&lt;groupId&gt;org.testcontainers&lt;/groupId&gt;
+			&lt;artifactId&gt;testcontainers-postgresql&lt;/artifactId&gt;
+			&lt;scope&gt;test&lt;/scope&gt;
+		&lt;/dependency&gt;
+</code></pre>
+<blockquote>
+<p>Ojo con los ejemplos de internet: en Testcontainers 2.x los artefactos cambiaron de nombre (<code>testcontainers-postgresql</code>, no <code>postgresql</code>) y la clase está en <code>org.testcontainers.postgresql</code>, no en <code>org.testcontainers.containers</code>.</p>
+</blockquote>
+<p><strong>2. Crear <code>back/src/test/java/com/Sistem/Solicitude_Compra/TestcontainersConfiguration.java</code></strong>:</p>
+<pre><code class="language-java">package com.Sistem.Solicitude_Compra;
+
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
+
+@TestConfiguration(proxyBeanMethods = false)
+public class TestcontainersConfiguration {
+
+	@Bean
+	@ServiceConnection
+	PostgreSQLContainer postgresContainer() {
+		return new PostgreSQLContainer(DockerImageName.parse(&quot;postgres:latest&quot;));
+	}
+}
+</code></pre>
+<p>Si en T01.4 se fijó una versión de Postgres (por ejemplo <code>postgres:17</code>), usar la misma acá.</p>
+<p><strong>3. Modificar <code>back/src/test/java/com/Sistem/Solicitude_Compra/SolicitudeCompraApplicationTests.java</code></strong> para que use esa configuración. Agregar el import y la anotación <code>@Import</code>:</p>
+<pre><code class="language-java">package com.Sistem.Solicitude_Compra;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+
+@SpringBootTest
+@Import(TestcontainersConfiguration.class)
+class SolicitudeCompraApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
+</code></pre>
+<p><strong>Regla para todo el proyecto:</strong> todo test que levante la app o use la base (<code>@SpringBootTest</code>, <code>@DataJpaTest</code>, <code>@ApplicationModuleTest</code>) lleva <code>@Import(TestcontainersConfiguration.class)</code>.</p>
+<h3 id="cómo-probar-2">Cómo probar</h3>
+<p>Desde <code>back/</code>:</p>
+<pre><code class="language-bash">./mvnw test
+</code></pre>
+<ul>
+<li>La primera vez tarda unos 3 minutos porque descarga la imagen de Postgres. Las siguientes son mucho más rápidas.</li>
+<li>Resultado esperado: <code>Tests run: 3, Failures: 0, Errors: 0</code> (1 test de contexto + 2 de <code>ModularityTests</code>) y <code>BUILD SUCCESS</code>.</li>
+</ul>
+<h3 id="alternativa-si-testcontainers-da-problemas">Alternativa si Testcontainers da problemas</h3>
+<p>Crear <code>back/src/test/resources/application.properties</code> con <code>spring.docker.compose.skip.in-tests=false</code>. Así los tests usan el Postgres de <code>compose.yaml</code>. Es más lento y depende del <code>.env</code> de cada uno, así que usarlo solo si Testcontainers no anda.</p>
+<h3 id="listo-cuando-4">Listo cuando</h3>
+<p><code>./mvnw test</code> pasa en una máquina con Docker, sin ninguna base creada a mano.</p>
+<hr />
+<h2 id="cierre-del-sprint-domingo-0410">Cierre del sprint (domingo 04/10)</h2>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Cada integrante clona el repo desde cero, completa <code>back/.env</code> y <code>frontend/.env</code> (copiando de los <code>.env.example</code>) y corre:
+<ul>
+<li><code>./mvnw test</code> desde <code>back/</code> → pasa.</li>
+<li><code>./mvnw spring-boot:run</code> desde <code>back/</code> → arranca.</li>
+<li><code>npm install &amp;&amp; npm run dev</code> desde <code>frontend/</code> → abre la página de Vite.</li>
+</ul>
+</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Marcar las subtareas terminadas en <code>../03-area-dificultad-fechas.md</code> y actualizar <code>Claude/contexto/estado.md</code>.</li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Releer las subtareas de S1 en <code>../02-tareas-especificas.md</code> y, si alguna necesita más detalle, escribir una guía como esta en <code>guias/</code>.</li>
+</ul>
+
+</body></html>
