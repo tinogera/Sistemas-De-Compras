@@ -1749,6 +1749,9 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
 - **Migración** `V<fecha>_1__aprobaciones_tablas.sql`. La `V1` no se edita: el schema se crea acá con `CREATE SCHEMA IF NOT EXISTS aprobaciones;`.
 
   ```sql
+  -- Primero el schema: V1 no lo crea y las tablas de abajo dependen de él
+  CREATE SCHEMA IF NOT EXISTS aprobaciones;
+
   CREATE TABLE aprobaciones.regla (
     id              BIGSERIAL PRIMARY KEY,
     nombre          VARCHAR(120) NOT NULL UNIQUE,

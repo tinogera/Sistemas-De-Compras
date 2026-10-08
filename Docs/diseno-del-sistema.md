@@ -490,6 +490,9 @@ Dueño de las reglas y de la cadena de pasos de cada ítem. `regla`, `regla_cond
 - **Concurrencia:** `paso_item` y `aprobacion_item` llevan `version`; si dos personas del mismo paso deciden a la vez, la segunda recibe `409`.
 
 ```sql
+-- Primero el schema: V1 no lo crea y las tablas de abajo dependen de él
+CREATE SCHEMA IF NOT EXISTS aprobaciones;
+
 CREATE TABLE aprobaciones.regla (
   id              BIGSERIAL PRIMARY KEY,
   nombre          VARCHAR(120) NOT NULL UNIQUE,
