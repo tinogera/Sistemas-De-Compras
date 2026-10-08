@@ -3,7 +3,7 @@
 **Trabajo práctico · Diseño de sistema**
 
 - **Autor:** Santino
-- **Fecha:** Septiembre 2026
+- **Fecha:** Septiembre 2026 (actualizado el 08/10/2026)
 - **Stack:** Java · Spring Boot · PostgreSQL · n8n
 
 | Estimación del escenario base | |
@@ -14,6 +14,21 @@
 | 99,5 % | disponibilidad objetivo |
 
 Documento de diseño técnico basado en el Enunciado v3. Sigue la estructura clásica de un ejercicio de *system design*: requisitos funcionales, no funcionales, estimación, arquitectura de alto nivel y, en profundidad, esquema de base de datos, APIs, escalado, manejo de fallas y casos borde.
+
+## Cambios respecto de la versión inicial
+
+**08/10/2026 — Reglas de aprobación (requisito nuevo).** El Administrador define reglas que dicen quién tiene que aprobar una compra según su monto (por ejemplo, `Supervisor → Gerencia General`). Esto cambia el diseño original en varios puntos:
+
+- **Módulo nuevo `aprobaciones`** (RF18 a RF23, §6.8, §7.6). Las reglas y los pasos son datos, no código: pasar de `Supervisor` a `Supervisor → Gerencia General` es editar una regla.
+- **El Encargado ya no aprueba:** cotiza, negocia, fija el precio total, puede rechazar y, cuando la cadena está completa, **registra la compra**. Antes aprobaba eligiendo una cotización.
+- **La orden se genera al registrar la compra**, no al aprobar. El evento `ItemAprobado` desaparece: lo reemplazan `CompraRegistrada` y los eventos de aprobación.
+- **Dos precios por ítem y un envío:** `precio_estimado` (lo carga el solicitante), `precio_total` (lo carga el Encargado) y `monto_envio` (después de comprar). La regla mira el total si existe, y si no el estimado.
+- **El estado del ítem va en dos vías:** `estado` (PENDIENTE, EN_COTIZACION, COMPRADO, RECHAZADO, CANCELADO) y `estado_aprobacion` (EN_CURSO, APROBADA). "Aprobado" deja de ser un estado del ítem.
+- **Rol nuevo `SUPERVISOR`.** Gerencia General es un sector, no un rol.
+- **Tiempo real** con Server-Sent Events para ver el precio y las aprobaciones sin recargar (§7.7).
+- **Casos borde 24 a 28** (§10).
+
+Las demás decisiones tomadas al bajar el diseño a tareas (módulo `compartido`, registro de eventos de Spring Modulith en vez de `outbox` manual, adjuntos en carpeta local, eventos que el diseño no tenía) están en `Docs/planificacion/02-tareas-especificas.md` ("Decisiones que cambian el diseño original", 1 a 6). Se vuelcan en este documento en el cierre (tarea T22.1); hasta entonces, las menciones a `outbox`, URLs prefirmadas y S3 de este documento describen el diseño inicial.
 
 ## Contenido
 
@@ -34,23 +49,24 @@ Documento de diseño técnico basado en el Enunciado v3. Sigue la estructura cl�
 
 **Solicitudes**
 
-- **RF1.** Un empleado autenticado crea una solicitud con uno o más ítems (producto o servicio), urgencia y fecha necesaria.
+- **RF1.** Un empleado autenticado crea una solicitud con uno o más ítems (producto o servicio), urgencia y fecha necesaria. Cada ítem lleva un precio estimado (total, en ARS o USD).
 - **RF2.** El solicitante adjunta especificaciones (PDF o imagen) a cada ítem.
 - **RF3.** El solicitante edita o quita un ítem mientras esté Pendiente, y cancela la solicitud completa si todos sus ítems siguen Pendientes.
 - **RF4.** El solicitante consulta sus solicitudes y el estado de cada ítem.
 
 **Compras**
 
-- **RF5.** Los Encargados ven una bandeja de ítems sin resolver, ordenada por urgencia y fecha necesaria.
+- **RF5.** Los Encargados ven una bandeja de ítems sin resolver, ordenada por urgencia y fecha necesaria. Toda solicitud llega a la bandeja, sin esperar aprobaciones. Una pestaña muestra los ítems ya aprobados, listos para comprar.
 - **RF6.** Un Encargado toma un ítem (queda asignado a él) o se reasigna uno de otro Encargado.
 - **RF7.** El Encargado consulta los proveedores activos de la categoría del ítem y da de alta proveedores nuevos.
 - **RF8.** El Encargado carga cotizaciones (proveedor, moneda, precio unitario, validez, presupuesto adjunto).
-- **RF9.** El Encargado aprueba un ítem seleccionando una cotización vigente, o lo rechaza con motivo.
+- **RF9.** El Encargado fija el precio total del ítem (eligiendo una cotización vigente o cargándolo a mano) o lo rechaza con motivo. El precio se ve en tiempo real para quien mira el ítem.
 
 **Órdenes**
 
-- **RF10.** Al aprobarse un ítem, el sistema genera automáticamente su orden de pedido con número correlativo.
+- **RF10.** Al registrarse la compra de un ítem aprobado, el sistema genera automáticamente su orden de pedido con número correlativo.
 - **RF11.** El Encargado marca la orden como Enviada al proveedor.
+- **RF11b.** Después de comprar, el Encargado puede corregir el precio total y cargar el monto de envío; la orden y los reportes se actualizan y el cambio queda en el historial.
 
 **Catálogo**
 
@@ -62,7 +78,16 @@ Documento de diseño técnico basado en el Enunciado v3. Sigue la estructura cl�
 - **RF14.** Aviso al solicitante cuando su solicitud queda Lista, con el resultado de cada ítem.
 - **RF15.** Recordatorios: cada 3 días para urgencia Alta, cada 3 semanas para Media y Baja.
 - **RF16.** Reportes de gasto por sector, categoría y proveedor (ARS y USD por separado) y tiempo promedio de resolución.
-- **RF17.** Historial auditable de todo cambio de estado, asignación y reasignación.
+- **RF17.** Historial auditable de todo cambio de estado, asignación y reasignación, de cada decisión de aprobación, de cada cambio de precio y de cada cambio de reglas.
+
+**Aprobaciones**
+
+- **RF18.** El Administrador define reglas de aprobación: condiciones (hoy, un monto en una moneda; el modelo admite otras) y una cadena de pasos. Una regla sin pasos aprueba sola. Siempre existe una regla por defecto, que no se puede desactivar ni dejar sin pasos.
+- **RF19.** Al entrar una solicitud, cada ítem recibe la cadena de pasos de la primera regla activa (por prioridad) que cumple. Un paso lo cumple un **rol** (Supervisor) o un **sector** (Gerencia General). Pasos con el mismo orden corren en paralelo; el siguiente se activa cuando todos aprobaron.
+- **RF20.** Los aprobadores ven los ítems que les toca decidir y los aprueban o rechazan (con motivo). Rechazar es por ítem. Nadie decide sobre su propio pedido.
+- **RF21.** No se puede registrar la compra de un ítem hasta que su cadena esté completa. Si el precio total cambia, la cadena se re-evalúa: se conservan los pasos aprobados, se agregan los que faltan y se omiten los pendientes que ya no hacen falta. Si el solicitante edita el ítem, la cadena se reinicia.
+- **RF22.** Los pedidos en curso conservan la cadena que tenían aunque se cambie una regla.
+- **RF23.** Cuando le toca a un aprobador se le avisa por mail (n8n), y el precio y las aprobaciones se actualizan en pantalla sin recargar.
 
 ## 2. Requisitos no funcionales
 
@@ -70,11 +95,12 @@ Documento de diseño técnico basado en el Enunciado v3. Sigue la estructura cl�
 |---|---|---|
 | **Disponibilidad** | 99,5 % mensual (≈ 3,6 h de caída/mes), con prioridad en horario laboral | Es un sistema interno: una caída molesta pero no frena la operación (se puede comprar "a mano" unas horas). No justifica una arquitectura multi-región. |
 | **Latencia** | p95 < 300 ms en la API; < 2 s en reportes | Uso interactivo por personas; los reportes pueden ser algo más lentos. |
-| **Consistencia** | Fuerte para estados de ítems, cotizaciones y órdenes | No puede haber un ítem aprobado dos veces ni dos órdenes para el mismo ítem. Se prioriza consistencia sobre disponibilidad. |
+| **Consistencia** | Fuerte para estados de ítems, cotizaciones y órdenes | No puede haber un paso de aprobación decidido dos veces, un ítem comprado dos veces ni dos órdenes para el mismo ítem. Se prioriza consistencia sobre disponibilidad. |
 | **Consistencia de reportes** | Eventual, con retraso máximo de minutos | Los reportes se alimentan por eventos; unos segundos de atraso no afectan decisiones. |
 | **Durabilidad** | Ninguna pérdida de datos confirmados. RPO ≤ 15 min, RTO ≤ 4 h | Las órdenes de pedido son documentos con valor administrativo. |
 | **Seguridad** | Autenticación obligatoria, autorización por rol, HTTPS, validación de adjuntos | Contiene precios, proveedores y datos internos. |
 | **Auditabilidad** | 100 % de las transiciones registradas, sin posibilidad de edición | Requisito del negocio para trazabilidad del gasto. |
+| **Actualización en pantalla** | Un cambio de precio o de aprobación se ve en otra pantalla abierta en menos de 2 s | El aprobador tiene que decidir con el precio vigente, no con uno viejo. |
 | **Mantenibilidad** | Módulos desacoplados, extraíbles como servicios sin reescribir lógica | Pedido explícito de "escalabilidad independiente por módulo". |
 
 ## 3. Estimación
@@ -141,6 +167,9 @@ Este escenario es el que justifica las estrategias de la sección 8.
         │  ┌─────┴──────┐ ┌──────────────┐ ┌──────────────┐  │
         │  │  Reportes  │ │Integraciones │ │ Auth / Users │  │
         │  └────────────┘ └──────┬───────┘ └──────────────┘  │
+        │  ┌─────────────┐                                    │
+        │  │Aprobaciones │  (reglas y cadena de pasos)        │
+        │  └─────────────┘                                    │
         └───────┬─────────────────┼───────────────┬──────────┘
                 │                 │               │
      ┌──────────▼───────┐   ┌─────▼─────┐   ┌─────▼──────────────┐
@@ -160,7 +189,9 @@ Este escenario es el que justifica las estrategias de la sección 8.
 2. **Patrón Outbox para los eventos**: cada módulo escribe sus eventos en una tabla `outbox` dentro de la misma transacción que el cambio de negocio, y un proceso los publica después. Un evento nunca se pierde ni se publica sin que el cambio se haya guardado.
 3. **Adjuntos fuera de la base**: el navegador los sube directo al almacenamiento de objetos con URLs prefirmadas; la base guarda solo metadatos.
 4. **n8n afuera**: n8n no guarda estado de negocio. Recibe webhooks del backend y consulta la API para los recordatorios.
-5. **Backend sin estado**: la sesión viaja en un token JWT, así se pueden agregar instancias detrás del balanceador sin cambios.
+5. **Backend sin estado**: la sesión viaja en un token JWT, así se pueden agregar instancias detrás del balanceador sin cambios. (Excepción: el registro de conexiones de tiempo real, decisión 7.)
+6. **Aprobaciones como módulo propio y como datos**: las reglas y los pasos viven en tablas, no en `if` del código. Cada ítem copia la cadena que le tocó, así cambiar una regla no altera los pedidos en curso. Compras y Aprobaciones trabajan a la vez sobre el mismo ítem y solo se hablan por eventos: Compras negocia el precio y Aprobaciones junta las aprobaciones; la compra se habilita cuando llega `AprobacionCompletada`.
+7. **Tiempo real con Server-Sent Events**: el backend manda señales con ids ("cambió el ítem 4021"), nunca datos de negocio; el navegador vuelve a pedir el detalle por REST, donde se controlan los permisos. Se eligió SSE y no WebSocket porque solo el servidor necesita avisar. El registro de conexiones está en memoria, así que con varias réplicas haría falta Postgres `LISTEN/NOTIFY` o Redis pub/sub (§8, paso 1).
 
 ## 5. Tecnologías
 
@@ -170,11 +201,12 @@ Este escenario es el que justifica las estrategias de la sección 8.
 | Módulos | Spring Modulith | Fronteras entre módulos, eventos de dominio y tests de arquitectura |
 | Persistencia | Spring Data JPA + PostgreSQL 16 | Base relacional única, un schema por módulo |
 | Migraciones | Flyway | Versionado del esquema, migraciones compatibles hacia atrás |
-| Seguridad | Spring Security + JWT | Login, roles (Solicitante, Encargado, Administrador) |
+| Seguridad | Spring Security + JWT | Login, roles (Solicitante, Encargado, Supervisor, Administrador) |
 | Eventos | Spring Events + patrón Outbox | Comunicación confiable entre módulos; reemplazable por RabbitMQ o Kafka |
 | Jobs programados | Spring Scheduler + ShedLock | Publicador del outbox, limpieza de adjuntos, sin ejecución duplicada |
 | Automatización | n8n | Mails de aviso, notificación de resultado y recordatorios |
 | Archivos | MinIO (compatible S3) o S3 | Adjuntos: especificaciones y presupuestos |
+| Tiempo real | Server-Sent Events (`SseEmitter`) | Precio y aprobaciones en pantalla sin recargar |
 | Frontend | React | Formularios de solicitud, bandeja del Encargado, reportes |
 | Caché (opcional) | Caffeine / Redis | Categorías y proveedores por categoría |
 | Infraestructura | Docker + Nginx | Contenedores y reverse proxy con TLS |
@@ -197,7 +229,7 @@ CREATE TABLE auth.usuario (
   email      VARCHAR(255) NOT NULL UNIQUE,
   nombre     VARCHAR(150) NOT NULL,
   sector_id  BIGINT NOT NULL REFERENCES auth.sector(id),
-  rol        VARCHAR(20) NOT NULL CHECK (rol IN ('SOLICITANTE','ENCARGADO','ADMIN')),
+  rol        VARCHAR(20) NOT NULL CHECK (rol IN ('SOLICITANTE','ENCARGADO','SUPERVISOR','ADMIN')),
   activo     BOOLEAN NOT NULL DEFAULT TRUE
 );
 ```
@@ -220,16 +252,26 @@ CREATE TABLE solicitudes.solicitud (
 CREATE INDEX ix_solicitud_solicitante ON solicitudes.solicitud (solicitante_id, creada_en DESC);
 
 CREATE TABLE solicitudes.item (
-  id            BIGSERIAL PRIMARY KEY,
-  solicitud_id  BIGINT NOT NULL REFERENCES solicitudes.solicitud(id),
-  tipo          VARCHAR(10) NOT NULL CHECK (tipo IN ('PRODUCTO','SERVICIO')),
-  categoria_id  BIGINT NOT NULL,                 -- ref. catalogo.categoria
-  detalle       TEXT,
-  cantidad      NUMERIC(12,2) NOT NULL CHECK (cantidad > 0),
-  estado        VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
-                CHECK (estado IN ('PENDIENTE','EN_COTIZACION','APROBADO','RECHAZADO','CANCELADO')),
-  creado_en     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  version       INT NOT NULL DEFAULT 0
+  id                  BIGSERIAL PRIMARY KEY,
+  solicitud_id        BIGINT NOT NULL REFERENCES solicitudes.solicitud(id),
+  tipo                VARCHAR(10) NOT NULL CHECK (tipo IN ('PRODUCTO','SERVICIO')),
+  categoria_id        BIGINT NOT NULL,           -- ref. catalogo.categoria
+  detalle             TEXT,
+  cantidad            NUMERIC(12,2) NOT NULL CHECK (cantidad > 0),
+  precio_estimado     NUMERIC(16,2) NOT NULL CHECK (precio_estimado > 0),  -- total estimado, lo carga el solicitante
+  moneda_estimada     CHAR(3) NOT NULL CHECK (moneda_estimada IN ('ARS','USD')),
+  precio_total        NUMERIC(16,2),             -- copia de Compras, para mostrarlo sin consultar otro módulo
+  moneda_total        CHAR(3),
+  estado              VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+                      CHECK (estado IN ('PENDIENTE','EN_COTIZACION','COMPRADO','RECHAZADO','CANCELADO')),
+  estado_aprobacion   VARCHAR(10) NOT NULL DEFAULT 'EN_CURSO'
+                      CHECK (estado_aprobacion IN ('EN_CURSO','APROBADA')),  -- listo para comprar = EN_COTIZACION + APROBADA
+  proveedor_comprado  VARCHAR(200),
+  motivo_rechazo      TEXT,
+  rechazado_por       VARCHAR(200),              -- 'Encargado de compras', 'Supervisor', 'Gerencia General'...
+  orden_enviada       BOOLEAN NOT NULL DEFAULT FALSE,
+  creado_en           TIMESTAMPTZ NOT NULL DEFAULT now(),
+  version             INT NOT NULL DEFAULT 0
 );
 CREATE INDEX ix_item_solicitud ON solicitudes.item (solicitud_id);
 
@@ -280,28 +322,45 @@ CREATE INDEX ix_provcat_categoria ON catalogo.proveedor_categoria (categoria_id)
 
 ### 6.4 Schema `compras`
 
-Compras es dueño del trabajo sobre el ítem (asignación, cotizaciones, decisión). El estado del ítem que ve el solicitante lo actualiza el módulo Solicitudes al recibir los eventos.
+Compras es dueño del trabajo sobre el ítem (asignación, cotizaciones, precio, rechazo y compra). Las aprobaciones **no** son de Compras: las lleva el módulo Aprobaciones (§6.8) y Compras solo guarda una copia de su estado (`estado_aprobacion`) para saber si puede comprar. El estado del ítem que ve el solicitante lo actualiza el módulo Solicitudes al recibir los eventos.
 
 ```sql
 CREATE TABLE compras.gestion_item (
   item_id                 BIGINT PRIMARY KEY,    -- ref. solicitudes.item
   solicitud_id            BIGINT NOT NULL,
+  sector_id               BIGINT NOT NULL,       -- copiado para los reportes
   categoria_id            BIGINT NOT NULL,
+  tipo                    VARCHAR(10) NOT NULL,  -- copiado para mostrar en la bandeja
+  detalle                 TEXT,
   cantidad                NUMERIC(12,2) NOT NULL,
   urgencia                VARCHAR(5) NOT NULL,   -- copiado para ordenar la bandeja sin consultar otro módulo
+  prioridad               SMALLINT NOT NULL,     -- 1 = Alta, 2 = Media, 3 = Baja (el texto no ordena bien)
   fecha_necesaria         DATE NOT NULL,
-  estado                  VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE',
+  solicitado_en           TIMESTAMPTZ NOT NULL,
+  precio_estimado         NUMERIC(16,2) NOT NULL,  -- copiado de la solicitud
+  moneda_estimada         CHAR(3) NOT NULL,
+  precio_total            NUMERIC(16,2),         -- lo fija el Encargado (cotización elegida o a mano)
+  moneda_total            CHAR(3),
+  monto_envio             NUMERIC(14,2),         -- se carga después de comprar
+  estado                  VARCHAR(15) NOT NULL DEFAULT 'PENDIENTE'
+                          CHECK (estado IN ('PENDIENTE','EN_COTIZACION','COMPRADO','RECHAZADO','CANCELADO')),
+  estado_aprobacion       VARCHAR(10) NOT NULL DEFAULT 'EN_CURSO'
+                          CHECK (estado_aprobacion IN ('EN_CURSO','APROBADA')),  -- copia de Aprobaciones
   encargado_id            BIGINT,
-  cotizacion_elegida_id   BIGINT,
+  cotizacion_elegida_id   BIGINT,                -- opcional: se puede comprar con un precio cargado a mano
+  proveedor_compra_id     BIGINT,
+  comprado_en             TIMESTAMPTZ,
   motivo_rechazo          TEXT,
   resuelto_en             TIMESTAMPTZ,
   ultimo_recordatorio_en  TIMESTAMPTZ,
   version                 INT NOT NULL DEFAULT 0,
-  CHECK (estado <> 'APROBADO'  OR cotizacion_elegida_id IS NOT NULL),
+  -- Comprado = tiene precio, proveedor y todas las aprobaciones
+  CHECK (estado <> 'COMPRADO' OR (precio_total IS NOT NULL AND proveedor_compra_id IS NOT NULL
+                                  AND estado_aprobacion = 'APROBADA')),
   CHECK (estado <> 'RECHAZADO' OR motivo_rechazo IS NOT NULL)
 );
 -- Bandeja: ítems sin resolver ordenados por urgencia y fecha necesaria
-CREATE INDEX ix_bandeja ON compras.gestion_item (estado, urgencia, fecha_necesaria)
+CREATE INDEX ix_bandeja ON compras.gestion_item (estado, prioridad, fecha_necesaria)
   WHERE estado IN ('PENDIENTE','EN_COTIZACION');
 
 CREATE TABLE compras.cotizacion (
@@ -345,11 +404,12 @@ CREATE TABLE ordenes.orden_pedido (
   solicitud_id     BIGINT NOT NULL,
   proveedor_id     BIGINT NOT NULL,
   proveedor_razon_social VARCHAR(200) NOT NULL,  -- copia: la orden no cambia si se edita el proveedor
-  cotizacion_id    BIGINT NOT NULL,
+  cotizacion_id    BIGINT,                       -- opcional: puede haberse comprado con un precio cargado a mano
   cantidad         NUMERIC(12,2) NOT NULL,
   moneda           CHAR(3) NOT NULL,
   precio_unitario  NUMERIC(14,2) NOT NULL,
   precio_total     NUMERIC(16,2) NOT NULL,
+  monto_envio      NUMERIC(14,2),                -- se carga después de comprar
   estado           VARCHAR(10) NOT NULL DEFAULT 'GENERADA' CHECK (estado IN ('GENERADA','ENVIADA')),
   emitida_en       TIMESTAMPTZ NOT NULL DEFAULT now(),
   enviada_por      BIGINT,
@@ -357,19 +417,21 @@ CREATE TABLE ordenes.orden_pedido (
 );
 ```
 
-Los datos del proveedor y el precio se **copian** en la orden: es un documento y no debe cambiar si después se edita el proveedor.
+Los datos del proveedor y el precio se **copian** en la orden: es un documento y no debe cambiar si después se edita el proveedor. La orden se genera al **registrar la compra** (evento `CompraRegistrada`). Lo único que se corrige después son `precio_total`, `precio_unitario` (= total / cantidad) y `monto_envio`, cuando el Encargado edita la compra (`CompraActualizada`); cada cambio queda en el historial.
 
 ### 6.6 Schema `reportes` (modelo de lectura)
 
 ```sql
 CREATE TABLE reportes.hecho_gasto (
   orden_id      BIGINT PRIMARY KEY,
+  item_id       BIGINT NOT NULL UNIQUE,          -- para encontrar la fila cuando llega CompraActualizada
   fecha         DATE NOT NULL,
   sector_id     BIGINT NOT NULL,
   categoria_id  BIGINT NOT NULL,
   proveedor_id  BIGINT NOT NULL,
   moneda        CHAR(3) NOT NULL,
-  importe       NUMERIC(16,2) NOT NULL
+  importe       NUMERIC(16,2) NOT NULL,
+  monto_envio   NUMERIC(14,2) NOT NULL DEFAULT 0
 );
 CREATE INDEX ix_gasto_fecha ON reportes.hecho_gasto (fecha, moneda);
 
@@ -378,7 +440,7 @@ CREATE TABLE reportes.hecho_resolucion (
   urgencia     VARCHAR(5) NOT NULL,
   creado_en    TIMESTAMPTZ NOT NULL,
   resuelto_en  TIMESTAMPTZ NOT NULL,
-  resultado    VARCHAR(10) NOT NULL              -- APROBADO / RECHAZADO
+  resultado    VARCHAR(10) NOT NULL              -- COMPRADO / RECHAZADO
 );
 ```
 
@@ -405,7 +467,7 @@ CREATE TABLE <modulo>.evento_procesado (
 -- Historial de auditoría (solo inserciones)
 CREATE TABLE auditoria.historial (
   id               BIGSERIAL PRIMARY KEY,
-  entidad          VARCHAR(30) NOT NULL,         -- SOLICITUD / ITEM / COTIZACION / ORDEN
+  entidad          VARCHAR(30) NOT NULL,         -- SOLICITUD / ITEM / COTIZACION / ORDEN / REGLA ...
   entidad_id       BIGINT NOT NULL,
   accion           VARCHAR(30) NOT NULL,         -- CAMBIO_ESTADO / ASIGNACION / REASIGNACION ...
   estado_anterior  VARCHAR(20),
@@ -415,6 +477,109 @@ CREATE TABLE auditoria.historial (
   ocurrido_en      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX ix_historial_entidad ON auditoria.historial (entidad, entidad_id, ocurrido_en);
+```
+
+### 6.8 Schema `aprobaciones`
+
+Dueño de las reglas y de la cadena de pasos de cada ítem. `regla`, `regla_condicion` y `regla_paso` son lo que edita el Administrador. `aprobacion_item` y `paso_item` son la **copia** que se arma para cada ítem cuando entra la solicitud: si después se cambia la regla, los ítems en curso conservan la cadena que ya tenían. `aprobacion_item` también copia los datos del ítem (detalle, cantidad, precios), para que el aprobador lo vea y para re-evaluar las reglas sin consultar otros módulos.
+
+- **Reglas:** se evalúan por `prioridad` ascendente; gana la primera activa cuyas condiciones se cumplen todas. La regla por defecto (`por_defecto`) no tiene condiciones y existe desde la migración. Una regla sin pasos aprueba sola.
+- **Condiciones:** hoy `MONTO` (operador, umbral y moneda; solo se cumple con importes en esa moneda, sin conversión). `valor_id` queda reservado para condiciones futuras (categoría, sector).
+- **Pasos:** `ROL` o `SECTOR`. Los pasos con el mismo `orden` corren en paralelo; el paso **activo** es el pendiente de menor `orden`.
+- **Monto que evalúa la regla:** `precio_total` si existe; si no, `precio_estimado`.
+- **Concurrencia:** `paso_item` y `aprobacion_item` llevan `version`; si dos personas del mismo paso deciden a la vez, la segunda recibe `409`.
+
+```sql
+CREATE TABLE aprobaciones.regla (
+  id              BIGSERIAL PRIMARY KEY,
+  nombre          VARCHAR(120) NOT NULL UNIQUE,
+  prioridad       INT NOT NULL,                  -- menor número = se evalúa primero
+  activa          BOOLEAN NOT NULL DEFAULT TRUE,
+  por_defecto     BOOLEAN NOT NULL DEFAULT FALSE,
+  creada_por      BIGINT,                        -- null = la creó la migración
+  creada_en       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  modificada_por  BIGINT,
+  modificada_en   TIMESTAMPTZ,
+  version         INT NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX ux_regla_por_defecto ON aprobaciones.regla (por_defecto) WHERE por_defecto;
+
+CREATE TABLE aprobaciones.regla_condicion (
+  id              BIGSERIAL PRIMARY KEY,
+  regla_id        BIGINT NOT NULL REFERENCES aprobaciones.regla(id),
+  tipo            VARCHAR(20) NOT NULL,          -- hoy solo 'MONTO'
+  operador        VARCHAR(15) NOT NULL CHECK (operador IN ('MAYOR','MAYOR_IGUAL','MENOR','MENOR_IGUAL')),
+  valor_numerico  NUMERIC(16,2),                 -- MONTO: el umbral
+  moneda          CHAR(3) CHECK (moneda IN ('ARS','USD')),
+  valor_id        BIGINT                         -- reservado para condiciones futuras (categoría, sector)
+);
+
+CREATE TABLE aprobaciones.regla_paso (
+  id              BIGSERIAL PRIMARY KEY,
+  regla_id        BIGINT NOT NULL REFERENCES aprobaciones.regla(id),
+  orden           INT NOT NULL CHECK (orden >= 1),   -- mismo número = pasos en paralelo
+  tipo_aprobador  VARCHAR(6) NOT NULL CHECK (tipo_aprobador IN ('ROL','SECTOR')),
+  rol             VARCHAR(20),
+  sector_id       BIGINT,                        -- ref. auth.sector
+  CHECK ((tipo_aprobador = 'ROL' AND rol IS NOT NULL AND sector_id IS NULL)
+      OR (tipo_aprobador = 'SECTOR' AND sector_id IS NOT NULL AND rol IS NULL))
+);
+
+CREATE TABLE aprobaciones.aprobacion_item (
+  item_id                 BIGINT PRIMARY KEY,    -- ref. solicitudes.item
+  solicitud_id            BIGINT NOT NULL,
+  solicitante_id          BIGINT NOT NULL,
+  sector_id               BIGINT NOT NULL,
+  categoria_id            BIGINT NOT NULL,
+  tipo                    VARCHAR(10) NOT NULL,
+  detalle                 TEXT,
+  cantidad                NUMERIC(12,2) NOT NULL,
+  urgencia                VARCHAR(5) NOT NULL,
+  precio_estimado         NUMERIC(16,2) NOT NULL,
+  moneda_estimada         CHAR(3) NOT NULL,
+  precio_total            NUMERIC(16,2),
+  moneda_total            CHAR(3),
+  proveedor_razon_social  VARCHAR(200),
+  regla_id                BIGINT,                -- copia, sin FK: la regla puede cambiar después
+  regla_nombre            VARCHAR(120),
+  estado                  VARCHAR(10) NOT NULL DEFAULT 'EN_CURSO'
+                          CHECK (estado IN ('EN_CURSO','APROBADA','RECHAZADA','CANCELADA')),
+  cerrada                 BOOLEAN NOT NULL DEFAULT FALSE,  -- true al registrarse la compra: ya no se re-evalúa
+  solicitado_en           TIMESTAMPTZ NOT NULL,
+  version                 INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE aprobaciones.paso_item (
+  id                BIGSERIAL PRIMARY KEY,
+  item_id           BIGINT NOT NULL REFERENCES aprobaciones.aprobacion_item(item_id),
+  orden             INT NOT NULL,
+  tipo_aprobador    VARCHAR(6) NOT NULL CHECK (tipo_aprobador IN ('ROL','SECTOR')),
+  rol               VARCHAR(20),
+  sector_id         BIGINT,
+  nombre_aprobador  VARCHAR(120) NOT NULL,       -- copia para mostrar: 'Supervisor', 'Gerencia General'
+  estado            VARCHAR(10) NOT NULL DEFAULT 'PENDIENTE'
+                    CHECK (estado IN ('PENDIENTE','APROBADO','RECHAZADO','OMITIDO','CANCELADO')),
+  decidido_por      BIGINT,
+  decidido_en       TIMESTAMPTZ,
+  motivo            TEXT,
+  version           INT NOT NULL DEFAULT 0,
+  CHECK ((tipo_aprobador = 'ROL' AND rol IS NOT NULL AND sector_id IS NULL)
+      OR (tipo_aprobador = 'SECTOR' AND sector_id IS NOT NULL AND rol IS NULL)),
+  CHECK (estado <> 'RECHAZADO' OR motivo IS NOT NULL)
+);
+CREATE INDEX ix_paso_item ON aprobaciones.paso_item (item_id, orden);
+-- "Mis pendientes": los pasos sin resolver de mi rol o de mi sector
+CREATE INDEX ix_paso_pendiente ON aprobaciones.paso_item (tipo_aprobador, rol, sector_id) WHERE estado = 'PENDIENTE';
+
+CREATE TABLE aprobaciones.evento_procesado (
+  evento_id     UUID PRIMARY KEY,
+  procesado_en  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- La regla por defecto va en la migración y no en los datos de prueba: sin ella ningún ítem tendría cadena.
+INSERT INTO aprobaciones.regla (nombre, prioridad, por_defecto) VALUES ('Por defecto', 1000, TRUE);
+INSERT INTO aprobaciones.regla_paso (regla_id, orden, tipo_aprobador, rol)
+  SELECT id, 1, 'ROL', 'SUPERVISOR' FROM aprobaciones.regla WHERE por_defecto;
 ```
 
 ## 7. APIs
@@ -444,8 +609,10 @@ Idempotency-Key: 6f1c2e9a-...
   "fechaNecesaria": "2026-10-15",
   "observaciones": "Para el evento del día de la familia",
   "items": [
-    { "tipo": "SERVICIO", "categoriaId": 42, "cantidad": 1, "detalle": "Pelotero para 30 chicos" },
-    { "tipo": "PRODUCTO", "categoriaNueva": "Globos", "cantidad": 200 }
+    { "tipo": "SERVICIO", "categoriaId": 42, "cantidad": 1, "detalle": "Pelotero para 30 chicos",
+      "precioEstimado": 180000, "monedaEstimada": "ARS" },
+    { "tipo": "PRODUCTO", "categoriaNueva": "Globos", "cantidad": 200,
+      "precioEstimado": 45000, "monedaEstimada": "ARS" }
   ]
 }
 
@@ -458,23 +625,37 @@ Idempotency-Key: 6f1c2e9a-...
 
 | Método | Endpoint | Descripción |
 |---|---|---|
-| GET | `/api/v1/bandeja?asignadosAMi=&urgencia=` | Ítems sin resolver, ordenados por urgencia y fecha |
+| GET | `/api/v1/bandeja?asignadosAMi=&urgencia=&paraComprar=` | Ítems sin resolver, ordenados por urgencia y fecha. `paraComprar=true`: solo los que ya tienen la cadena aprobada |
 | POST | `/api/v1/bandeja/{itemId}/tomar` | Se asigna el ítem (Pendiente → En cotización) |
 | POST | `/api/v1/bandeja/{itemId}/reasignar` | Toma un ítem asignado a otro Encargado |
 | GET | `/api/v1/bandeja/{itemId}/proveedores-sugeridos` | Proveedores activos de la categoría |
 | POST | `/api/v1/bandeja/{itemId}/cotizaciones` | Carga una cotización |
 | POST | `/api/v1/cotizaciones/{id}/adjuntos` | Adjunta el presupuesto |
-| POST | `/api/v1/bandeja/{itemId}/aprobar` | `{ "cotizacionId": 991, "version": 3 }` |
+| POST | `/api/v1/bandeja/{itemId}/cotizaciones/{cotizacionId}/elegir` | Elige una cotización vigente: fija el precio total. `{ "version": 3 }` |
+| PUT | `/api/v1/bandeja/{itemId}/precio-total` | Carga el precio total a mano. `{ "precioTotal": 150000, "moneda": "ARS", "version": 3 }` |
+| DELETE | `/api/v1/bandeja/{itemId}/precio-total?version=` | Quita el precio total (la regla vuelve a mirar el estimado) |
 | POST | `/api/v1/bandeja/{itemId}/rechazar` | `{ "motivo": "Hay stock en depósito", "version": 3 }` |
+| POST | `/api/v1/bandeja/{itemId}/comprar` | Registra la compra (solo con la cadena aprobada). `{ "proveedorId": 7, "version": 4 }` |
+| PATCH | `/api/v1/bandeja/{itemId}/compra` | Después de comprar: corrige el precio y/o carga el envío. `{ "precioTotal": 145000, "montoEnvio": 5000, "version": 5 }` |
 
-Ejemplo de error:
+El Encargado **ya no aprueba**: aprueban los pasos de la regla (§7.6). Cada cambio de precio publica `PrecioTotalActualizado`, que re-evalúa la cadena y se ve en tiempo real. El precio de la compra es el `precioTotal` de la gestión, el mismo que miraron los aprobadores; `comprar` no recibe un precio nuevo.
+
+Ejemplos de error:
 
 ```http
-POST /api/v1/bandeja/4021/aprobar
-{ "cotizacionId": 991, "version": 3 }
+POST /api/v1/bandeja/4021/cotizaciones/991/elegir
+{ "version": 3 }
 
 422 Unprocessable Entity
 { "codigo": "COTIZACION_VENCIDA", "mensaje": "La cotización venció el 2026-09-20. Cargá una nueva." }
+```
+
+```http
+POST /api/v1/bandeja/4021/comprar
+{ "proveedorId": 7, "version": 4 }
+
+422 Unprocessable Entity
+{ "codigo": "APROBACION_PENDIENTE", "mensaje": "Este ítem todavía no tiene todas las aprobaciones" }
 ```
 
 ### 7.3 Catálogo
@@ -493,7 +674,7 @@ POST /api/v1/bandeja/4021/aprobar
 | GET | `/api/v1/ordenes?estado=GENERADA` | Órdenes pendientes de envío |
 | GET | `/api/v1/ordenes/{id}/pdf` | Orden en PDF para mandar al proveedor |
 | POST | `/api/v1/ordenes/{id}/marcar-enviada` | Generada → Enviada |
-| GET | `/api/v1/reportes/gasto?agrupar=sector\|categoria\|proveedor&desde=&hasta=` | Totales separados por moneda |
+| GET | `/api/v1/reportes/gasto?agrupar=sector\|categoria\|proveedor&desde=&hasta=` | Totales y envío, separados por moneda. Cuenta lo comprado |
 | GET | `/api/v1/reportes/tiempos-resolucion?desde=&hasta=` | Promedio general y por urgencia |
 
 ### 7.5 Integración con n8n
@@ -502,10 +683,43 @@ POST /api/v1/bandeja/4021/aprobar
 |---|---|---|
 | Backend → n8n | `POST {n8n}/webhook/solicitud-creada` | Aviso a los Encargados |
 | Backend → n8n | `POST {n8n}/webhook/solicitud-lista` | Mail al solicitante con el resultado |
+| Backend → n8n | `POST {n8n}/webhook/aprobacion-pendiente` | Mail al aprobador cuando se activa su paso (no antes) |
 | n8n → Backend | `GET /api/v1/integraciones/recordatorios-pendientes` | Ítems cuyo recordatorio corresponde hoy |
 | n8n → Backend | `POST /api/v1/integraciones/recordatorios/{itemId}/enviado` | Registra el envío para no repetirlo |
 
 n8n usa una API key propia con permisos limitados a `/integraciones`. Los webhooks salientes van firmados (HMAC) para que n8n verifique que vienen del backend.
+
+### 7.6 Aprobaciones y reglas
+
+| Método | Endpoint | Quién | Descripción |
+|---|---|---|---|
+| GET | `/api/v1/aprobaciones?vista=para-decidir\|en-curso\|decididas\|todas` | Logueado (`todas`: Admin) | Mis pendientes, lo que se viene (solo lectura), lo que decidí |
+| GET | `/api/v1/aprobaciones/items/{itemId}` | Dueño, Encargado, Admin o quien tenga un paso | Datos del ítem, precios, regla aplicada y pasos |
+| GET | `/api/v1/aprobaciones/resumen` | Logueado | `{ "esAprobador": true, "paraDecidir": 3 }`, para el menú |
+| POST | `/api/v1/aprobaciones/pasos/{pasoId}/aprobar` | Quien puede decidir ese paso | `{ "version": 0 }` |
+| POST | `/api/v1/aprobaciones/pasos/{pasoId}/rechazar` | Quien puede decidir ese paso | `{ "motivo": "No corresponde", "version": 0 }` |
+| GET / POST / PUT | `/api/v1/admin/reglas` | Admin | ABM de reglas (no se borran: se desactivan) |
+| POST | `/api/v1/admin/reglas/{id}/activar` y `/desactivar` | Admin | Cambia `activa` (la regla por defecto no se desactiva) |
+| POST | `/api/v1/admin/reglas/simular` | Admin | `{ "monto": 600000, "moneda": "ARS" }` → la cadena que se armaría |
+
+Ejemplo de regla ("compras de más de tanta plata: consultar con tales sectores"):
+
+```json
+{ "nombre": "Compras grandes", "prioridad": 10, "activa": true,
+  "condiciones": [ { "tipo": "MONTO", "operador": "MAYOR", "valor": 500000, "moneda": "ARS" } ],
+  "pasos": [ { "orden": 1, "tipoAprobador": "ROL", "rol": "SUPERVISOR" },
+             { "orden": 2, "tipoAprobador": "SECTOR", "sectorId": 5 } ] }
+```
+
+Errores de negocio: `PASO_NO_ACTIVO` (todavía no le toca), `APROBACION_CERRADA`, `PEDIDO_PROPIO` (403: nadie decide sobre su propio pedido), `SIN_APROBADORES` (el paso de la regla no tiene a nadie que lo pueda decidir), `ROL_NO_APROBADOR`, `REGLA_POR_DEFECTO_SIN_PASOS`.
+
+### 7.7 Tiempo real
+
+| Método | Endpoint | Descripción |
+|---|---|---|
+| GET | `/api/v1/tiempo-real` | Stream `text/event-stream` con JWT. Manda señales `{ "tipo": "PRECIO_ACTUALIZADO", "itemId": 4021, "solicitudId": 1587 }` |
+
+La señal solo lleva ids: el navegador vuelve a pedir el detalle por REST, que controla los permisos. Un latido cada 25 s mantiene viva la conexión; si el stream falla, el front consulta cada 15 s.
 
 ## 8. Estrategias de escalado
 
@@ -520,6 +734,7 @@ En el escenario base nada de esto hace falta: se aplica en orden, solo cuando un
 
 - El backend es stateless (JWT, adjuntos en almacenamiento externo), así que se agregan instancias.
 - El publicador del outbox y los jobs programados corren en una sola instancia a la vez, con un lock distribuido (ShedLock sobre la misma base), para no procesar dos veces.
+- **Tiempo real:** el registro de conexiones SSE está en memoria, así que una señal solo llega a los clientes conectados a la instancia que la generó. Con varias instancias hay que repartirla por Postgres `LISTEN/NOTIFY` o Redis pub/sub.
 
 **Paso 2 — Descargar la base de datos**
 
@@ -550,10 +765,11 @@ En el escenario base nada de esto hace falta: se aplica en orden, solo cuando un
 | Falla | Qué pasa | Cómo se maneja |
 |---|---|---|
 | **Se cae una instancia del backend** | Fallan las requests en curso | El balanceador la saca por health check (`/actuator/health`); con 2+ instancias no hay corte. El frontend reintenta las lecturas. |
-| **Falla a mitad de una operación** (se aprueba el ítem pero se cae antes de generar la orden) | Ítem aprobado sin orden | El cambio y el evento `ItemAprobado` se guardan en la misma transacción (outbox). Al volver, el publicador envía el evento pendiente y Órdenes genera la orden. |
+| **Falla a mitad de una operación** (se registra la compra pero se cae antes de generar la orden) | Ítem comprado sin orden | El cambio y el evento `CompraRegistrada` se guardan en la misma transacción (outbox). Al volver, el publicador envía el evento pendiente y Órdenes genera la orden. Lo mismo vale para las aprobaciones: el paso decidido y `AprobacionCompletada` se guardan juntos. |
 | **Un evento se entrega dos veces** | Riesgo de dos órdenes para un ítem | Consumidores idempotentes: tabla `evento_procesado` y `UNIQUE(item_id)` en `orden_pedido`. El segundo intento no hace nada. |
 | **Un consumidor falla siempre con el mismo evento** | Reintentos infinitos | *Backoff* exponencial; tras N intentos el evento queda como fallido y dispara una alerta para revisión manual. |
 | **n8n caído** | No salen mails ni recordatorios | Los webhooks salientes pasan por el outbox y se reintentan hasta que n8n vuelva. Los recordatorios se calculan por fecha (`ultimo_recordatorio_en`): al volver se envían los atrasados, sin duplicar. |
+| **Se corta el stream de tiempo real** | Las pantallas dejan de actualizarse solas | El front reconecta con espera creciente y, si falla 3 veces, consulta cada 15 s. Nunca se pierde un dato: la fuente de verdad es siempre la API REST. |
 | **Falla el SMTP** | El mail no llega | n8n reintenta; además el sistema muestra las notificaciones dentro de la aplicación, así que el mail no es el único canal. |
 | **Almacenamiento de objetos no disponible** | No se suben ni se ven adjuntos | El resto del sistema sigue funcionando (los adjuntos no son obligatorios para operar). Error claro en la interfaz. |
 | **Subida de adjunto incompleta** | Archivo sin registro, o registro sin archivo | Dos pasos: subida con URL prefirmada y luego confirmación. Un job diario borra objetos sin confirmar de más de 24 h. |
@@ -569,11 +785,11 @@ En el escenario base nada de esto hace falta: se aplica en orden, solo cuando un
 1. **Dos Encargados toman el mismo ítem a la vez** → `UPDATE ... WHERE estado='PENDIENTE' AND version=?`: solo uno gana; el otro recibe `409` y la bandeja se refresca.
 2. **El solicitante edita un ítem justo cuando un Encargado lo toma** → la edición exige `estado='PENDIENTE'` y la versión esperada; si el Encargado ganó, falla con un mensaje claro ("este ítem ya está siendo cotizado").
 3. **El solicitante cancela la solicitud mientras un ítem pasa a En cotización** → la cancelación verifica en una transacción que todos los ítems sigan Pendientes; si no, se rechaza y se ofrece cancelar solo los que quedan Pendientes.
-4. **Doble click en Aprobar** → protegido por `version` y por el índice único de cotización seleccionada.
+4. **Doble click en Comprar, en Elegir cotización o en Aprobar un paso** → protegido por `version` y por el índice único de cotización seleccionada.
 
 **Cotizaciones y precios**
 
-5. **La cotización vence entre que el Encargado la elige y aprueba** → la vigencia se valida en el backend en el momento de aprobar, no solo en pantalla.
+5. **La cotización vence entre que el Encargado la elige y compra** → la vigencia se valida en el backend al elegirla y de nuevo al comprar, no solo en pantalla.
 6. **Todas las cotizaciones de un ítem vencieron** → el ítem sigue En cotización y la bandeja lo marca como "cotizaciones vencidas".
 7. **Cotizaciones en monedas distintas para el mismo ítem** → se permiten; se muestran por separado, sin conversión automática (no se depende de un tipo de cambio). La decisión es del Encargado.
 8. **Un proveedor se da de baja después de haber cotizado** → las cotizaciones y órdenes existentes siguen válidas (la orden copia los datos del proveedor), pero deja de sugerirse en ítems nuevos.
@@ -607,3 +823,11 @@ En el escenario base nada de esto hace falta: se aplica en orden, solo cuando un
 21. **Archivo que dice ser PDF pero no lo es, o supera 10 MB** → se valida el tipo real del contenido (no solo la extensión) y el tamaño antes de confirmar; opcionalmente se escanea con antivirus (ClamAV).
 22. **Cantidades con decimales** ("2,5 horas de servicio") → `cantidad` es numérica con decimales.
 23. **Números de orden con saltos** → una secuencia de PostgreSQL puede saltear números si una transacción se revierte. Si el área contable exige numeración sin huecos, se reemplaza por una tabla contador con bloqueo (más lenta, pero con este volumen es irrelevante).
+
+**Aprobaciones (requisito del 08/10)**
+
+24. **Un paso no tiene a nadie que pueda decidirlo** (se desactivó al último Supervisor, o el sector quedó vacío) → el ABM de reglas lo marca (`sinAprobadores`) y el ítem queda esperando; el Administrador lo ve (vista `todas`) y lo arregla. No se rechaza solo.
+25. **El solicitante es el único aprobador posible** (por ejemplo, el único Supervisor hace un pedido) → no puede decidir sobre su propio pedido; queda esperando hasta que el Administrador dé de alta otro aprobador o cambie la regla.
+26. **El precio total cambia y la cadena crece o se achica** → se re-evalúa: los pasos aprobados se conservan, se agregan los que faltan y se omiten los pendientes que ya no hacen falta. Si el ítem estaba aprobado y aparece un paso nuevo, vuelve a estar en curso y no se puede comprar. Después de comprar ya no se re-evalúa: cada corrección de precio queda en el historial con el valor anterior y el nuevo.
+27. **El Administrador edita una regla con ítems en curso** → los ítems conservan la cadena que tenían (es una copia). La regla nueva se aplica a los ítems nuevos y a los que se re-evalúen por un cambio de precio.
+28. **Dos personas del mismo paso deciden a la vez** (dos de Gerencia General) → `version` en el paso: la primera gana y la segunda recibe `409`. Si el Encargado y un aprobador rechazan casi a la vez, gana el primero y el otro evento no hace nada.
