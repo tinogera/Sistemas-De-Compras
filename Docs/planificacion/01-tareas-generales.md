@@ -1,6 +1,6 @@
 # Nivel 1 — Tareas generales
 
-Las 22 tareas grandes del proyecto. Cada una explica qué hay que configurar y qué hay que crear, sin código. El detalle de cada parte está en `02-tareas-especificas.md` y las fechas en `03-area-dificultad-fechas.md`.
+Las 25 tareas grandes del proyecto (T23 a T25 se agregaron el 08/10 por el requisito de reglas de aprobación; ver las decisiones 7 a 13 de `02-tareas-especificas.md`). Cada una explica qué hay que configurar y qué hay que crear, sin código. El detalle de cada parte está en `02-tareas-especificas.md` y las fechas en `03-area-dificultad-fechas.md`.
 
 Las secciones con § se refieren a `Docs/diseno-del-sistema.md`. Las convenciones de carpetas y nombres están en `README.md`.
 
@@ -8,9 +8,9 @@ Las secciones con § se refieren a `Docs/diseno-del-sistema.md`. Las convencione
 |---|---|
 | Fundamentos | T01 · T02 · T03 |
 | Usuarios y seguridad | T04 · T05 |
-| Módulos de negocio (backend) | T06 Catálogo · T07-T08 Solicitudes · T09-T10 Compras · T11 Órdenes |
-| Transversales (backend) | T12 Eventos · T13 Auditoría · T14 Adjuntos · T15 Notificaciones · T16 Reportes |
-| Frontend | T17 · T18 · T19 · T20 |
+| Módulos de negocio (backend) | T06 Catálogo · T07-T08 Solicitudes · T09-T10 Compras · T11 Órdenes · T23 Aprobaciones |
+| Transversales (backend) | T12 Eventos · T13 Auditoría · T14 Adjuntos · T15 Notificaciones · T16 Reportes · T24 Tiempo real |
+| Frontend | T17 · T18 · T19 · T20 · T25 |
 | Cierre | T21 Calidad · T22 Documentación y demo |
 
 ---
@@ -64,7 +64,7 @@ En esta tarea hay que crear lo que usan todos los módulos. Hay que definir un f
 
 ### T04 · Usuarios, sectores y login (módulo `auth`) — S1
 
-En esta tarea hay que crear el módulo de usuarios y el login. Hay que crear el **schema** `auth` con las tablas de sectores y usuarios (§6.1, más la contraseña cifrada que el diseño no tiene), el **dominio** (Sector, Usuario y el enum de roles Solicitante, Encargado y Administrador), los **repositories** y datos de prueba (sectores y un usuario por rol). Después hay que configurar Spring Security para que la API use tokens JWT: un endpoint de login recibe email y contraseña, las valida y devuelve un token firmado; todos los demás endpoints exigen ese token. La clave para firmar va en el `.env`. También hay que exponer un endpoint que devuelva el usuario logueado, que el front necesita.
+En esta tarea hay que crear el módulo de usuarios y el login. Hay que crear el **schema** `auth` con las tablas de sectores y usuarios (§6.1, más la contraseña cifrada que el diseño no tiene), el **dominio** (Sector, Usuario y el enum de roles Solicitante, Encargado, Supervisor y Administrador), los **repositories** y datos de prueba (sectores, entre ellos Gerencia General, y un usuario por rol más un aprobador de ese sector). Después hay que configurar Spring Security para que la API use tokens JWT: un endpoint de login recibe email y contraseña, las valida y devuelve un token firmado; todos los demás endpoints exigen ese token. La clave para firmar va en el `.env`. También hay que exponer un endpoint que devuelva el usuario logueado, que el front necesita.
 
 **Qué hay que crear:** schema `auth`, dominio, repositories, datos semilla, configuración de seguridad, service y endpoint de login, endpoint de usuario actual, tests.
 
@@ -76,7 +76,7 @@ En esta tarea hay que crear el módulo de usuarios y el login. Hay que crear el 
 
 ### T05 · Permisos por rol y administración de usuarios — S2 y S4
 
-En esta tarea hay que restringir cada endpoint según el rol: el Solicitante solo ve y maneja lo suyo, solo el Encargado cotiza, aprueba, rechaza y maneja órdenes, y solo el Administrador maneja usuarios y sectores. Hay que crear el ABM (alta, baja, modificación) de sectores y usuarios para el Administrador, y una API interna del módulo para que otros módulos consulten datos de usuarios (por ejemplo, los emails de los Encargados para los avisos). En S4 hay que cubrir dos casos borde: no se puede desactivar al último Encargado, y si a un Encargado se le quita el rol, sus ítems vuelven a la bandeja general.
+En esta tarea hay que restringir cada endpoint según el rol: el Solicitante solo ve y maneja lo suyo, solo el Encargado cotiza, fija el precio, rechaza, compra y maneja órdenes, los aprobadores solo deciden el paso que les toca, y solo el Administrador maneja usuarios, sectores y reglas. El ABM de usuarios y sectores es prerrequisito de las reglas: sin él el Admin no puede crear Gerencia General ni nombrar a un Supervisor. Hay que crear el ABM (alta, baja, modificación) de sectores y usuarios para el Administrador, y una API interna del módulo para que otros módulos consulten datos de usuarios (por ejemplo, los emails de los Encargados para los avisos). En S4 hay que cubrir dos casos borde: no se puede desactivar al último Encargado, y si a un Encargado se le quita el rol, sus ítems vuelven a la bandeja general.
 
 **Qué hay que crear:** reglas de autorización, services y endpoints de ABM, `AuthApi` para otros módulos, evento de Encargado desasignado.
 
@@ -103,7 +103,7 @@ En esta tarea hay que crear el catálogo. Hay que crear el **schema** `catalogo`
 
 ### T07 · Solicitudes: crear y consultar (módulo `solicitudes`) — S1
 
-En esta tarea hay que crear el corazón del sistema. Hay que crear el **schema** `solicitudes` (§6.2) con solicitudes e ítems, el **dominio** con sus enums (urgencia, tipo, estados de solicitud y de ítem) y control de versión para detectar ediciones simultáneas, y los **repositories**. Antes de programar la lógica hay que definir **todos los eventos del sistema** (qué módulo publica y cuál escucha cada uno), porque los usan todos los módulos. Después, el **service** y los endpoints (§7.1) para crear una solicitud con sus ítems (publicando `SolicitudCreada`) y para que el solicitante vea sus solicitudes y el detalle de cada una. Reglas: al menos un ítem, cantidad mayor a 0, el sector se copia del usuario al crear.
+En esta tarea hay que crear el corazón del sistema. Hay que crear el **schema** `solicitudes` (§6.2) con solicitudes e ítems, el **dominio** con sus enums (urgencia, tipo, estados de solicitud y de ítem) y control de versión para detectar ediciones simultáneas, y los **repositories**. Antes de programar la lógica hay que definir **todos los eventos del sistema** (qué módulo publica y cuál escucha cada uno), porque los usan todos los módulos. Después, el **service** y los endpoints (§7.1) para crear una solicitud con sus ítems (publicando `SolicitudCreada`) y para que el solicitante vea sus solicitudes y el detalle de cada una. Reglas: al menos un ítem, cantidad mayor a 0, **precio estimado mayor a 0 con su moneda** (lo carga el solicitante y es lo que mira la regla de aprobación hasta que el Encargado fije el precio total), el sector se copia del usuario al crear.
 
 **Qué hay que crear:** schema, dominio, repositories, eventos del sistema, service, endpoints de alta y consulta, tests.
 
@@ -115,7 +115,7 @@ En esta tarea hay que crear el corazón del sistema. Hay que crear el **schema**
 
 ### T08 · Solicitudes: editar, cancelar y estado automático — S2, S3 y S4
 
-En esta tarea hay que completar el ciclo de vida de la solicitud. Hay que agregar al **service** y a los endpoints (§7.1) editar y borrar ítems que sigan Pendientes, y cancelar la solicitud entera si todos sus ítems siguen Pendientes. Como Compras tiene su propia copia de cada ítem, hay que avisarle de estos cambios con eventos, y resolver el caso en que el Encargado toma el ítem justo mientras el solicitante lo cancela. Después, en S3, hay que hacer que el estado de los ítems y de la solicitud se actualice solo escuchando los eventos de Compras y Órdenes: la solicitud pasa a Lista cuando todos sus ítems están resueltos (y ahí se avisa), a Cerrada cuando todas sus órdenes se enviaron, y a Cancelada si todos sus ítems se cancelaron. En S4, protección contra doble envío del formulario.
+En esta tarea hay que completar el ciclo de vida de la solicitud. Hay que agregar al **service** y a los endpoints (§7.1) editar y borrar ítems que sigan Pendientes, y cancelar la solicitud entera si todos sus ítems siguen Pendientes. Como Compras tiene su propia copia de cada ítem, hay que avisarle de estos cambios con eventos, y resolver el caso en que el Encargado toma el ítem justo mientras el solicitante lo cancela. Editar un ítem reinicia su cadena de aprobación. Después, en S3, hay que hacer que el estado de los ítems y de la solicitud se actualice solo escuchando los eventos de Compras y Órdenes: la solicitud pasa a Lista cuando todos sus ítems están resueltos, es decir comprados, rechazados o cancelados (y ahí se avisa), a Cerrada cuando todas sus órdenes se enviaron, y a Cancelada si todos sus ítems se cancelaron. En S4, protección contra doble envío del formulario.
 
 **Qué hay que crear:** métodos de service y endpoints de edición y cancelación, eventos de sincronización con Compras, listeners de eventos de Compras y Órdenes, cálculo del estado de la solicitud, tests.
 
@@ -126,7 +126,7 @@ En esta tarea hay que completar el ciclo de vida de la solicitud. Hay que agrega
 
 ### T09 · Compras: bandeja y asignación (módulo `compras`) — S2
 
-En esta tarea hay que crear la bandeja del Encargado. Hay que crear el **schema** `compras` (§6.4) con la gestión de cada ítem, el **dominio** y los **repositories**. Un **listener** escucha `SolicitudCreada` y crea una gestión por cada ítem, copiando lo necesario para ordenar la bandeja sin consultar otro módulo (urgencia, fecha necesaria, categoría, cantidad). El **service** y los endpoints (§7.2) muestran la bandeja ordenada por urgencia (Alta primero) y fecha necesaria, y permiten tomar un ítem o reasignarse uno de otro Encargado. Si dos Encargados toman el mismo ítem a la vez, solo uno gana y el otro recibe un error 409.
+En esta tarea hay que crear la bandeja del Encargado. Hay que crear el **schema** `compras` (§6.4) con la gestión de cada ítem, el **dominio** y los **repositories**. Un **listener** escucha `SolicitudCreada` y crea una gestión por cada ítem, copiando lo necesario para ordenar la bandeja sin consultar otro módulo (urgencia, fecha necesaria, categoría, cantidad, precio estimado). Toda solicitud entra siempre a la bandeja, sin esperar aprobaciones. El **service** y los endpoints (§7.2) muestran la bandeja ordenada por urgencia (Alta primero) y fecha necesaria, con una pestaña "Para comprar" para los ítems cuya cadena de aprobación ya está completa, y permiten tomar un ítem o reasignarse uno de otro Encargado. Si dos Encargados toman el mismo ítem a la vez, solo uno gana y el otro recibe un error 409.
 
 **Qué hay que crear:** schema, dominio, repositories, listener de `SolicitudCreada` (y de edición y cancelación), service y endpoints de bandeja, tomar y reasignar, evento `ItemAsignado`, tests de concurrencia.
 
@@ -136,22 +136,22 @@ En esta tarea hay que crear la bandeja del Encargado. Hay que crear el **schema*
 - [Índices parciales en PostgreSQL](https://www.postgresql.org/docs/current/indexes-partial.html)
 - Enunciado: "Urgencia y recordatorios"; diseño caso borde 1
 
-### T10 · Compras: cotizaciones, aprobar y rechazar — S2 y S4
+### T10 · Compras: cotizaciones, precio total, rechazo y compra — S2, S3 y S4
 
-En esta tarea hay que completar el trabajo del Encargado. Hay que agregar al **dominio** y al **schema** las cotizaciones (§6.4): proveedor, moneda (ARS o USD), precio unitario, total calculado, fecha de validez. El **service** y los endpoints (§7.2) permiten cargar cotizaciones, ver los proveedores sugeridos para el ítem (preguntándole al Catálogo), aprobar el ítem eligiendo una cotización vigente, o rechazarlo con un motivo. Al aprobar se publica `ItemAprobado` con todo lo que Órdenes necesita para generar la orden; al aprobar o rechazar se publica `ItemResuelto`. Reglas: una cotización vencida no se puede elegir, aprobado exige cotización elegida, rechazado exige motivo, y se puede rechazar sin haber cotizado.
+En esta tarea hay que completar el trabajo del Encargado. Hay que agregar al **dominio** y al **schema** las cotizaciones (§6.4): proveedor, moneda (ARS o USD), precio unitario, total calculado, fecha de validez. El **service** y los endpoints (§7.2) permiten cargar cotizaciones, ver los proveedores sugeridos para el ítem (preguntándole al Catálogo), **fijar el precio total** (eligiendo una cotización vigente o cargándolo a mano), rechazar el ítem con un motivo, y, cuando la cadena de aprobación está completa, **registrar la compra**. Ya no es el Encargado quien aprueba: aprueban los pasos de la regla (T23). Cada cambio de precio publica `PrecioTotalActualizado`, que re-evalúa la cadena y se ve en tiempo real. Al comprar se publica `CompraRegistrada` con todo lo que Órdenes necesita para generar la orden, y `ItemResuelto`. Después de comprar se puede corregir el precio y cargar el monto de envío. Reglas: una cotización vencida no se puede elegir ni comprar, no se compra sin cadena aprobada ni sin precio total, rechazado exige motivo, y se puede rechazar sin haber cotizado.
 
-**Qué hay que crear:** dominio y schema de cotizaciones, repositories, service y endpoints de cotizar, aprobar, rechazar y proveedores sugeridos, eventos `ItemAprobado` e `ItemResuelto`, tests.
+**Qué hay que crear:** dominio y schema de cotizaciones, repositories, service y endpoints de cotizar, fijar el precio total, rechazar, comprar, editar la compra y proveedores sugeridos, eventos `PrecioTotalActualizado`, `CompraRegistrada`, `CompraActualizada` e `ItemResuelto`, tests.
 
 **Documentación:**
 - [Spring MVC: errores REST (422 para reglas de negocio)](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html)
 - [Transacciones](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
-- Enunciado: "Cotización" y "Reglas para no olvidarse"; diseño casos borde 4 a 8
+- Enunciado: "Cotización" y "Reglas para no olvidarse"; diseño casos borde 4 a 8, y 24 a 28 (T23)
 
 ### T11 · Órdenes de pedido (módulo `ordenes`) — S3 y S4
 
-En esta tarea hay que generar las órdenes. Hay que crear el **schema** `ordenes` (§6.5) con la orden de pedido y una secuencia para el número correlativo, el **dominio** y el **repository**. Un **listener** escucha `ItemAprobado` y genera la orden en el momento, una por ítem, copiando los datos del proveedor y el precio (la orden es un documento y no cambia si después se edita el proveedor). Tiene que ser idempotente: si el evento llega dos veces, no se generan dos órdenes. El **service** y los endpoints (§7.4) permiten listar las órdenes y marcarlas como Enviadas, publicando `OrdenEnviada`. En S4, descargar la orden en PDF.
+En esta tarea hay que generar las órdenes. Hay que crear el **schema** `ordenes` (§6.5) con la orden de pedido y una secuencia para el número correlativo, el **dominio** y el **repository**. Un **listener** escucha `CompraRegistrada` y genera la orden en ese momento (cuando el Encargado compra un ítem ya aprobado), una por ítem, copiando los datos del proveedor y el precio (la orden es un documento y no cambia si después se edita el proveedor). Tiene que ser idempotente: si el evento llega dos veces, no se generan dos órdenes. El **service** y los endpoints (§7.4) permiten listar las órdenes y marcarlas como Enviadas, publicando `OrdenEnviada`. Si el Encargado corrige el precio o carga el envío después de comprar, la orden se actualiza. En S4, descargar la orden en PDF.
 
-**Qué hay que crear:** schema con secuencia, dominio, repository, listener de `ItemAprobado`, service y endpoints, eventos `OrdenGenerada` y `OrdenEnviada`, PDF, tests.
+**Qué hay que crear:** schema con secuencia, dominio, repository, listener de `CompraRegistrada` y de `CompraActualizada`, service y endpoints, eventos `OrdenGenerada` y `OrdenEnviada`, PDF, tests.
 
 **Documentación:**
 - [Secuencias en PostgreSQL](https://www.postgresql.org/docs/current/sql-createsequence.html)
@@ -175,7 +175,7 @@ En esta tarea hay que asegurar que ningún evento entre módulos se pierda ni se
 
 ### T13 · Historial de auditoría (módulo `auditoria`) — S3 y S4
 
-En esta tarea hay que registrar todo cambio. Hay que crear el **schema** `auditoria` con la tabla de historial (§6.7), en la que solo se inserta y nunca se edita ni se borra, el **dominio** y el **repository**. Un conjunto de **listeners** escucha los eventos de cambio de todos los módulos (creación, asignación, reasignación, aprobación, rechazo, cancelación, orden generada y enviada) y registra quién hizo qué, cuándo y el estado anterior y nuevo. En S4, un endpoint para consultar el historial de una solicitud o ítem.
+En esta tarea hay que registrar todo cambio. Hay que crear el **schema** `auditoria` con la tabla de historial (§6.7), en la que solo se inserta y nunca se edita ni se borra, el **dominio** y el **repository**. Un conjunto de **listeners** escucha los eventos de cambio de todos los módulos (creación, asignación, reasignación, cambios de precio, cada paso de aprobación, rechazo, cancelación, compra y su corrección, orden generada y enviada, y cambios en las reglas) y registra quién hizo qué, cuándo y el estado anterior y nuevo. En S4, un endpoint para consultar el historial de una solicitud o ítem.
 
 **Qué hay que crear:** schema, dominio, repository, listeners, endpoint de consulta.
 
@@ -197,9 +197,9 @@ En esta tarea hay que permitir subir archivos. Hay que crear un servicio de alma
 
 ### T15 · Notificaciones y recordatorios con n8n (módulo `integraciones`) — S4
 
-En esta tarea hay que conectar el sistema con n8n para los avisos. Hay que levantar n8n y un servidor de mail de prueba (Mailpit) en Docker. En el backend, el módulo `integraciones` escucha `SolicitudCreada` y `SolicitudLista` y llama a webhooks de n8n con los datos del aviso. En n8n hay que armar tres workflows: aviso a los Encargados cuando entra una solicitud, mail al solicitante cuando su solicitud está Lista (con el resultado de cada ítem), y un workflow diario que pide al backend los recordatorios pendientes (Alta cada 3 días, Media y Baja cada 3 semanas), manda los mails y avisa al backend que los envió. Los workflows se exportan al repo para que todos los importen.
+En esta tarea hay que conectar el sistema con n8n para los avisos. Hay que levantar n8n y un servidor de mail de prueba (Mailpit) en Docker. En el backend, el módulo `integraciones` escucha `SolicitudCreada` y `SolicitudLista` y llama a webhooks de n8n con los datos del aviso. En n8n hay que armar cuatro workflows: aviso a los Encargados cuando entra una solicitud, **aviso al aprobador cuando le toca decidir un paso**, mail al solicitante cuando su solicitud está Lista (con el resultado de cada ítem, incluido quién rechazó), y un workflow diario que pide al backend los recordatorios pendientes (Alta cada 3 días, Media y Baja cada 3 semanas), manda los mails y avisa al backend que los envió. Los workflows se exportan al repo para que todos los importen.
 
-**Qué hay que crear:** servicios en `compose.yaml`, cliente de webhooks, endpoints de recordatorios, API key para n8n, 3 workflows exportados.
+**Qué hay que crear:** servicios en `compose.yaml`, cliente de webhooks, endpoints de recordatorios, API key para n8n, 4 workflows exportados.
 
 **Documentación:**
 - [n8n: documentación](https://docs.n8n.io/) e [instalación con Docker](https://docs.n8n.io/deploy/host-n8n/install-options/install-with-docker)
@@ -210,7 +210,7 @@ En esta tarea hay que conectar el sistema con n8n para los avisos. Hay que levan
 
 ### T16 · Reportes (módulo `reportes`) — S4
 
-En esta tarea hay que armar los reportes de gasto. Hay que crear el **schema** `reportes` (§6.6) con dos tablas de lectura que el módulo alimenta solo, escuchando eventos: una fila de gasto por cada orden generada y una fila de tiempo de resolución por cada ítem resuelto. El **service** y los endpoints (§7.4) calculan el gasto por sector, categoría o proveedor en un rango de fechas, con pesos y dólares siempre separados, y el tiempo promedio de resolución, general y por urgencia.
+En esta tarea hay que armar los reportes de gasto. Hay que crear el **schema** `reportes` (§6.6) con dos tablas de lectura que el módulo alimenta solo, escuchando eventos: una fila de gasto por cada orden generada (que se corrige si el Encargado edita la compra) y una fila de tiempo de resolución por cada ítem resuelto. El **service** y los endpoints (§7.4) calculan el gasto por sector, categoría o proveedor en un rango de fechas, con pesos y dólares siempre separados y el envío aparte, y el tiempo promedio de resolución, general y por urgencia.
 
 **Qué hay que crear:** schema, dominio, repositories con consultas agrupadas, listeners, service y endpoints.
 
@@ -236,27 +236,27 @@ En esta tarea hay que armar la estructura del frontend. Hay que instalar React R
 
 ### T18 · Pantallas del Solicitante — S2
 
-En esta tarea hay que hacer lo que usa cualquier empleado. Hay que crear el formulario de nueva solicitud, con ítems que se agregan y quitan, autocompletado de categoría (o crear una nueva escribiéndola) y validaciones antes de enviar. Hay que crear la lista de "mis solicitudes" con filtro por estado, y el detalle de una solicitud con el estado de cada ítem, el resultado (a qué proveedor se aprobó o por qué se rechazó) y las acciones permitidas: editar o borrar un ítem Pendiente y cancelar la solicitud.
+En esta tarea hay que hacer lo que usa cualquier empleado. Hay que crear el formulario de nueva solicitud, con ítems que se agregan y quitan, autocompletado de categoría (o crear una nueva escribiéndola), precio estimado de cada ítem y validaciones antes de enviar. Hay que crear la lista de "mis solicitudes" con filtro por estado, y el detalle de una solicitud con el estado de cada ítem, el resultado (a qué proveedor se compró, o por qué y quién lo rechazó), el precio estimado y el total y las acciones permitidas: editar o borrar un ítem Pendiente y cancelar la solicitud.
 
 **Qué hay que crear:** páginas de nueva solicitud, mis solicitudes y detalle; funciones de API de solicitudes y categorías.
 
 **Documentación:**
 - [React: formularios (en español)](https://es.react.dev/reference/react-dom/components/form)
-- Enunciado: "Cómo funciona, con un ejemplo" (pasos 1, 2 y 8)
+- Enunciado: "Cómo funciona, con un ejemplo" (pasos 1, 2 y 9)
 
 ### T19 · Pantallas del Encargado — S3 y S4
 
-En esta tarea hay que hacer lo que usa el Encargado de compras. Hay que crear la bandeja (lista ordenada, filtros, tomar y reasignar, aviso si otro lo tomó antes), la pantalla de un ítem (sus datos, proveedores sugeridos, alta rápida de proveedor, carga y comparación de cotizaciones, aprobar eligiendo una o rechazar con motivo) y la lista de órdenes para marcarlas como enviadas. En S4, el ABM de proveedores y categorías (promover Nuevas y unificar duplicadas).
+En esta tarea hay que hacer lo que usa el Encargado de compras. Hay que crear la bandeja (lista ordenada, filtros, pestaña "Para comprar", tomar y reasignar, aviso si otro lo tomó antes), la pantalla de un ítem (sus datos, proveedores sugeridos, alta rápida de proveedor, carga y comparación de cotizaciones, fijar el precio total eligiendo una cotización o a mano, ver la cadena de aprobación, registrar la compra cuando esté aprobada, corregirla después con el envío, o rechazar con motivo) y la lista de órdenes para marcarlas como enviadas. En S4, el ABM de proveedores y categorías (promover Nuevas y unificar duplicadas).
 
 **Qué hay que crear:** páginas de bandeja, gestión del ítem, órdenes y catálogo; funciones de API de compras, órdenes y catálogo.
 
 **Documentación:**
 - [React: manejo de estado (en español)](https://es.react.dev/learn/managing-state)
-- Enunciado: "Cómo funciona, con un ejemplo" (pasos 3 a 7)
+- Enunciado: "Cómo funciona, con un ejemplo" (pasos 3 a 8)
 
 ### T20 · Administración, reportes, adjuntos e historial en el front — S4
 
-En esta tarea hay que completar las pantallas restantes: administración de usuarios y sectores, reportes (filtros de fecha, tablas por moneda y un gráfico), subir y descargar adjuntos en ítems y cotizaciones, y ver el historial de cambios en el detalle de una solicitud.
+En esta tarea hay que completar las pantallas restantes: administración de usuarios (con el rol Supervisor) y sectores, reportes (filtros de fecha, tablas por moneda y un gráfico), subir y descargar adjuntos en ítems y cotizaciones, y ver el historial de cambios en el detalle de una solicitud.
 
 **Qué hay que crear:** páginas de admin y reportes, componentes de adjuntos e historial.
 
@@ -270,7 +270,7 @@ En esta tarea hay que completar las pantallas restantes: administración de usua
 
 ### T21 · Calidad y prueba completa — continuo y cierre
 
-En esta tarea hay que asegurar que todo funcione. Cada subtarea de backend trae sus tests (reglas de dominio y endpoints). Al cierre hay que recorrer el ejemplo de Laura completo desde la interfaz y probar los casos borde de concurrencia.
+En esta tarea hay que asegurar que todo funcione. Cada subtarea de backend trae sus tests (reglas de dominio y endpoints). Al cierre hay que recorrer el ejemplo de Laura completo desde la interfaz (ahora con la cadena de aprobación, el cambio de regla y el precio en tiempo real) y probar los casos borde de concurrencia.
 
 **Documentación:**
 - [Spring Boot: testing](https://docs.spring.io/spring-boot/4.1.1/reference/testing/spring-boot-applications.html)
@@ -278,8 +278,47 @@ En esta tarea hay que asegurar que todo funcione. Cada subtarea de backend trae 
 
 ### T22 · Documentación, empaquetado y demo — cierre
 
-En esta tarea hay que preparar la entrega: actualizar el documento de diseño con las decisiones reales, escribir un README de instalación, empaquetar la app con Docker para la demo, preparar datos de ejemplo y el guion de la presentación, y explicar en el diseño cómo escalaría el sistema y cómo maneja fallas.
+En esta tarea hay que preparar la entrega: actualizar el documento de diseño (y corregir el enunciado, que dice que no hay aprobaciones por monto) con las decisiones reales, escribir un README de instalación, empaquetar la app con Docker para la demo, preparar datos de ejemplo y el guion de la presentación, y explicar en el diseño cómo escalaría el sistema y cómo maneja fallas.
 
 **Documentación:**
 - [Spring Boot: Dockerfiles](https://docs.spring.io/spring-boot/4.1.1/reference/packaging/container-images/dockerfiles.html)
 - [Vite: build para producción (en español)](https://es.vite.dev/guide/static-deploy)
+
+---
+
+## Requisito nuevo: reglas de aprobación (agregado el 08/10)
+
+El Administrador puede definir **reglas** para las compras: por ejemplo, "más de tanta plata: consultar con tales sectores" o "menos de tanta plata: aceptar". El flujo inicial es `Crear solicitud → Supervisor → Aceptar/Rechazar`, y el día de mañana tiene que poder pasar a `Crear solicitud → Supervisor → Gerencia General → Aceptar/Rechazar` **sin programar**. Toda solicitud llega siempre al Encargado, que cotiza y negocia mientras las aprobaciones corren en paralelo; no se puede comprar hasta que todas estén. Las decisiones están en `02-tareas-especificas.md` (7 a 13).
+
+### T23 · Reglas y cadena de aprobación (módulo `aprobaciones`) — S0 (atrasada), S1, S2 y S3
+
+En esta tarea hay que crear el módulo nuevo. Hay que crear el **schema** `aprobaciones` con las reglas (condiciones y pasos) y con la copia de cada ítem y de sus pasos, que se arma al entrar una solicitud. El **motor de reglas** elige, según el monto del ítem (el precio total si el Encargado ya lo cargó; si no, el estimado), la primera regla activa que se cumple y arma la cadena de pasos; un paso lo cumple un rol (Supervisor) o un sector (Gerencia General). Las condiciones son una estrategia por tipo, así que sumar categoría o sector el día de mañana no obliga a cambiar el motor. El **Admin** gestiona las reglas por endpoints (y por una pantalla, T25.2). Cuando el precio total cambia, la cadena se re-evalúa conservando lo ya aprobado. Los aprobadores ven sus pendientes y aprueban o rechazan cada paso; rechazar es por ítem y siempre con motivo. Nadie decide sobre su propio pedido. Todo se comunica por eventos con Compras y Solicitudes.
+
+**Qué hay que crear:** módulo y schema, dominio, motor de reglas, ABM de reglas, listeners que arman y mantienen la cadena, endpoints de aprobar y rechazar un paso, endpoints de pendientes, simulador de reglas, eventos de aprobación, tests (incluido uno de concurrencia).
+
+**Documentación:**
+- [Spring Modulith: eventos entre módulos](https://docs.spring.io/spring-modulith/reference/events.html)
+- [Patrón Strategy (en español)](https://refactoring.guru/es/design-patterns/strategy)
+- [Spring Data JPA: bloqueo optimista (`@Version`)](https://docs.spring.io/spring-data/jpa/reference/jpa/locking.html)
+- Decisiones 7 a 13 y casos borde 24 a 28
+
+### T24 · Precio en tiempo real (SSE) — S3 y S4
+
+En esta tarea hay que hacer que el precio y la aprobación se actualicen en pantalla sin recargar, para que, por ejemplo, el aprobador vea el precio total apenas el Encargado lo carga y decida con ese valor. El backend ofrece un stream de Server-Sent Events que manda señales con ids (sin datos de negocio) cuando cambia un precio o una aprobación; el front vuelve a pedir el detalle por REST, que es donde se controlan los permisos. En el front, un hook mantiene una sola conexión con reconexión automática y un plan B por consulta periódica.
+
+**Qué hay que crear:** endpoint de stream, registro de conexiones, listeners que convierten eventos en señales, hook del front y su uso en las pantallas.
+
+**Documentación:**
+- [Spring MVC: SSE (`SseEmitter`)](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html#mvc-ann-async-sse)
+- [MDN: server-sent events (en español)](https://developer.mozilla.org/es/docs/Web/API/Server-sent_events/Using_server-sent_events)
+- [@microsoft/fetch-event-source](https://github.com/Azure/fetch-event-source)
+
+### T25 · Pantallas de aprobación y reglas — S3 y S4
+
+En esta tarea hay que hacer las pantallas del requisito nuevo. Para el aprobador: la lista de lo que le toca decidir (y lo que viene, y lo que ya decidió) y el detalle de un ítem con el precio estimado y el total lado a lado, la cadena de pasos y los botones de aprobar y rechazar con motivo. Para el Admin: el ABM de reglas, con condiciones, pasos ordenables y un probador ("con 600.000 pesos, ¿qué cadena se arma?"). También el componente que dibuja la cadena de pasos, que se reutiliza en el detalle de la solicitud y en la gestión del ítem.
+
+**Qué hay que crear:** páginas `Aprobaciones`, `DetalleAprobacion` y `Reglas`; componente `PasosAprobacion`; funciones de API de aprobaciones y reglas.
+
+**Documentación:**
+- [React: renderizado condicional (en español)](https://es.react.dev/learn/conditional-rendering)
+- [React: formularios (en español)](https://es.react.dev/reference/react-dom/components/form)

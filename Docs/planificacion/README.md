@@ -6,7 +6,7 @@ Fuentes: `Docs/enunciado.md` (qué hay que hacer) y `Docs/diseno-del-sistema.md`
 
 | Nivel | Archivo | Qué tiene |
 |---|---|---|
-| **1 — Tareas generales** | `01-tareas-generales.md` | Las 22 tareas grandes del proyecto (T01 a T22). Cada una explica en texto qué hay que configurar y crear (dominio, repository, service, endpoints, schema, pantallas), sin código, y con links a la documentación. |
+| **1 — Tareas generales** | `01-tareas-generales.md` | Las 25 tareas grandes del proyecto (T01 a T25). Cada una explica en texto qué hay que configurar y crear (dominio, repository, service, endpoints, schema, pantallas), sin código, y con links a la documentación. |
 | **2 — Tareas específicas** | `02-tareas-especificas.md` | Cada tarea general dividida en subtareas (T07.1, T07.2...). Detalla qué campos lleva cada entidad, qué métodos cada repository, qué endpoints tiene que cumplir el service, qué reglas del enunciado aplica y dónde está la documentación. |
 | **3 — Área, dificultad y fechas** | `03-area-dificultad-fechas.md` | Tabla de todas las subtareas con su área (Back, Front, Infra, n8n, Docs), dificultad, importancia, peso, fecha límite, dependencias, responsable y estado. Es el tablero para seguir el avance. |
 | Anexos | `guias/` | Guías paso a paso con código ya probado. Hoy: `guias/sprint-0-paso-a-paso.md` (T01 y T02). |
@@ -21,10 +21,10 @@ Para trabajar: elegir una subtarea en el Nivel 3, leer su detalle en el Nivel 2,
 | Sprint | Fechas | Mitad de sprint | Qué tiene que funcionar al final |
 |---|---|---|---|
 | **S0** — Fundamentos | 28/09 → 04/10 | — | Todos corren back, front y tests en su máquina |
-| **S1** — Base del dominio | 05/10 → 18/10 | 11/10 | Un solicitante se loguea y crea una solicitud desde la API |
-| **S2** — Circuito de Compras | 19/10 → 01/11 | 25/10 | El backend funciona hasta aprobar o rechazar un ítem; el solicitante tiene sus pantallas |
-| **S3** — Órdenes y cierre del flujo | 02/11 → 15/11 | 08/11 | El ejemplo de Laura funciona de punta a punta desde la interfaz |
-| **S4** — Avisos y reportes | 16/11 → 29/11 | 22/11 | Todo terminado (feature freeze) |
+| **S1** — Base del dominio | 05/10 → 18/10 | 11/10 | Un solicitante se loguea y crea una solicitud (con precio estimado) desde la API; el motor de reglas de aprobación existe y está testeado |
+| **S2** — Compras y reglas de aprobación | 19/10 → 01/11 | 25/10 | Toda solicitud entra a la bandeja y a la vez arma su cadena de aprobación según las reglas; el Encargado cotiza, fija el precio total o rechaza; el Admin gestiona reglas, usuarios y sectores por la API; el solicitante tiene sus pantallas |
+| **S3** — Aprobaciones, compra y órdenes | 02/11 → 15/11 | 08/11 | El ejemplo de Laura funciona de punta a punta desde la interfaz, pasando por Supervisor y Gerencia General, la compra y la orden |
+| **S4** — Tiempo real, avisos y reportes | 16/11 → 29/11 | 22/11 | Todo terminado (feature freeze): precio en tiempo real, reglas desde la pantalla, avisos y reportes |
 | **Cierre** | 30/11 → 04/12 | — | Pruebas completas, documentación y demo |
 
 Las subtareas que bloquean a otras (entidades, schemas, cliente del front) vencen a **mitad de sprint**; el resto, al final.
@@ -33,11 +33,13 @@ Las subtareas que bloquean a otras (entidades, schemas, cliente del front) vence
 
 | Se implementa | Se simplifica | Solo se documenta |
 |---|---|---|
-| Todo el flujo del enunciado: solicitud → bandeja → cotización → aprobación/rechazo → orden → aviso | **Outbox manual** → registro de eventos de Spring Modulith (`event_publication`), que cumple la misma función | Escalado (§8 del diseño) |
-| Login con roles (Solicitante, Encargado, Admin) | **Adjuntos** → carpeta en el servidor con subida directa, en vez de S3 con URL prefirmada | Failover, backups, deploy gradual (§9) |
+| Todo el flujo: solicitud → bandeja del Encargado (cotización, precio total, rechazo) **y en paralelo** cadena de aprobación por reglas (Supervisor, Gerencia General...) → compra → orden → aviso | **Outbox manual** → registro de eventos de Spring Modulith (`event_publication`), que cumple la misma función | Escalado (§8 del diseño) |
+| Login con roles (Solicitante, Encargado, Supervisor, Admin) | **Adjuntos** → carpeta en el servidor con subida directa, en vez de S3 con URL prefirmada | Failover, backups, deploy gradual (§9) |
 | Catálogo, auditoría, reportes, avisos con n8n | **n8n** → corre local en Docker con un servidor de mail de prueba (Mailpit) | Prometheus/Grafana, ShedLock |
 
 Si se atrasa un sprint, se recortan primero las subtareas de importancia 1.
+
+**Requisito agregado el 08/10:** reglas de aprobación configurables por el Admin (módulo `aprobaciones`, T23 a T25, más cambios en casi todas las tareas de negocio). Pisa al enunciado original, que decía que no había aprobaciones por monto. El detalle está en las decisiones 7 a 13 de `02-tareas-especificas.md`, y el efecto en las fechas, al principio de `03-area-dificultad-fechas.md`.
 
 ## Cómo tomar una tarea
 
