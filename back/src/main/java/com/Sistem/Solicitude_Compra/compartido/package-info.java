@@ -2,4 +2,3 @@
 package com.Sistem.Solicitude_Compra.compartido;
 
 import org.springframework.modulith.ApplicationModule;
-
