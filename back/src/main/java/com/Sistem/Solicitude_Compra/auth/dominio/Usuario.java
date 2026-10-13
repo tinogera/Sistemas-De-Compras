@@ -24,6 +24,7 @@ public class Usuario {
     @Column(nullable = false)
     private String passwordHash;
     private Boolean activo = true;
+
 }
 
 
