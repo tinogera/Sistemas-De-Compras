@@ -4,7 +4,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Setter 
@@ -40,6 +43,5 @@ public class Solicitud {
     public boolean puedeCancelarse() {
         return items.stream().allMatch(item -> item.getEstado() == EstadoItem.PENDIENTE);
     }
-    
     // Validaciones de negocio adicionales según requerimientos...
 }
