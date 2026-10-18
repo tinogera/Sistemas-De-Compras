@@ -1,0 +1,59 @@
+package com.Sistem.Solicitude_Compra.auth.servicio;
+
+import com.Sistem.Solicitude_Compra.auth.dominio.Usuario;
+import com.Sistem.Solicitude_Compra.auth.repositorio.UsuarioRepository;
+import com.Sistem.Solicitude_Compra.auth.web.LoginResponse;
+import com.Sistem.Solicitude_Compra.auth.web.UsuarioLogin;
+import com.Sistem.Solicitude_Compra.compartido.errores.CredencialesInvalidasException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
+@Service
+public class LoginService {
+
+    private final UsuarioRepository usuarios;
+    private final PasswordEncoder encoder;
+    private final JwtEncoder jwtEncoder;
+    private final long expiracionHoras;
+
+    public LoginService(UsuarioRepository usuarios, PasswordEncoder encoder, JwtEncoder jwtEncoder,
+                        @Value("${app.jwt.expiracion-horas}") long expiracionHoras) {
+        this.usuarios = usuarios;
+        this.encoder = encoder;
+        this.jwtEncoder = jwtEncoder;
+        this.expiracionHoras = expiracionHoras;
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(String email, String password) {
+        Usuario u = usuarios.findByEmailIgnoreCase(email).orElse(null);
+        if (u == null || !Boolean.TRUE.equals(u.getActivo())
+                || !encoder.matches(password, u.getPasswordHash())) {
+            throw new CredencialesInvalidasException();
+        }
+
+        Instant ahora = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .subject(u.getId().toString())
+                .issuedAt(ahora)
+                .expiresAt(ahora.plus(expiracionHoras, ChronoUnit.HOURS))
+                .claim("email", u.getEmail())
+                .claim("nombre", u.getNombre())
+                .claim("rol", u.getRol().name())
+                .claim("sectorId", u.getSector().getId())
+                .build();
+
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS384).build();
+        String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+
+        return new LoginResponse(token,
+                new UsuarioLogin(u.getId(), u.getNombre(), u.getEmail(), u.getRol(), u.getSector().getId()));
+    }
+}
