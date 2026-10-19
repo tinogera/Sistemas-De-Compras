@@ -62,7 +62,9 @@ public class SeguridadConfig {
     }
 
     @Bean
-    SecurityFilterChain filtros(HttpSecurity http, JwtAuthenticationConverter converter) throws Exception {
+    SecurityFilterChain filtros(HttpSecurity http, JwtAuthenticationConverter converter,
+                                EntradaNoAutenticado entrada, ManejadorAccesoDenegado denegado)
+            throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
@@ -70,7 +72,13 @@ public class SeguridadConfig {
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(converter)));
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(entrada)
+                        .accessDeniedHandler(denegado))
+                .oauth2ResourceServer(o -> o
+                        .jwt(j -> j.jwtAuthenticationConverter(converter))
+                        .authenticationEntryPoint(entrada)
+                        .accessDeniedHandler(denegado));
         return http.build();
     }
 }

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// Este test prueba la paginación, no la seguridad: se desactivan los filtros de Spring Security.
 @WebMvcTest(controllers = PaginaTest.ControladorPrueba.class)
+@AutoConfigureMockMvc(addFilters = false)
 @Import(PaginaTest.ControladorPrueba.class)
 class PaginaTest {
 
