@@ -33,6 +33,9 @@ jobs:
 
       - name: Compilar y testear
         run: ./mvnw -B verify
+        env:
+          # Solo para los tests: no es un secreto real.
+          JWT_SECRET: secreto-solo-para-ci-de-prueba-con-mas-de-cuarenta-y-ocho-caracteres
         timeout-minutes: 10
 
   frontend:

@@ -166,7 +166,7 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
       - `NoResourceFoundException` (la ruta no existe) → 404, `NO_ENCONTRADO`.
       - `HttpRequestMethodNotSupportedException` → 405, `METODO_NO_PERMITIDO`.
     - Cualquier otra excepción → 500, `ERROR_INTERNO`: se loguea completa y al cliente solo le llega un mensaje genérico.
-- **Ojo con el 500 genérico:** captura todo lo que no tenga un mapeo propio. Cuando se agregue Spring Security (T04.4), sus excepciones de permiso también llegan a este manejador; si no se mapean, un 403 sale como 500. Por eso T04.4 agrega el mapeo de 401 y 403 a este mismo manejador.
+- **Ojo con el 500 genérico:** captura todo lo que no tenga un mapeo propio. Cuando se agregue Spring Security (T04.3), sus excepciones de permiso también llegan a este manejador; si no se mapean, un 403 sale como 500. Por eso T04.3 agrega el mapeo de 401 y 403 a este mismo manejador.
 - Tests: un `@WebMvcTest` con un controller de prueba que lanza cada excepción y verifica código HTTP y cuerpo.
 - **Documentación:**
   - [Spring MVC: `@RestControllerAdvice`](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-advice.html)
@@ -187,7 +187,7 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
 
 ### T03.4 · Documentación de la API con Swagger
 - Agregar al `pom.xml` `org.springdoc:springdoc-openapi-starter-webmvc-ui`. Usar la versión compatible con Spring Boot 4 que indica springdoc.org (la 3.x).
-- Queda disponible en `http://localhost:8080/swagger-ui.html`. Cuando exista seguridad (T04.4), esa ruta y `/v3/api-docs/**` tienen que quedar abiertas y Swagger tiene que permitir cargar el token (botón "Authorize").
+- Queda disponible en `http://localhost:8080/swagger-ui.html`. Cuando exista seguridad (T04.3), esa ruta y `/v3/api-docs/**` tienen que quedar abiertas y Swagger tiene que permitir cargar el token (botón "Authorize").
 - **Documentación:**
   - [springdoc-openapi: primeros pasos](https://springdoc.org/#getting-started)
   - [springdoc-openapi: botón "Authorize" con token](https://springdoc.org/#how-do-i-add-authorization-header-in-requests)
@@ -234,20 +234,7 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
   - [Spring Data: conceptos de repositories](https://docs.spring.io/spring-data/commons/reference/repositories/core-concepts.html)
   - [Spring Boot: tests de repositories con `@DataJpaTest`](https://docs.spring.io/spring-boot/4.1.1/reference/testing/spring-boot-applications.html#testing.spring-boot-applications.autoconfigured-spring-data-jpa)
 
-### T04.3 · Datos de prueba
-- Clase `auth/servicio/DatosDePrueba` que implementa `CommandLineRunner` y solo corre si en el `.env` está `DATOS_PRUEBA=true` (con `@ConditionalOnProperty`).
-- Si la tabla de usuarios está vacía, crea:
-  - Sectores: Recursos Humanos, Compras, Administración, Sistemas y **Gerencia General**.
-  - Un usuario por rol: `solicitante@test.com` (Recursos Humanos), `encargado@test.com` (Compras), `admin@test.com` (Administración) y `supervisor@test.com` (Administración, rol SUPERVISOR). Más `gg@test.com` (Gerencia General, rol SOLICITANTE): es el aprobador del paso de sector. La contraseña sale de `DATOS_PRUEBA_PASSWORD` en el `.env` y se guarda cifrada con el `PasswordEncoder`.
-- Agregar `DATOS_PRUEBA` y `DATOS_PRUEBA_PASSWORD` a `back/.env.example`.
-- No se hace con una migración porque las migraciones también corren en producción, y no queremos usuarios de prueba ahí.
-- **Documentación:**
-  - [Spring Boot: `CommandLineRunner` (código al arrancar)](https://docs.spring.io/spring-boot/4.1.1/reference/features/spring-application.html#features.spring-application.command-line-runner)
-  - [Spring Boot: `@ConditionalOnProperty`](https://docs.spring.io/spring-boot/4.1.1/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.condition-annotations.property-conditions)
-  - [Spring Boot: configuración externa (`application.properties` y variables de entorno)](https://docs.spring.io/spring-boot/4.1.1/reference/features/external-config.html)
-  - [Spring Security: guardado de contraseñas (BCrypt)](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
-
-### T04.4 · Login con JWT y configuración de seguridad
+### T04.3 · Login con JWT y configuración de seguridad
 - Dependencias: `spring-boot-starter-security-oauth2-resource-server` (trae Spring Security y el soporte de JWT) y, para tests, `spring-boot-starter-security-test`.
 - **Clave de firma:** `JWT_SECRET` en `.env` (al menos 32 caracteres, porque HS256 exige 256 bits) y `JWT_EXPIRACION_HORAS=8`. Agregarlas a `.env.example` sin valor.
 - **Configuración** en `auth/servicio/SeguridadConfig` (o `auth/web/`):
@@ -286,8 +273,8 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
   - [OWASP: autenticación (mensajes de error genéricos)](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
   - [MDN: 401 Unauthorized (en español)](https://developer.mozilla.org/es/docs/Web/HTTP/Reference/Status/401)
 
-### T04.5 · Usuario logueado y `AuthApi`
-- **Endpoint** `GET /api/v1/auth/yo` → los datos del usuario del token, más el nombre del sector. El front lo llama al recargar la página.
+### T04.4 · Usuario logueado y `AuthApi`
+- **Endpoint** `GET /api/v1/auth/identificate` → los datos del usuario del token, más el nombre del sector. El front lo llama al recargar la página.
 - **`auth/AuthApi`** (clase pública en la raíz del módulo, que usan otros módulos):
   - `UsuarioResumen obtenerUsuario(Long id)`: id, nombre, email, rol, sectorId, activo. `UsuarioResumen` es un record público en la raíz de `auth/`.
   - `Long sectorDe(Long usuarioId)`.
@@ -318,7 +305,7 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
 | `/api/v1/historial/**` | Cualquier usuario logueado (el service controla: un Solicitante solo ve el historial de sus solicitudes, T13.3) |
 
 - Reglas que no se resuelven por rol y van en el service, con `SinPermisoException`: un Solicitante solo ve y edita sus propias solicitudes; un Encargado solo carga cotizaciones, fija el precio, rechaza o registra la compra de ítems asignados a él; un aprobador solo decide el paso que le corresponde y nunca sobre su propio pedido.
-- El 403 por rol lo devuelve el mapeo de `AccessDeniedException` que agrega T04.4. Verificar que no salga 500.
+- El 403 por rol lo devuelve el mapeo de `AccessDeniedException` que agrega T04.3. Verificar que no salga 500.
 - Tests: para cada grupo, un caso con el rol correcto (200) y uno con otro rol (403 con `codigo: SIN_PERMISO`).
 - **Documentación:**
   - [Spring Security: seguridad por método (`@EnableMethodSecurity`)](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html#activate-method-security)
@@ -361,6 +348,19 @@ Código probado en `guias/sprint-0-paso-a-paso.md`.
   - [Spring Data JPA: consultas a partir del nombre del método](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html#jpa.query-methods.query-creation)
   - [Spring Modulith: eventos entre módulos](https://docs.spring.io/spring-modulith/reference/events.html)
   - [Spring Modulith: `@ApplicationModuleListener`](https://docs.spring.io/spring-modulith/reference/events.html#aml)
+
+### T05.5 · Datos de prueba
+- Clase `auth/servicio/DatosDePrueba` que implementa `CommandLineRunner` y solo corre si en el `.env` está `DATOS_PRUEBA=true` (con `@ConditionalOnProperty`).
+- Si la tabla de usuarios está vacía, crea:
+  - Sectores: Recursos Humanos, Compras, Administración, Sistemas y **Gerencia General**.
+  - Un usuario por rol: `solicitante@test.com` (Recursos Humanos), `encargado@test.com` (Compras), `admin@test.com` (Administración) y `supervisor@test.com` (Administración, rol SUPERVISOR). Más `gg@test.com` (Gerencia General, rol SOLICITANTE): es el aprobador del paso de sector. La contraseña sale de `DATOS_PRUEBA_PASSWORD` en el `.env` y se guarda cifrada con el `PasswordEncoder`.
+- Agregar `DATOS_PRUEBA` y `DATOS_PRUEBA_PASSWORD` a `back/.env.example`.
+- No se hace con una migración porque las migraciones también corren en producción, y no queremos usuarios de prueba ahí.
+- **Documentación:**
+  - [Spring Boot: `CommandLineRunner` (código al arrancar)](https://docs.spring.io/spring-boot/4.1.1/reference/features/spring-application.html#features.spring-application.command-line-runner)
+  - [Spring Boot: `@ConditionalOnProperty`](https://docs.spring.io/spring-boot/4.1.1/reference/features/developing-auto-configuration.html#features.developing-auto-configuration.condition-annotations.property-conditions)
+  - [Spring Boot: configuración externa (`application.properties` y variables de entorno)](https://docs.spring.io/spring-boot/4.1.1/reference/features/external-config.html)
+  - [Spring Security: guardado de contraseñas (BCrypt)](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
 
 ---
 
@@ -1250,7 +1250,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
 
 ### T15.7 · Seguridad de la integración
 - **API key:** `N8N_API_KEY` en `.env`. Un `SecurityFilterChain` aparte para `/api/v1/integraciones/**`, que exige el header `X-API-Key` con ese valor en vez del JWT.
-  - Cómo: un segundo bean `SecurityFilterChain` con `@Order(1)` y `http.securityMatcher("/api/v1/integraciones/**")`, así solo aplica a esas rutas. La cadena general de T04.4 queda para todo lo demás.
+  - Cómo: un segundo bean `SecurityFilterChain` con `@Order(1)` y `http.securityMatcher("/api/v1/integraciones/**")`, así solo aplica a esas rutas. La cadena general de T04.3 queda para todo lo demás.
   - En esa cadena, un filtro propio (`OncePerRequestFilter`) lee `X-API-Key`. Compararlo con `MessageDigest.isEqual(...)` y no con `equals`: `equals` corta en el primer carácter distinto y, midiendo tiempos, se puede adivinar la clave de a un carácter.
   - Si coincide, autenticar como un usuario técnico con la authority `ROLE_INTEGRACION`. Si falta o no coincide → 401 con `ErrorApi` (`NO_AUTENTICADO`).
   - Sin sesión y sin CSRF, igual que la cadena principal.
@@ -1411,7 +1411,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
 ### T17.3 · Login, usuario actual y rutas protegidas
 - `auth/AuthContext.jsx`: contexto con `usuario`, `login(email, password)` y `logout()`.
   - `login` llama a `POST /auth/login`, guarda el token en `localStorage` y el usuario en el estado.
-  - Al cargar la app, si hay token, llama a `GET /auth/yo`. Si falla, `logout`.
+  - Al cargar la app, si hay token, llama a `GET /auth/identificate`. Si falla, `logout`.
 - `auth/RutaProtegida.jsx`: si no hay usuario, redirige a `/login`; si el rol no está entre los permitidos, muestra "No tenés permiso".
 - `pages/Login.jsx`: formulario de email y contraseña, mensaje de error del backend, y al entrar redirige según el rol (Encargado a `/bandeja`, Admin a `/admin/usuarios`, el resto a `/solicitudes`).
 - **Documentación:**
@@ -1634,7 +1634,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
   - [Java: `ZoneId` (zonas horarias)](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/time/ZoneId.html)
 
 ### T21.2 · Tests de endpoints
-- Cada controller tiene un test con MockMvc que cubre el caso feliz, una validación (400), un permiso (403) y un error de regla (422 o 409). El usuario se simula con `jwt()` (T04.4).
+- Cada controller tiene un test con MockMvc que cubre el caso feliz, una validación (400), un permiso (403) y un error de regla (422 o 409). El usuario se simula con `jwt()` (T04.3).
 - **Documentación:**
   - [Spring Boot: tests de la capa web con `@WebMvcTest`](https://docs.spring.io/spring-boot/4.1.1/reference/testing/spring-boot-applications.html#testing.spring-boot-applications.spring-mvc-tests)
   - [Spring: MockMvc](https://docs.spring.io/spring-framework/reference/testing/mockmvc.html)
@@ -1661,7 +1661,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
   - §1: requisitos nuevos de aprobaciones (reglas por monto, cadena de pasos, precio estimado y total, compra y envío, tiempo real) como RF18 en adelante, y corregir RF9, RF10 y RF11.
   - §4 y §5: módulo `compartido`; **módulo `aprobaciones`**; outbox reemplazado por el registro de eventos de Spring Modulith (`event_publication`); adjuntos en carpeta local; n8n y Mailpit en Docker; SSE para el tiempo real.
   - §6: columnas y tablas agregadas (lista en "Decisiones que cambian el diseño original", incluido el schema `aprobaciones` completo de T23.1). Sacar la tabla `outbox` de §6.7 o marcarla como reemplazada.
-  - §7: endpoints que se agregaron o cambiaron (login, `/auth/yo`, admin, historial, adjuntos multipart en vez de URL prefirmada, recordatorios) y el formato de errores real (`ErrorApi`).
+  - §7: endpoints que se agregaron o cambiaron (login, `/auth/identificate`, admin, historial, adjuntos multipart en vez de URL prefirmada, recordatorios) y el formato de errores real (`ErrorApi`).
   - Una tabla nueva con todos los eventos (la de T07.3).
   - §10: casos borde 24 a 28 (los de T23).
   - **`Docs/enunciado.md`:** ya se actualizó el 08/10 (usuarios, ejemplo de Laura en 9 pasos, estados del ítem, reglas de aprobación, módulos, reglas 4, 6, 7 y 11 a 16). En el cierre, releerlo contra lo que se implementó de verdad.
@@ -1678,7 +1678,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
   3. **Configuración**: copiar `back/.env.example` a `back/.env` y `frontend/.env.example` a `frontend/.env`; explicar cada variable (qué es y un valor de ejemplo, **nunca** valores reales).
   4. **Levantar en desarrollo**: backend (`cd back && ./mvnw spring-boot:run`, que levanta Postgres con Docker Compose), frontend (`cd frontend && npm install && npm run dev`), n8n y Mailpit (T15.1), con las URLs de cada uno (app, Swagger, n8n, Mailpit).
   5. **Workflows de n8n**: los pasos de T15.8.
-  6. **Usuarios de prueba** (T04.3): los emails, y que la contraseña es la de `DATOS_PRUEBA_PASSWORD`.
+  6. **Usuarios de prueba** (T05.5): los emails, y que la contraseña es la de `DATOS_PRUEBA_PASSWORD`.
   7. **Tests**: `./mvnw test` (necesita Docker, por Testcontainers) y `npm run lint`.
   8. **Demo con un solo comando** (T22.3).
   9. **Problemas comunes**: puerto 5432 ocupado, Docker apagado, volumen de otra versión de Postgres (T01.4).
@@ -1706,7 +1706,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
 
 ### T22.4 · Datos y guion de la demo
 - Datos de ejemplo cargados (proveedores, categorías, algunas solicitudes en distintos estados), guion de la presentación siguiendo el ejemplo de Laura, y slides.
-- **Datos:** extender `DatosDePrueba` (T04.3), activado con otra variable (`DATOS_DEMO=true`), para que cualquiera levante la demo igual. Como mínimo:
+- **Datos:** extender `DatosDePrueba` (T05.5), activado con otra variable (`DATOS_DEMO=true`), para que cualquiera levante la demo igual. Como mínimo:
   - 2 Encargados (para mostrar reasignar y el choque de "tomar"), 1 Admin, 2 o 3 solicitantes de sectores distintos, 1 Supervisor y 2 personas de Gerencia General (para mostrar el choque de "dos deciden a la vez").
   - Reglas de aprobación: `Compras chicas` (monto hasta 50.000 ARS: sin pasos, se aprueba sola), `Compras grandes` (más de 500.000 ARS: Supervisor y después Gerencia General) y la por defecto (Supervisor). Creadas con el service de T23.3.
   - 6 a 8 proveedores con categorías, uno inactivo.
@@ -2010,7 +2010,7 @@ En `compartido/eventos/`, un `record` por evento. Todos empiezan con `UUID event
 - **Qué se manda:** solo **señales con ids**, nada de datos de negocio: `{ "tipo": "PRECIO_ACTUALIZADO", "itemId": 4021, "solicitudId": 1587 }`. El front, al recibirla, vuelve a pedir el detalle por REST, que es donde se controlan los permisos. Así no hace falta repetir ninguna regla de autorización en el stream y no se filtra información por esta vía.
 - **Listeners** en `integraciones/servicio/` (`@ApplicationModuleListener`) que convierten eventos en señales: `PrecioTotalActualizado`, `CompraActualizada` (`PRECIO_ACTUALIZADO`), `PasoAprobacionActivado`, `PasoDecidido`, `AprobacionCompletada`, `AprobacionReabierta`, `AprobacionRechazada` (`APROBACION_CAMBIO`), `ItemAsignado` e `ItemResuelto` (`ITEM_CAMBIO`). Se mandan a todos los conectados; ver una señal con un id no da acceso a nada.
 - **Un fallo al mandar a un cliente no puede hacer fallar el listener:** si lanzara una excepción, Modulith dejaría el evento sin completar y lo reprocesaría al reiniciar (T12.1) para avisarle a alguien que ya se desconectó. Capturar el error de cada conexión, sacarla del registro y seguir.
-- Seguridad: la ruta queda en la cadena JWT normal (T04.4). Un navegador no puede mandar el header `Authorization` con `EventSource`; por eso el front usa `fetch` (T24.2) y el backend no necesita aceptar el token por la URL.
+- Seguridad: la ruta queda en la cadena JWT normal (T04.3). Un navegador no puede mandar el header `Authorization` con `EventSource`; por eso el front usa `fetch` (T24.2) y el backend no necesita aceptar el token por la URL.
 - **Límite conocido:** el registro está en memoria, así que funciona con **una** instancia del backend. Con varias réplicas, una señal solo llegaría a los clientes conectados a la instancia que la generó. La solución sería Postgres `LISTEN/NOTIFY` o Redis pub/sub; queda como propuesta en T22.5.
 - **Tests:** unitario del `CorredorDeSenales` con una conexión simulada (publicar una señal llega; una conexión que falla se descarta y no afecta a las demás); con `Scenario`, publicar `PrecioTotalActualizado` produce una señal `PRECIO_ACTUALIZADO` con el `itemId`.
 - **Documentación:**

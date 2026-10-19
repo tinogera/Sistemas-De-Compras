@@ -199,7 +199,7 @@ Este escenario es el que justifica las estrategias de la sección 8.
 |---|---|---|
 | Lenguaje y framework | Java 25 + Spring Boot 4.1 | Backend único (monolito modular) |
 | Módulos | Spring Modulith | Fronteras entre módulos, eventos de dominio y tests de arquitectura |
-| Persistencia | Spring Data JPA + PostgreSQL 16 | Base relacional única, un schema por módulo |
+| Persistencia | Spring Data JPA + PostgreSQL 17 | Base relacional única, un schema por módulo |
 | Migraciones | Flyway | Versionado del esquema, migraciones compatibles hacia atrás |
 | Seguridad | Spring Security + JWT | Login, roles (Solicitante, Encargado, Supervisor, Administrador) |
 | Eventos | Spring Events + patrón Outbox | Comunicación confiable entre módulos; reemplazable por RabbitMQ o Kafka |
@@ -374,7 +374,7 @@ CREATE TABLE compras.cotizacion (
   entrega_estimada  DATE,
   observaciones     TEXT,
   estado            VARCHAR(12) NOT NULL DEFAULT 'CANDIDATA'
-                    CHECK (estado IN ('CANDIDATA','SELECCIONADA','DESCARTADA','VENCIDA')),
+                    CHECK (estado IN ('CANDIDATA','SELECCIONADA','DESCARTADA'))  -- vencida no es un estado: se calcula con fecha_validez,
   cargada_por       BIGINT NOT NULL,
   cargada_en        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
