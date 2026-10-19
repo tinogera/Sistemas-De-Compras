@@ -37,6 +37,7 @@ public class Proveedor {
 
     @Email
     @Size(max = 255)
+    @Column(length = 255)
     private String email;
 
     @Size(max = 150)
