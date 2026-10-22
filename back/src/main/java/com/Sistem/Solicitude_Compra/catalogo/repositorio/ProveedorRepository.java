@@ -19,9 +19,11 @@ public interface ProveedorRepository extends JpaRepository<Proveedor, Long> {
 
     boolean existsByCuit(String cuit);
 
+    boolean existsByCuitAndIdNot(String cuit, Long id);
+
     @Query("""
         select p from Proveedor p
-        where lower(p.razonSocial) like lower(concat('%', :q, '%'))
+        where (:q is null or lower(p.razonSocial) like lower(concat('%', :q, '%')))
           and (:activo is null or p.activo = :activo)
           and (:categoriaId is null or exists (
                 select 1 from p.categorias c where c.id = :categoriaId))
