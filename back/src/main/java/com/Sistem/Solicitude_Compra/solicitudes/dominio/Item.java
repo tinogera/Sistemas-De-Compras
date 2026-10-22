@@ -13,16 +13,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.EstadoCadena;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
+import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 
 import java.util.ArrayList;
 
 @Entity
 @Setter 
 @Getter 
-@Table(name = "solicitud", schema = "solicitudes")
+@Table(name = "item", schema = "solicitudes")
 public class Item {
 @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,8 +36,9 @@ public class Item {
     @JoinColumn(name = "solicitud_id", nullable = false)
     private Solicitud solicitud;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String tipo;
+    private TipoItem tipo;
 
     @Column(name = "categoria_id", nullable = false)
     private Long categoriaId;
@@ -56,6 +59,7 @@ public class Item {
     private BigDecimal precioEstimado;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "moneda_estimada", nullable = false)
     private Moneda monedaEstimada;
 
@@ -64,6 +68,7 @@ public class Item {
     private BigDecimal precioTotal;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "moneda_total")
     private Moneda monedaTotal;
 
@@ -75,7 +80,7 @@ public class Item {
     // Estado de aprobación por defecto: EN_CURSO
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_aprobacion", nullable = false)
-    private EstadoCadena estadoAprobacion = EstadoCadena.EN_CURSO;
+    private EstadoAprobacion estadoAprobacion = EstadoAprobacion.EN_CURSO;
 
     @CreationTimestamp
     @Column(name = "creado_en", updatable = false)

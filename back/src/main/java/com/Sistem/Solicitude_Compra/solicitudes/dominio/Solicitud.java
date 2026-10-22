@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,9 +21,11 @@ public class Solicitud {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String solicitanteId;
-    private String sectorId;
-    private String urgencia;
+    private Long solicitanteId;
+    private Long sectorId;
+
+    @Enumerated(EnumType.STRING)
+    private Urgencia urgencia;
     private LocalDate fechaNecesaria;
     private String observaciones;
     
@@ -48,5 +51,4 @@ public class Solicitud {
     // public boolean puedeCancelarse() {
     //     return items.stream().allMatch(item -> item.getEstado() == EstadoItem.PENDIENTE);
     // }
-    // Validaciones de negocio adicionales según requerimientos...
 }
