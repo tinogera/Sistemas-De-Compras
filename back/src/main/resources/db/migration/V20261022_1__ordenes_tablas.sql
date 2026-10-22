@@ -1,33 +1,25 @@
-CREATE TABLE catalogo.categoria (
+CREATE SEQUENCE ordenes.numero_orden_seq;
+
+CREATE TABLE ordenes.orden_pedido (
     id BIGSERIAL PRIMARY KEY,
-    nombre VARCHAR(120) NOT NULL,
+    numero BIGINT NOT NULL UNIQUE
+      DEFAULT nextval('ordenes.numero_orden_seq'),
+    item_id BIGINT NOT NULL UNIQUE,
+    solicitud_id BIGINT NOT NULL,
+    proveedor_id BIGINT NOT NULL,
+    proveedor_razon_social VARCHAR(200) NOT NULL,
+    cotizacion_id BIGINT,
     tipo VARCHAR(10) NOT NULL
-        CHECK (tipo IN ('PRODUCTO', 'SERVICIO')),
-    estado VARCHAR(10) NOT NULL DEFAULT 'NUEVA'
-        CHECK (estado IN ('NUEVA', 'CONOCIDA', 'UNIFICADA')),
-    unificada_en BIGINT REFERENCES catalogo.categoria(id)
+      CHECK (tipo IN ('PRODUCTO', 'SERVICIO')),
+    detalle TEXT,
+    cantidad NUMERIC(12,2) NOT NULL,
+    moneda CHAR(3) NOT NULL,
+    precio_unitario NUMERIC(14,2) NOT NULL,
+    precio_total NUMERIC(16,2) NOT NULL,
+    monto_envio NUMERIC(14,2),
+    estado VARCHAR(10) NOT NULL DEFAULT 'GENERADA'
+      CHECK (estado IN ('GENERADA', 'ENVIADA')),
+    emitida_en TIMESTAMPTZ NOT NULL DEFAULT now(),
+    enviada_por BIGINT,
+    enviada_en TIMESTAMPTZ
 );
-
-CREATE UNIQUE INDEX ux_categoria_nombre
-    ON catalogo.categoria (tipo, lower(nombre));
-
-CREATE TABLE catalogo.proveedor (
-    id BIGSERIAL PRIMARY KEY,
-    razon_social VARCHAR(200) NOT NULL,
-    cuit VARCHAR(13) UNIQUE,
-    telefono VARCHAR(50),
-    email VARCHAR(255),
-    contacto VARCHAR(150),
-    activo BOOLEAN NOT NULL DEFAULT TRUE
-);
-
-CREATE TABLE catalogo.proveedor_categoria (
-    proveedor_id BIGINT NOT NULL
-        REFERENCES catalogo.proveedor(id),
-    categoria_id BIGINT NOT NULL
-        REFERENCES catalogo.categoria(id),
-    PRIMARY KEY (proveedor_id, categoria_id)
-);
-
-CREATE INDEX ix_provcat_categoria
-    ON catalogo.proveedor_categoria (categoria_id);

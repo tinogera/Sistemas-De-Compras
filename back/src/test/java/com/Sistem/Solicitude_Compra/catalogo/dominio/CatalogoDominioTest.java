@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;

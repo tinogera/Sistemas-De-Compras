@@ -1,6 +1,5 @@
 package com.Sistem.Solicitude_Compra.catalogo.dominio;
 
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +13,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Categoria {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

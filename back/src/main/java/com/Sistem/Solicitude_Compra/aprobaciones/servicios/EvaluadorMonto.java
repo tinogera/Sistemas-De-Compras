@@ -1,6 +1,6 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.servicios;
 
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoCondicion;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.TipoCondicion;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.ReglaCondicion;
 import org.springframework.stereotype.Component;
 
