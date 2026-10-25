@@ -1,6 +1,8 @@
 package com.Sistem.Solicitude_Compra.auth.servicio;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -15,6 +17,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import com.Sistem.Solicitude_Compra.auth.dominio.Usuario;
 import com.Sistem.Solicitude_Compra.auth.repositorio.UsuarioRepository;
 import com.Sistem.Solicitude_Compra.compartido.errores.CredencialesInvalidasException;
+import com.Sistem.Solicitude_Compra.compartido.errores.CuentaBloqueadaException;
 
 class LoginServiceTest {
 
@@ -47,5 +50,36 @@ class LoginServiceTest {
         assertThrows(CredencialesInvalidasException.class, () -> service.login("baja@empresa.com", "clave"));
 
         verify(encoder).matches("clave", "hash-real");
+    }
+
+    @Test
+    void laClaveIncorrectaSumaUnIntento() {
+        Usuario u = usuarioActivo();
+        when(usuarios.findByEmailIgnoreCase("ana@empresa.com")).thenReturn(Optional.of(u));
+
+        assertThrows(CredencialesInvalidasException.class, () -> service.login("ana@empresa.com", "mala"));
+
+        assertEquals(1, u.getIntentosFallidos());
+    }
+
+    @Test
+    void conLaCuentaBloqueadaRechazaAunqueLaClaveSeaCorrecta() {
+        Usuario u = usuarioActivo();
+        for (int i = 0; i < 5; i++) {
+            u.registrarFallo(java.time.Instant.now());
+        }
+        when(usuarios.findByEmailIgnoreCase("ana@empresa.com")).thenReturn(Optional.of(u));
+        when(encoder.matches("buena", "hash-real")).thenReturn(true);
+
+        assertThrows(CuentaBloqueadaException.class, () -> service.login("ana@empresa.com", "buena"));
+
+        assertTrue(u.getIntentosFallidos() == 5);
+    }
+
+    private Usuario usuarioActivo() {
+        Usuario u = new Usuario();
+        u.setActivo(true);
+        u.setPasswordHash("hash-real");
+        return u;
     }
 }

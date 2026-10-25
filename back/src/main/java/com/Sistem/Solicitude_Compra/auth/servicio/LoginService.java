@@ -5,6 +5,8 @@ import com.Sistem.Solicitude_Compra.auth.repositorio.UsuarioRepository;
 import com.Sistem.Solicitude_Compra.auth.web.LoginResponse;
 import com.Sistem.Solicitude_Compra.auth.web.UsuarioLogin;
 import com.Sistem.Solicitude_Compra.compartido.errores.CredencialesInvalidasException;
+import com.Sistem.Solicitude_Compra.compartido.errores.CuentaBloqueadaException;
+import com.Sistem.Solicitude_Compra.compartido.errores.ErrorNegocioException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -34,15 +37,24 @@ public class LoginService {
         this.hashRelleno = encoder.encode("relleno");
     }
 
-    @Transactional(readOnly = true)
+    // noRollbackFor: el fallo se lanza como excepcion, pero el contador de intentos tiene que quedar guardado.
+    @Transactional(noRollbackFor = ErrorNegocioException.class)
     public LoginResponse login(String email, String password) {
         Usuario u = usuarios.findByEmailIgnoreCase(email).orElse(null);
         boolean claveOk = encoder.matches(password, u != null ? u.getPasswordHash() : hashRelleno);
+        Instant ahora = Instant.now();
+        if (u != null && u.estaBloqueado(ahora)) {
+            long minutos = Duration.between(ahora, u.getBloqueadoHasta()).toMinutes() + 1;
+            throw new CuentaBloqueadaException(minutos);
+        }
         if (u == null || !Boolean.TRUE.equals(u.getActivo()) || !claveOk) {
+            if (u != null) {
+                u.registrarFallo(ahora);
+            }
             throw new CredencialesInvalidasException();
         }
+        u.registrarExito();
 
-        Instant ahora = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(u.getId().toString())
                 .issuedAt(ahora)
