@@ -22,6 +22,8 @@ public class LoginService {
     private final PasswordEncoder encoder;
     private final JwtEncoder jwtEncoder;
     private final long expiracionHoras;
+    // Hash de relleno: si el email no existe igual se corre BCrypt, para que tarde lo mismo que con un email real.
+    private final String hashRelleno;
 
     public LoginService(UsuarioRepository usuarios, PasswordEncoder encoder, JwtEncoder jwtEncoder,
                         @Value("${app.jwt.expiracion-horas}") long expiracionHoras) {
@@ -29,13 +31,14 @@ public class LoginService {
         this.encoder = encoder;
         this.jwtEncoder = jwtEncoder;
         this.expiracionHoras = expiracionHoras;
+        this.hashRelleno = encoder.encode("relleno");
     }
 
     @Transactional(readOnly = true)
     public LoginResponse login(String email, String password) {
         Usuario u = usuarios.findByEmailIgnoreCase(email).orElse(null);
-        if (u == null || !Boolean.TRUE.equals(u.getActivo())
-                || !encoder.matches(password, u.getPasswordHash())) {
+        boolean claveOk = encoder.matches(password, u != null ? u.getPasswordHash() : hashRelleno);
+        if (u == null || !Boolean.TRUE.equals(u.getActivo()) || !claveOk) {
             throw new CredencialesInvalidasException();
         }
 
