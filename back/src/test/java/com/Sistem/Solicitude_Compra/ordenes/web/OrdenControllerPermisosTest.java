@@ -3,11 +3,14 @@ package com.Sistem.Solicitude_Compra.ordenes.web;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.util.List;
+import org.springframework.data.domain.PageImpl;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +63,25 @@ class OrdenControllerPermisosTest {
     void sinTokenRecibe401() throws Exception {
         mockMvc.perform(post("/api/v1/ordenes/1/marcar-enviada"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void elEncargadoPuedeListarLasOrdenes() throws Exception {
+        when(service.listar(any(), any())).thenReturn(new PageImpl<>(List.of(orden())));
+
+        mockMvc.perform(get("/api/v1/ordenes?estado=GENERADA")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ENCARGADO"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contenido.length()").value(1))
+                .andExpect(jsonPath("$.totalElementos").value(1));
+    }
+
+    @Test
+    void otroRolNoPuedeListarLasOrdenes() throws Exception {
+        mockMvc.perform(get("/api/v1/ordenes")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SOLICITANTE"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
     }
 
     private static OrdenPedido orden() {
