@@ -1,5 +1,7 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.dominio;
 
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoAprobador;
+
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import jakarta.persistence.*;
 import lombok.Getter;

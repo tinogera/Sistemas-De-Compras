@@ -1,8 +1,8 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.servicios;
 
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.OperadorCondicion;
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.TipoAprobador;
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.TipoCondicion;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.OperadorCondicion;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoAprobador;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoCondicion;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Regla;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.ReglaCondicion;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.ReglaPaso;

@@ -1,5 +1,8 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.dominio;
 
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.EstadoCadena;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.EstadoPaso;
+
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;

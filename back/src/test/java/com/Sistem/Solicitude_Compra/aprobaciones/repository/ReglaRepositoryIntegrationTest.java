@@ -1,7 +1,7 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.repository;
 
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.TipoAprobador;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoAprobador;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Regla;
 import com.Sistem.Solicitude_Compra.aprobaciones.dominio.ReglaPaso;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;

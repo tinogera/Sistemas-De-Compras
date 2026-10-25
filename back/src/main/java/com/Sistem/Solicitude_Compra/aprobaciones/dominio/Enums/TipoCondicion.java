@@ -1,4 +1,4 @@
-package com.Sistem.Solicitude_Compra.aprobaciones.dominio;
+package com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums;
 
 public enum TipoCondicion {
     MONTO,

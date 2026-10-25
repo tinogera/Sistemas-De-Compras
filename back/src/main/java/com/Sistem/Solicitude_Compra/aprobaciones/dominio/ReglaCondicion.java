@@ -1,5 +1,8 @@
 package com.Sistem.Solicitude_Compra.aprobaciones.dominio;
 
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.OperadorCondicion;
+import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.TipoCondicion;
+
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import jakarta.persistence.*;
 import lombok.Getter;
