@@ -42,9 +42,14 @@ public class OrdenService {
     }
 
     @Transactional(readOnly = true)
-    public OrdenDetalleResponse obtener(Long id) {
-        OrdenPedido orden = ordenes.findById(id)
+    public OrdenPedido buscar(Long id) {
+        return ordenes.findById(id)
                 .orElseThrow(() -> new NoEncontradoException("No existe la orden " + id));
+    }
+
+    @Transactional(readOnly = true)
+    public OrdenDetalleResponse obtener(Long id) {
+        OrdenPedido orden = buscar(id);
         String nombre = orden.getEnviadaPor() == null
                 ? null
                 : authApi.obtenerUsuario(orden.getEnviadaPor()).nombre();
