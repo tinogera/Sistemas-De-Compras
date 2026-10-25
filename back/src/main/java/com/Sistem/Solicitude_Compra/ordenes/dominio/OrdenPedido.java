@@ -82,6 +82,12 @@ public class OrdenPedido {
                        String proveedorRazonSocial, Long cotizacionId, TipoItem tipo,
                        String detalle, BigDecimal cantidad, Moneda moneda,
                        BigDecimal precioTotal) {
+        if (cantidad == null || cantidad.signum() <= 0) {
+            throw new ReglaNegocioException("CANTIDAD_INVALIDA", "La cantidad tiene que ser mayor a cero");
+        }
+        if (precioTotal == null || precioTotal.signum() <= 0) {
+            throw new ReglaNegocioException("PRECIO_INVALIDO", "El precio total tiene que ser mayor a cero");
+        }
         this.numero = numero;
         this.itemId = itemId;
         this.solicitudId = solicitudId;
