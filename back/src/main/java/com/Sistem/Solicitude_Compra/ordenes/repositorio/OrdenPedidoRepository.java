@@ -11,10 +11,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Repository
 public interface OrdenPedidoRepository extends JpaRepository<OrdenPedido, Long> {
     boolean existsByItemId(Long itemId);
+
+    Optional<OrdenPedido> findByItemId(Long itemId);
 
     Page<OrdenPedido> findByEstado(EstadoOrden estado, Pageable pageable);
 
