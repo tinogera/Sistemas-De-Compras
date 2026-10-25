@@ -91,7 +91,6 @@ public class MotorDeReglas {
         return switch (rol) {
             case SOLICITANTE -> "Solicitante";
             case ENCARGADO -> "Encargado";
-            case JEFE -> "Jefe";
             case ADMIN -> "Administrador";
             case SUPERVISOR -> "Supervisor";
         };

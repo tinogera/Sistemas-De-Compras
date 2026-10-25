@@ -45,6 +45,15 @@ class AuthRepositoriesTest {
 
 
     @Test
+    void guardaUsuarioConCadaRolDelEnum() {
+        for (Rol rol : Rol.values()) {
+            usuarioRepository.saveAndFlush(usuario(rol.name() + "@empresa.com", compras, rol, true));
+        }
+
+        assertThat(usuarioRepository.count()).isEqualTo(Rol.values().length);
+    }
+
+    @Test
     void buscaPorEmailSinImportarMayusculas() {
         usuarioRepository.saveAndFlush(usuario("Ana@Empresa.com", compras, Rol.SOLICITANTE, true));
 
