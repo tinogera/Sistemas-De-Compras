@@ -63,15 +63,20 @@ public class SeguridadConfig {
 
     @Bean
     SecurityFilterChain filtros(HttpSecurity http, JwtAuthenticationConverter converter,
-                                EntradaNoAutenticado entrada, ManejadorAccesoDenegado denegado)
+                                EntradaNoAutenticado entrada, ManejadorAccesoDenegado denegado,
+                                @Value("${springdoc.swagger-ui.enabled:false}") boolean docsHabilitadas)
             throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(a -> a
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(a -> {
+                    a.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
+                    // Swagger solo se abre sin login cuando esta habilitado (perfil dev).
+                    if (docsHabilitadas) {
+                        a.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll();
+                    }
+                    a.requestMatchers("/actuator/health").permitAll();
+                    a.anyRequest().authenticated();
+                })
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(entrada)
                         .accessDeniedHandler(denegado))
