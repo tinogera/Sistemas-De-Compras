@@ -2,12 +2,13 @@ package com.Sistem.Solicitude_Compra.ordenes.web;
 
 import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.ordenes.servicio.OrdenService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO T05.1: solo ENCARGADO (@PreAuthorize). Hasta entonces, cualquier usuario logueado puede llamarlo.
+@PreAuthorize("hasRole('ENCARGADO')")
 @RestController
 @RequestMapping("/api/v1/ordenes")
 public class OrdenController {

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +42,7 @@ public class ProveedorController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ENCARGADO')")
     public ResponseEntity<ProveedorResponse> crear(@Valid @RequestBody AltaProveedorRequest pedido) {
         ProveedorResponse creado = proveedores.alta(pedido);
         URI ubicacion = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -51,6 +53,7 @@ public class ProveedorController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ENCARGADO')")
     public ProveedorResponse actualizar(
             @PathVariable Long id,
             @Valid @RequestBody ActualizarProveedorRequest pedido) {

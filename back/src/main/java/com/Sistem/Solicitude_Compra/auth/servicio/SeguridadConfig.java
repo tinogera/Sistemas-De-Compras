@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +23,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
+// Los permisos por rol van con @PreAuthorize en cada controller (T05.1).
+// Pendiente de poner cuando existan: /bandeja, /cotizaciones, /categorias (POST/PATCH) y /reportes.
 @Configuration
+@EnableMethodSecurity
 public class SeguridadConfig {
 
     private static final int BYTES_MINIMOS_CLAVE = 48;
