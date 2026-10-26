@@ -1,7 +1,7 @@
 package com.Sistem.Solicitude_Compra.catalogo.web;
 
 import com.Sistem.Solicitude_Compra.catalogo.dominio.Categoria;
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 
 public record CategoriaResponse(Long id, String nombre, TipoItem tipo, EstadoCategoria estado) {

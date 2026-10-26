@@ -1,6 +1,6 @@
 package com.Sistem.Solicitude_Compra.catalogo.web;
 
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.catalogo.servicio.CategoriaService;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import org.springframework.data.domain.Pageable;

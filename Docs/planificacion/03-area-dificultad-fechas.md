@@ -65,27 +65,27 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 
 | ID | Subtarea | Área | D | I | Peso | Fecha límite | Depende de | Responsable | Estado |
 |---|---|---|---|---|---|---|---|---|---|
-| T07.3 | Definir los eventos del sistema | Back | 3 | 3 | 9 | 11/10 | T03.1 | — | ⬜ |
+| T07.3 | Definir los eventos del sistema | Back | 3 | 3 | 9 | 11/10 | T03.1 | Santino | ✅ |
 | T03.1 | Módulo `compartido` | Back | 2 | 3 | 6 | 11/10 | T02.1 | — | ✅ |
 | T03.2 | Formato de errores y manejador global | Back | 2 | 3 | 6 | 11/10 | T03.1 | tinogera | ✅ |
 | T04.1 | Schema y dominio de `auth` | Back | 2 | 3 | 6 | 11/10 | T02.2, T03.1 | tinogera | ✅ |
 | T06.1 | Schema y dominio del catálogo | Back | 2 | 3 | 6 | 11/10 | T02.2 | manuEsteban22 | ⬜ |
 | T06.2 | Repositories del catálogo | Back | 2 | 3 | 6 | 11/10 | T06.1 | NLejbman | ⬜ |
-| T07.1 | Schema y dominio de solicitudes | Back | 2 | 3 | 6 | 11/10 | T02.2, T03.1 | FdBManini | ⬜ |
+| T07.1 | Schema y dominio de solicitudes | Back | 2 | 3 | 6 | 11/10 | T02.2, T03.1 | FdBManini | ✅ |
 | T17.1 | Estructura, rutas y layout | Front | 2 | 3 | 6 | 11/10 | — | — | ⬜ |
 | T17.2 | Cliente HTTP | Front | 2 | 3 | 6 | 11/10 | — | — | ⬜ |
 | T04.2 | Repositories de `auth` | Back | 1 | 3 | 3 | 11/10 | T04.1 | tinogera | ✅ |
-| T07.2 | Repositories de solicitudes | Back | 1 | 3 | 3 | 11/10 | T07.1 | FdBManini | ⬜ |
+| T07.2 | Repositories de solicitudes | Back | 1 | 3 | 3 | 11/10 | T07.1 | FdBManini | ✅ |
 | T03.3 | Respuesta paginada estándar | Back | 1 | 2 | 2 | 11/10 | T03.1 | — | ✅ |
 | T04.3 | Login con JWT y configuración de seguridad | Back | 4 | 3 | 12 | 18/10 | T04.2, T03.2 | tinogera | ✅ |
-| T07.4 | Crear una solicitud | Back | 3 | 3 | 9 | 18/10 | T07.2, T07.3, T06.5, T04.4 | — | ⬜ |
+| T07.4 | Crear una solicitud | Back | 3 | 3 | 9 | 18/10 | T07.2, T07.3, T06.5, T04.4 | Santino | ✅ |
 | T17.3 | Login, usuario actual y rutas protegidas | Front | 3 | 3 | 9 | 18/10 | T17.1, T17.2, T04.3 | — | ⬜ |
 | T23.2 | Dominio, repositories y motor de reglas | Back | 3 | 3 | 9 | 18/10 | T23.1, T03.1 | SantiagoInv | ⬜ |
 | T04.4 | Usuario logueado y `AuthApi` | Back | 2 | 3 | 6 | 18/10 | T04.2, T04.3 | tinogera | 🟨 |
 | T06.3 | ABM de proveedores | Back | 2 | 3 | 6 | 18/10 | T06.2, T03.2 | — | ⬜ |
-| T06.5 | `CatalogoApi` para otros módulos | Back | 2 | 3 | 6 | 18/10 | T06.2, T07.3 | — | ⬜ |
-| T07.5 | Consultar solicitudes | Back | 2 | 3 | 6 | 18/10 | T07.2, T03.3 | — | ⬜ |
-| T07.6 | Tests del módulo Solicitudes | Back | 2 | 2 | 4 | 18/10 | T07.4, T07.5 | — | ⬜ |
+| T06.5 | `CatalogoApi` para otros módulos | Back | 2 | 3 | 6 | 18/10 | T06.2, T07.3 | Santino | ✅ |
+| T07.5 | Consultar solicitudes | Back | 2 | 3 | 6 | 18/10 | T07.2, T03.3 | Santino | ✅ |
+| T07.6 | Tests del módulo Solicitudes | Back | 2 | 2 | 4 | 18/10 | T07.4, T07.5 | Santino | ✅ |
 | T03.4 | Swagger | Back | 1 | 2 | 2 | 18/10 | T02.3 | — | ✅ |
 | T03.5 | CI con GitHub Actions | Infra | 2 | 1 | 2 | 18/10 | T02.3 | — | ✅ |
 | T05.5 | Datos de prueba | Back | 1 | 2 | 2 | 18/10 | T04.3 | tinogera | ⬜ |

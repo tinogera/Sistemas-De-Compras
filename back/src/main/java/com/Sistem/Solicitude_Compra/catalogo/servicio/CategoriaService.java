@@ -1,6 +1,6 @@
 package com.Sistem.Solicitude_Compra.catalogo.servicio;
 
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.catalogo.repositorio.CategoriaRepository;
 import com.Sistem.Solicitude_Compra.catalogo.web.CategoriaResponse;
 import com.Sistem.Solicitude_Compra.compartido.errores.ParametroInvalidoException;

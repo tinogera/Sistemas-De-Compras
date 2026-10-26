@@ -55,7 +55,8 @@ public class Item {
 
     @NotNull(message = "El precio estimado es obligatorio")
     @DecimalMin(value = "0.00", inclusive = false, message = "El precio estimado debe ser mayor a 0")
-    @Column(name = "precio_estimado", precision = 12, scale = 2, nullable = false)
+    @Digits(integer = 14, fraction = 2, message = "El precio estimado tiene demasiados dígitos")
+    @Column(name = "precio_estimado", precision = 16, scale = 2, nullable = false)
     private BigDecimal precioEstimado;
 
     @Enumerated(EnumType.STRING)
@@ -64,7 +65,7 @@ public class Item {
     private Moneda monedaEstimada;
 
     // Opcionales (pueden ser nulos)
-    @Column(name = "precio_total", precision = 12, scale = 2)
+    @Column(name = "precio_total", precision = 16, scale = 2)
     private BigDecimal precioTotal;
 
     @Enumerated(EnumType.STRING)
@@ -100,4 +101,8 @@ public class Item {
 
     @Column(name = "orden_enviada")
     private Boolean ordenEnviada = false;
+
+    public boolean puedeEditarse() {
+        return estado == EstadoItem.PENDIENTE;
+    }
 }

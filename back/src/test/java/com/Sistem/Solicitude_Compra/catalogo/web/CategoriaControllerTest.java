@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import com.Sistem.Solicitude_Compra.catalogo.dominio.Categoria;
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.catalogo.repositorio.CategoriaRepository;
 import com.Sistem.Solicitude_Compra.catalogo.servicio.CategoriaService;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;

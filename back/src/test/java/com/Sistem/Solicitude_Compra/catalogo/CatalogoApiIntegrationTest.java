@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
 import com.Sistem.Solicitude_Compra.catalogo.dominio.Categoria;
 import com.Sistem.Solicitude_Compra.catalogo.dominio.Proveedor;
-import com.Sistem.Solicitude_Compra.catalogo.dominio.enums.EstadoCategoria;
+import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.catalogo.repositorio.CategoriaRepository;
 import com.Sistem.Solicitude_Compra.catalogo.repositorio.ProveedorRepository;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CategoriaCreada;
