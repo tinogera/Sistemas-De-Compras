@@ -12,7 +12,7 @@ import com.Sistem.Solicitude_Compra.catalogo.dominio.Proveedor;
 public interface ProveedorRepository extends JpaRepository<Proveedor, Long> {
 
     // Proveedores sugeridos para una categoría
-    List<Proveedor> findByActivoTrueAndCategorias_Id(Long categoriaId);
+    List<Proveedor> findByActivoTrueAndCategorias_IdOrderByRazonSocialAsc(Long categoriaId);
 
     // Buscador
     Page<Proveedor> findByRazonSocialContainingIgnoreCase(String texto, Pageable pageable);

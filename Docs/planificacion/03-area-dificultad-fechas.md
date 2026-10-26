@@ -69,8 +69,8 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T03.1 | Módulo `compartido` | Back | 2 | 3 | 6 | 11/10 | T02.1 | — | ✅ |
 | T03.2 | Formato de errores y manejador global | Back | 2 | 3 | 6 | 11/10 | T03.1 | tinogera | ✅ |
 | T04.1 | Schema y dominio de `auth` | Back | 2 | 3 | 6 | 11/10 | T02.2, T03.1 | tinogera | ✅ |
-| T06.1 | Schema y dominio del catálogo | Back | 2 | 3 | 6 | 11/10 | T02.2 | manuEsteban22 | ⬜ |
-| T06.2 | Repositories del catálogo | Back | 2 | 3 | 6 | 11/10 | T06.1 | NLejbman | ⬜ |
+| T06.1 | Schema y dominio del catálogo | Back | 2 | 3 | 6 | 11/10 | T02.2 | manuEsteban22 | ✅ |
+| T06.2 | Repositories del catálogo | Back | 2 | 3 | 6 | 11/10 | T06.1 | NLejbman | ✅ |
 | T07.1 | Schema y dominio de solicitudes | Back | 2 | 3 | 6 | 11/10 | T02.2, T03.1 | FdBManini | ✅ |
 | T17.1 | Estructura, rutas y layout | Front | 2 | 3 | 6 | 11/10 | — | — | ⬜ |
 | T17.2 | Cliente HTTP | Front | 2 | 3 | 6 | 11/10 | — | — | ⬜ |
@@ -81,8 +81,8 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T07.4 | Crear una solicitud | Back | 3 | 3 | 9 | 18/10 | T07.2, T07.3, T06.5, T04.4 | Santino | ✅ |
 | T17.3 | Login, usuario actual y rutas protegidas | Front | 3 | 3 | 9 | 18/10 | T17.1, T17.2, T04.3 | — | ⬜ |
 | T23.2 | Dominio, repositories y motor de reglas | Back | 3 | 3 | 9 | 18/10 | T23.1, T03.1 | SantiagoInv | ⬜ |
-| T04.4 | Usuario logueado y `AuthApi` | Back | 2 | 3 | 6 | 18/10 | T04.2, T04.3 | tinogera | 🟨 |
-| T06.3 | ABM de proveedores | Back | 2 | 3 | 6 | 18/10 | T06.2, T03.2 | — | ⬜ |
+| T04.4 | Usuario logueado y `AuthApi` | Back | 2 | 3 | 6 | 18/10 | T04.2, T04.3 | tinogera | ✅ |
+| T06.3 | ABM de proveedores | Back | 2 | 3 | 6 | 18/10 | T06.2, T03.2 | — | ✅ |
 | T06.5 | `CatalogoApi` para otros módulos | Back | 2 | 3 | 6 | 18/10 | T06.2, T07.3 | Santino | ✅ |
 | T07.5 | Consultar solicitudes | Back | 2 | 3 | 6 | 18/10 | T07.2, T03.3 | Santino | ✅ |
 | T07.6 | Tests del módulo Solicitudes | Back | 2 | 2 | 4 | 18/10 | T07.4, T07.5 | Santino | ✅ |
@@ -95,12 +95,12 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | ID | Subtarea | Área | D | I | Peso | Fecha límite | Depende de | Responsable | Estado |
 |---|---|---|---|---|---|---|---|---|---|
 | T09.2 | Crear las gestiones al entrar una solicitud | Back | 3 | 3 | 9 | 25/10 | T09.1, T07.4 | — | ⬜ |
-| T09.1 | Schema y dominio de Compras | Back | 2 | 3 | 6 | 25/10 | T02.2, T03.1 | SantiagoInv | ⬜ |
+| T09.1 | Schema y dominio de Compras | Back | 2 | 3 | 6 | 25/10 | T02.2, T03.1 | SantiagoInv | ✅ |
 | T10.1 | Schema y dominio de cotizaciones | Back | 2 | 3 | 6 | 25/10 | T09.1 | — | ⬜ |
 | T18.2 | Mis solicitudes | Front | 2 | 3 | 6 | 25/10 | T17.4, T07.5 | — | ⬜ |
-| T06.4 | Búsqueda de categorías | Back | 2 | 2 | 4 | 25/10 | T06.2 | — | ⬜ |
+| T06.4 | Búsqueda de categorías | Back | 2 | 2 | 4 | 25/10 | T06.2 | — | ✅ |
 | T17.4 | Componentes comunes | Front | 2 | 2 | 4 | 25/10 | T17.1 | — | ⬜ |
-| T06.7 | Proveedores sugeridos (con unificadas) | Back | 1 | 3 | 3 | 25/10 | T06.5 | — | ⬜ |
+| T06.7 | Proveedores sugeridos (con unificadas) | Back | 1 | 3 | 3 | 25/10 | T06.5 | — | ✅ |
 | T23.4 | Iniciar y mantener la cadena de cada ítem | Back | 4 | 3 | 12 | 01/11 | T23.2, T07.3, T07.4 | — | ⬜ |
 | T09.4 | Tomar y reasignar | Back | 3 | 3 | 9 | 01/11 | T09.3 | — | ⬜ |
 | T10.3 | Elegir una cotización y fijar el precio total | Back | 3 | 3 | 9 | 01/11 | T10.2 | — | ⬜ |
@@ -124,10 +124,10 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 |---|---|---|---|---|---|---|---|---|---|
 | T10.7 | Registrar la compra | Back | 3 | 3 | 9 | 05/11 | T10.3, T09.4, T07.3 | — | ⬜ |
 | T23.5 | Aprobar o rechazar un paso | Back | 4 | 3 | 12 | 08/11 | T23.4, T05.1 | — | ⬜ |
-| T11.2 | Generar la orden al registrarse la compra | Back | 3 | 3 | 9 | 08/11 | T11.1, T10.7 | — | ⬜ |
+| T11.2 | Generar la orden al registrarse la compra | Back | 3 | 3 | 9 | 08/11 | T11.1, T10.7 | — | ✅ |
 | T19.1 | Bandeja | Front | 3 | 3 | 9 | 08/11 | T09.4 | — | ⬜ |
 | T08.5 | Actualizar el estado de los ítems desde Compras | Back | 2 | 3 | 6 | 08/11 | T09.4, T10.3, T10.7 | — | ⬜ |
-| T11.1 | Schema y dominio de órdenes | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ⬜ |
+| T11.1 | Schema y dominio de órdenes | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ✅ |
 | T12.1 | Reintento de eventos pendientes | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ⬜ |
 | T13.1 | Schema, dominio y repository de auditoría | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ⬜ |
 | T23.6 | Pendientes y detalle para los aprobadores | Back | 2 | 3 | 6 | 08/11 | T23.4 | — | ⬜ |
@@ -138,10 +138,10 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T24.1 | Señales en tiempo real (backend) | Back | 3 | 3 | 9 | 15/11 | T07.3, T04.3 | — | ⬜ |
 | T25.1 | Pantallas del aprobador | Front | 3 | 3 | 9 | 15/11 | T23.5, T23.6, T17.4 | — | ⬜ |
 | T08.4 | Sincronizar ediciones y cancelaciones con Compras | Back | 3 | 2 | 6 | 15/11 | T08.1, T08.2, T08.3, T09.2 | — | ⬜ |
-| T11.4 | Marcar una orden como enviada | Back | 2 | 3 | 6 | 15/11 | T11.2 | — | ⬜ |
+| T11.4 | Marcar una orden como enviada | Back | 2 | 3 | 6 | 15/11 | T11.2 | — | ✅ |
 | T14.2 | Adjuntos de un ítem | Back | 3 | 2 | 6 | 15/11 | T14.1, T07.1 | — | ⬜ |
 | T19.3 | Órdenes | Front | 2 | 3 | 6 | 15/11 | T11.4 | — | ⬜ |
-| T11.3 | Listar órdenes | Back | 1 | 3 | 3 | 15/11 | T11.1 | — | ⬜ |
+| T11.3 | Listar órdenes | Back | 1 | 3 | 3 | 15/11 | T11.1 | — | ✅ |
 
 ## S4 — Tiempo real, avisos y reportes (16/11 → 29/11)
 
@@ -166,7 +166,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T16.3 | Reporte de gasto | Back | 3 | 2 | 6 | 29/11 | T16.2 | — | ⬜ |
 | T19.4 | Catálogo (proveedores y categorías) | Front | 3 | 2 | 6 | 29/11 | T06.6, T06.8 | — | ⬜ |
 | T20.2 | Reportes | Front | 3 | 2 | 6 | 29/11 | T16.3, T16.4 | — | ⬜ |
-| T11.6 | Actualizar la orden cuando se edita la compra | Back | 2 | 2 | 4 | 29/11 | T11.2, T10.8 | — | ⬜ |
+| T11.6 | Actualizar la orden cuando se edita la compra | Back | 2 | 2 | 4 | 29/11 | T11.2, T10.8 | — | ✅ |
 | T15.3 | Workflow: aviso de solicitud nueva | n8n | 2 | 2 | 4 | 29/11 | T15.2 | — | ⬜ |
 | T15.9 | Workflow: aviso de aprobación pendiente | n8n | 2 | 2 | 4 | 29/11 | T15.2 | — | ⬜ |
 | T16.4 | Tiempo de resolución | Back | 2 | 2 | 4 | 29/11 | T16.2 | — | ⬜ |
@@ -174,7 +174,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T20.3 | Adjuntos | Front | 2 | 2 | 4 | 29/11 | T14.2, T14.3 | — | ⬜ |
 | T05.4 | Reglas del último Encargado y quitar el rol | Back | 3 | 1 | 3 | 29/11 | T05.3, T09.4 | tinogera | ⬜ |
 | T06.8 | Unificar categorías duplicadas | Back | 3 | 1 | 3 | 29/11 | T06.6 | — | ⬜ |
-| T11.5 | Orden en PDF | Back | 3 | 1 | 3 | 29/11 | T11.2 | — | ⬜ |
+| T11.5 | Orden en PDF | Back | 3 | 1 | 3 | 29/11 | T11.2 | — | ✅ |
 | T08.7 | Evitar duplicados por doble click | Back | 2 | 1 | 2 | 29/11 | T07.4 | — | ⬜ |
 | T10.6 | Marcar cotizaciones vencidas en la bandeja | Back | 2 | 1 | 2 | 29/11 | T10.2 | — | ⬜ |
 | T15.7 | Seguridad de la integración | Back | 2 | 1 | 2 | 29/11 | T15.5 | — | ⬜ |

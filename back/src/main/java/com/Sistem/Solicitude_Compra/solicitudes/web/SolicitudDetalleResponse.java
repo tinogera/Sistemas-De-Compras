@@ -3,7 +3,7 @@ package com.Sistem.Solicitude_Compra.solicitudes.web;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
-import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoAprobacion;
+import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import java.math.BigDecimal;

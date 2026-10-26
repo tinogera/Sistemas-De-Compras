@@ -1,6 +1,6 @@
 package com.Sistem.Solicitude_Compra.compras.dominio;
 
-import com.Sistem.Solicitude_Compra.aprobaciones.dominio.Enums.EstadoCadena;
+import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
@@ -90,7 +90,7 @@ public class GestionItem {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_aprobacion", nullable = false, length = 10)
-    private EstadoCadena estadoAprobacion;
+    private EstadoAprobacion estadoAprobacion;
 
     @Column(name = "encargado_id")
     private Long encargadoId;
@@ -136,7 +136,7 @@ public class GestionItem {
         this.precioEstimado = precioEstimado;
         this.monedaEstimada = monedaEstimada;
         this.estado = EstadoGestion.PENDIENTE;
-        this.estadoAprobacion = EstadoCadena.EN_CURSO;
+        this.estadoAprobacion = EstadoAprobacion.EN_CURSO;
     }
 
     public void tomar(Long encargadoId) {
@@ -171,7 +171,7 @@ public class GestionItem {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
                     "Solo se puede registrar la compra de un ítem EN_COTIZACION (estado actual: " + estado + ")");
         }
-        if (estadoAprobacion != EstadoCadena.APROBADA) {
+        if (estadoAprobacion != EstadoAprobacion.APROBADA) {
             throw new ReglaNegocioException("GESTION_SIN_APROBACION",
                     "No se puede registrar la compra: la cadena de aprobación está " + estadoAprobacion);
         }
@@ -185,6 +185,7 @@ public class GestionItem {
         }
         this.proveedorCompraId = proveedorId;
         this.compradoEn = fechaCompra;
+        this.resueltoEn = fechaCompra;
         this.estado = EstadoGestion.COMPRADO;
     }
 

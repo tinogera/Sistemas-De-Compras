@@ -107,17 +107,17 @@ class CatalogoApiTest {
         origen.setEstado(EstadoCategoria.UNIFICADA);
         origen.setUnificadaEn(categoria(2L));
         when(categorias.findById(1L)).thenReturn(Optional.of(origen));
-        when(proveedores.findByActivoTrueAndCategorias_Id(2L)).thenReturn(List.of(proveedor(true)));
+        when(proveedores.findByActivoTrueAndCategorias_IdOrderByRazonSocialAsc(2L)).thenReturn(List.of(proveedor(true)));
         assertThat(api.proveedoresActivosDe(1L))
                 .containsExactly(new ProveedorResumen(4L, "Proveedor SA", true));
-        verify(proveedores, never()).findByActivoTrueAndCategorias_Id(1L);
+        verify(proveedores, never()).findByActivoTrueAndCategorias_IdOrderByRazonSocialAsc(1L);
     }
 
     @Test
     void categoriaSinProveedoresDevuelveListaVacia() {
         when(categorias.findById(1L)).thenReturn(Optional.of(categoria(1L)));
         assertThat(api.proveedoresActivosDe(1L)).isEmpty();
-        assertThatThrownBy(() -> api.proveedoresActivosDe(99L)).isInstanceOf(NoEncontradoException.class);
+        assertThat(api.proveedoresActivosDe(99L)).isEmpty();
     }
 
     @Test

@@ -69,8 +69,15 @@ public class CatalogoApi {
     }
 
     public List<ProveedorResumen> proveedoresActivosDe(Long categoriaId) {
-        Long destinoId = destinoDe(buscarCategoria(categoriaId)).getId();
-        return proveedores.findByActivoTrueAndCategorias_Id(destinoId)
+        // Una categoría que no existe no es un error para quien llama: no hay proveedores sugeridos.
+        if (categoriaId == null) {
+            return List.of();
+        }
+        Categoria categoria = categorias.findById(categoriaId).orElse(null);
+        if (categoria == null) {
+            return List.of();
+        }
+        return proveedores.findByActivoTrueAndCategorias_IdOrderByRazonSocialAsc(destinoDe(categoria).getId())
                 .stream().map(CatalogoApi::resumenDe).toList();
     }
 
