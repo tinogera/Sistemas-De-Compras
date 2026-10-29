@@ -10,18 +10,25 @@ import static org.mockito.Mockito.when;
 
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
+import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.NoEncontradoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.SolicitudRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.web.CrearSolicitudRequest;
+import com.Sistem.Solicitude_Compra.solicitudes.web.EditarItemRequest;
 import com.Sistem.Solicitude_Compra.solicitudes.web.ItemRequest;
+import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,6 +45,7 @@ import org.springframework.context.ApplicationEventPublisher;
 class SolicitudServiceTest {
 
     @Mock SolicitudRepository repositorio;
+    @Mock ItemRepository itemRepositorio;
     @Mock AuthApi authApi;
     @Mock CatalogoApi catalogoApi;
     @Mock ApplicationEventPublisher eventos;
@@ -46,7 +54,7 @@ class SolicitudServiceTest {
 
     @BeforeEach
     void preparar() {
-        service = new SolicitudService(repositorio, authApi, catalogoApi, eventos);
+        service = new SolicitudService(repositorio, itemRepositorio, authApi, catalogoApi, eventos);
     }
 
     @Test
@@ -117,6 +125,132 @@ class SolicitudServiceTest {
 
         assertThatThrownBy(() -> service.obtener(9L, 7L, Rol.ENCARGADO))
                 .isInstanceOf(NoEncontradoException.class);
+    }
+
+    // ---- T08.1: editar un ítem PENDIENTE ----
+
+    @Test
+    void editaElItemActualizaLosCamposYPublicaItemEditado() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 3L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+        when(itemRepositorio.saveAndFlush(item)).thenReturn(item);
+
+        ItemDetalle editado = service.editarItem(1587L, 4021L, 7L,
+                new EditarItemRequest(null, null, new BigDecimal("5"), "Resmas A4", new BigDecimal("2500"),
+                        Moneda.USD, 3L));
+
+        assertThat(editado.cantidad()).isEqualByComparingTo("5");
+        assertThat(editado.detalle()).isEqualTo("Resmas A4");
+        assertThat(editado.precioEstimado()).isEqualByComparingTo("2500");
+        assertThat(editado.monedaEstimada()).isEqualTo(Moneda.USD);
+
+        ArgumentCaptor<ItemEditado> captor = ArgumentCaptor.forClass(ItemEditado.class);
+        verify(eventos).publishEvent(captor.capture());
+        ItemEditado evento = captor.getValue();
+        assertThat(evento.eventoId()).isNotNull();
+        assertThat(evento.ocurridoEn()).isNotNull();
+        assertThat(evento.itemId()).isEqualTo(4021L);
+        assertThat(evento.solicitudId()).isEqualTo(1587L);
+        assertThat(evento.usuarioId()).isEqualTo(7L);
+        assertThat(evento.precioEstimado()).isEqualByComparingTo("2500");
+        assertThat(evento.monedaEstimada()).isEqualTo(Moneda.USD);
+    }
+
+    @Test
+    void conUnaCategoriaNuevaLaBuscaOCreaConElTipoDelItem() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+        when(itemRepositorio.saveAndFlush(item)).thenReturn(item);
+        when(catalogoApi.obtenerOCrearCategoria(TipoItem.PRODUCTO, "Globos")).thenReturn(99L);
+
+        service.editarItem(1587L, 4021L, 7L,
+                new EditarItemRequest(null, "  Globos ", null, null, null, null, 0L));
+
+        assertThat(item.getCategoriaId()).isEqualTo(99L);
+    }
+
+    @Test
+    void soloElDuenoDeLaSolicitudPuedeEditar() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.editarItem(1587L, 4021L, 8L, cambiarCantidad(0L)))
+                .isInstanceOf(SinPermisoException.class);
+
+        verify(itemRepositorio, never()).saveAndFlush(any());
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void unItemQueYaNoEstaPendienteDa422ItemNoPendiente() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        item.setEstado(EstadoItem.EN_COTIZACION);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.editarItem(1587L, 4021L, 7L, cambiarCantidad(0L)))
+                .isInstanceOfSatisfying(ReglaNegocioException.class, e -> {
+                    assertThat(e.getCodigo()).isEqualTo("ITEM_NO_PENDIENTE");
+                    assertThat(e.getMessage()).isEqualTo("Este ítem ya está siendo cotizado");
+                });
+
+        verify(itemRepositorio, never()).saveAndFlush(any());
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void conUnaVersionDistintaDa409YNoGuardaNiPublica() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 4L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.editarItem(1587L, 4021L, 7L, cambiarCantidad(3L)))
+                .isInstanceOfSatisfying(ConflictoException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("CONFLICTO_VERSION"));
+
+        verify(itemRepositorio, never()).saveAndFlush(any());
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void unItemInexistenteDa404() {
+        when(itemRepositorio.findByIdAndSolicitudId(9L, 1587L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.editarItem(1587L, 9L, 7L, cambiarCantidad(0L)))
+                .isInstanceOf(NoEncontradoException.class);
+    }
+
+    @Test
+    void unaCategoriaInexistenteDa422YNoGuarda() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+        when(catalogoApi.existeCategoria(500L)).thenReturn(false);
+
+        assertThatThrownBy(() -> service.editarItem(1587L, 4021L, 7L,
+                new EditarItemRequest(500L, null, null, null, null, null, 0L)))
+                .isInstanceOfSatisfying(ReglaNegocioException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("CATEGORIA_INEXISTENTE"));
+
+        verify(itemRepositorio, never()).saveAndFlush(any());
+    }
+
+    private static EditarItemRequest cambiarCantidad(Long version) {
+        return new EditarItemRequest(null, null, new BigDecimal("3"), null, null, null, version);
+    }
+
+    private static Item itemPendiente(Long itemId, Long solicitudId, Long solicitanteId, Long version) {
+        Solicitud solicitud = new Solicitud();
+        solicitud.setId(solicitudId);
+        solicitud.setSolicitanteId(solicitanteId);
+        Item item = new Item();
+        item.setId(itemId);
+        item.setSolicitud(solicitud);
+        item.setTipo(TipoItem.PRODUCTO);
+        item.setCategoriaId(42L);
+        item.setCantidad(new BigDecimal("1"));
+        item.setDetalle("Resmas");
+        item.setPrecioEstimado(new BigDecimal("1000"));
+        item.setMonedaEstimada(Moneda.ARS);
+        item.setVersion(version);
+        return item;
     }
 
     private static CrearSolicitudRequest request(ItemRequest... items) {

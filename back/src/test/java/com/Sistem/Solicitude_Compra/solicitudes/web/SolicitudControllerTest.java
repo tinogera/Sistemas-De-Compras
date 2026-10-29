@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,15 +16,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.Sistem.Solicitude_Compra.auth.servicio.EntradaNoAutenticado;
 import com.Sistem.Solicitude_Compra.auth.servicio.ManejadorAccesoDenegado;
 import com.Sistem.Solicitude_Compra.auth.servicio.SeguridadConfig;
+import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
+import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
+import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.servicio.SolicitudService;
+import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -174,6 +181,90 @@ class SolicitudControllerTest {
         when(service.obtener(1L, 7L, Rol.SOLICITANTE)).thenThrow(new SinPermisoException("No es tuya"));
 
         mockMvc.perform(get("/api/v1/solicitudes/1").with(solicitante()))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+    }
+    // ---- T08.1: PATCH /api/v1/solicitudes/{id}/items/{itemId} ----
+
+    private static final String URL_ITEM = "/api/v1/solicitudes/1587/items/4021";
+
+    @Test
+    void editarUnItemDevuelve200ConElItemActualizado() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.editarItem(eq(1587L), eq(4021L), eq(7L), any())).thenReturn(new ItemDetalle(4021L,
+                TipoItem.PRODUCTO, 42L, "Papelería", "Resmas", new BigDecimal("5"), new BigDecimal("2500"),
+                Moneda.USD, null, null, EstadoItem.PENDIENTE, null, null, null, null, 4L));
+
+        mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cantidad\":5,\"precioEstimado\":2500,\"monedaEstimada\":\"USD\",\"version\":3}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(4021))
+                .andExpect(jsonPath("$.precioEstimado").value(2500))
+                .andExpect(jsonPath("$.monedaEstimada").value("USD"))
+                .andExpect(jsonPath("$.version").value(4));
+    }
+
+    @Test
+    void editarSinVersionDa400() throws Exception {
+        mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cantidad\":5}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("VALIDACION"));
+        verify(service, never()).editarItem(any(), any(), any(), any());
+    }
+
+    @Test
+    void editarConPrecioCeroOCantidadCeroDa400() throws Exception {
+        for (String json : List.of("{\"precioEstimado\":0,\"version\":1}", "{\"cantidad\":0,\"version\":1}")) {
+            mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isBadRequest());
+        }
+        verify(service, never()).editarItem(any(), any(), any(), any());
+    }
+
+    @Test
+    void editarConLasDosCategoriasOSinNingunCampoDa400() throws Exception {
+        for (String json : List.of("{\"categoriaId\":42,\"categoriaNueva\":\"Globos\",\"version\":1}",
+                "{\"version\":1}")) {
+            mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                            .content(json))
+                    .andExpect(status().isBadRequest());
+        }
+        verify(service, never()).editarItem(any(), any(), any(), any());
+    }
+
+    @Test
+    void editarUnItemQueYaNoEstaPendienteDa422() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.editarItem(eq(1587L), eq(4021L), eq(7L), any())).thenThrow(
+                new ReglaNegocioException("ITEM_NO_PENDIENTE", "Este ítem ya está siendo cotizado"));
+
+        mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cantidad\":5,\"version\":1}"))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.codigo").value("ITEM_NO_PENDIENTE"));
+    }
+
+    @Test
+    void editarConUnaVersionVencidaDa409() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.editarItem(eq(1587L), eq(4021L), eq(7L), any())).thenThrow(
+                new ConflictoException("CONFLICTO_VERSION", "Otro usuario modificó este ítem."));
+
+        mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cantidad\":5,\"version\":1}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.codigo").value("CONFLICTO_VERSION"));
+    }
+
+    @Test
+    void editarElItemDeOtroDa403() throws Exception {
+        when(usuarioActual.id()).thenReturn(8L);
+        when(service.editarItem(eq(1587L), eq(4021L), eq(8L), any())).thenThrow(new SinPermisoException("No es tuyo"));
+
+        mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cantidad\":5,\"version\":1}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
     }
