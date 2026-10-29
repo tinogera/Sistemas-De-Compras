@@ -5,6 +5,7 @@ import com.Sistem.Solicitude_Compra.compartido.web.Pagina;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.servicio.SolicitudService;
+import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
 import jakarta.validation.Valid;
 import java.net.URI;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,5 +51,11 @@ public class SolicitudController {
     @GetMapping("/{id}")
     public SolicitudDetalleResponse obtener(@PathVariable Long id) {
         return service.obtener(id, usuarioActual.id(), usuarioActual.rol());
+    }
+
+    @PatchMapping("/{id}/items/{itemId}")
+    public ItemDetalle editarItem(@PathVariable Long id, @PathVariable Long itemId,
+                                  @Valid @RequestBody EditarItemRequest request) {
+        return service.editarItem(id, itemId, usuarioActual.id(), request);
     }
 }

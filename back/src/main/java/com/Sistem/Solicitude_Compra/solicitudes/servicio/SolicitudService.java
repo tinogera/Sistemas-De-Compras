@@ -3,16 +3,20 @@ package com.Sistem.Solicitude_Compra.solicitudes.servicio;
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.auth.UsuarioResumen;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
+import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.NoEncontradoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.SolicitudRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.web.CrearSolicitudRequest;
+import com.Sistem.Solicitude_Compra.solicitudes.web.EditarItemRequest;
 import com.Sistem.Solicitude_Compra.solicitudes.web.ItemRequest;
 import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse;
 import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
@@ -30,13 +34,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class SolicitudService {
 
     private final SolicitudRepository solicitudes;
+    private final ItemRepository items;
     private final AuthApi authApi;
     private final CatalogoApi catalogoApi;
     private final ApplicationEventPublisher eventos;
 
-    public SolicitudService(SolicitudRepository solicitudes, AuthApi authApi, CatalogoApi catalogoApi,
-                            ApplicationEventPublisher eventos) {
+    public SolicitudService(SolicitudRepository solicitudes, ItemRepository items, AuthApi authApi,
+                            CatalogoApi catalogoApi, ApplicationEventPublisher eventos) {
         this.solicitudes = solicitudes;
+        this.items = items;
         this.authApi = authApi;
         this.catalogoApi = catalogoApi;
         this.eventos = eventos;
@@ -91,6 +97,56 @@ public class SolicitudService {
                 authApi.nombreSector(s.getSectorId()), s.getUrgencia(), s.getFechaNecesaria(),
                 s.getObservaciones(), s.getEstado(), s.getCreadaEn(), s.getVersion(),
                 s.getItems().stream().map(this::detalleDe).toList());
+    }
+
+    /**
+     * Edita un ítem mientras siga PENDIENTE. Solo el dueño de la solicitud puede hacerlo y la
+     * versión que manda el cliente tiene que ser la actual (si no, alguien lo cambió antes).
+     */
+    @Transactional
+    public ItemDetalle editarItem(Long solicitudId, Long itemId, Long usuarioId, EditarItemRequest request) {
+        Item item = items.findByIdAndSolicitudId(itemId, solicitudId)
+                .orElseThrow(() -> new NoEncontradoException(
+                        "No existe el ítem " + itemId + " en la solicitud " + solicitudId));
+        if (!item.getSolicitud().getSolicitanteId().equals(usuarioId)) {
+            throw new SinPermisoException("Solo quien creó la solicitud puede editar sus ítems");
+        }
+        if (!item.puedeEditarse()) {
+            throw new ReglaNegocioException("ITEM_NO_PENDIENTE", "Este ítem ya está siendo cotizado");
+        }
+        if (!item.getVersion().equals(request.version())) {
+            throw new ConflictoException("CONFLICTO_VERSION",
+                    "Otro usuario modificó este ítem. Recargá la página.");
+        }
+
+        if (request.categoriaId() != null) {
+            if (!catalogoApi.existeCategoria(request.categoriaId())) {
+                throw new ReglaNegocioException("CATEGORIA_INEXISTENTE",
+                        "La categoría " + request.categoriaId() + " no existe");
+            }
+            item.setCategoriaId(request.categoriaId());
+        } else if (request.tieneCategoriaNueva()) {
+            item.setCategoriaId(catalogoApi.obtenerOCrearCategoria(item.getTipo(), request.categoriaNueva().trim()));
+        }
+        if (request.cantidad() != null) {
+            item.setCantidad(request.cantidad());
+        }
+        if (request.tieneDetalle()) {
+            item.setDetalle(request.detalle().trim());
+        }
+        if (request.precioEstimado() != null) {
+            item.setPrecioEstimado(request.precioEstimado());
+        }
+        if (request.monedaEstimada() != null) {
+            item.setMonedaEstimada(request.monedaEstimada());
+        }
+
+        // saveAndFlush: el @Version se incrementa acá y la respuesta ya trae la versión nueva.
+        Item guardado = items.saveAndFlush(item);
+        eventos.publishEvent(new ItemEditado(UUID.randomUUID(), Instant.now(), guardado.getId(), solicitudId,
+                guardado.getCategoriaId(), guardado.getCantidad(), guardado.getDetalle(),
+                guardado.getPrecioEstimado(), guardado.getMonedaEstimada(), usuarioId));
+        return detalleDe(guardado);
     }
 
     private ItemDetalle detalleDe(Item i) {
