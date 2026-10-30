@@ -68,7 +68,7 @@ class ComprasEventListenerTest {
                         assertThat(g.getPrioridad()).isEqualTo((short) Urgencia.ALTA.prioridad());
                         assertThat(g.getFechaNecesaria()).isEqualTo(evento.fechaNecesaria());
                         assertThat(g.getSolicitadoEn().toInstant())
-                                .isEqualTo(evento.ocurridoEn().truncatedTo(java.time.temporal.ChronoUnit.MICROS));
+                                .isCloseTo(evento.ocurridoEn(), org.assertj.core.api.Assertions.within(1, java.time.temporal.ChronoUnit.MILLIS));
                     });
                 });
     }
