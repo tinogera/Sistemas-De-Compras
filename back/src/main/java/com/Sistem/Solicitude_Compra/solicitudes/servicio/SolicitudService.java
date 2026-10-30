@@ -7,9 +7,11 @@ import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.NoEncontradoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
@@ -105,19 +107,7 @@ public class SolicitudService {
      */
     @Transactional
     public ItemDetalle editarItem(Long solicitudId, Long itemId, Long usuarioId, EditarItemRequest request) {
-        Item item = items.findByIdAndSolicitudId(itemId, solicitudId)
-                .orElseThrow(() -> new NoEncontradoException(
-                        "No existe el ítem " + itemId + " en la solicitud " + solicitudId));
-        if (!item.getSolicitud().getSolicitanteId().equals(usuarioId)) {
-            throw new SinPermisoException("Solo quien creó la solicitud puede editar sus ítems");
-        }
-        if (!item.puedeEditarse()) {
-            throw new ReglaNegocioException("ITEM_NO_PENDIENTE", "Este ítem ya está siendo cotizado");
-        }
-        if (!item.getVersion().equals(request.version())) {
-            throw new ConflictoException("CONFLICTO_VERSION",
-                    "Otro usuario modificó este ítem. Recargá la página.");
-        }
+        Item item = buscarItemEditable(solicitudId, itemId, usuarioId, request.version());
 
         if (request.categoriaId() != null) {
             if (!catalogoApi.existeCategoria(request.categoriaId())) {
@@ -147,6 +137,43 @@ public class SolicitudService {
                 guardado.getCategoriaId(), guardado.getCantidad(), guardado.getDetalle(),
                 guardado.getPrecioEstimado(), guardado.getMonedaEstimada(), usuarioId));
         return detalleDe(guardado);
+    }
+
+    /**
+     * Cancela un ítem PENDIENTE (no se borra la fila: pasa a CANCELADO). Mismas reglas que editarlo.
+     * Si todos los ítems de la solicitud quedan cancelados, la solicitud pasa a CANCELADA.
+     */
+    @Transactional
+    public void cancelarItem(Long solicitudId, Long itemId, Long usuarioId, Long version) {
+        Item item = buscarItemEditable(solicitudId, itemId, usuarioId, version);
+        item.setEstado(EstadoItem.CANCELADO);
+        items.saveAndFlush(item);
+
+        Solicitud solicitud = item.getSolicitud();
+        if (solicitud.getItems().stream().allMatch(i -> i.getEstado() == EstadoItem.CANCELADO)) {
+            solicitud.setEstado(EstadoSolicitud.CANCELADA);
+            solicitudes.save(solicitud);
+        }
+        eventos.publishEvent(new ItemCancelado(UUID.randomUUID(), Instant.now(), item.getId(), solicitudId,
+                usuarioId));
+    }
+
+    /** Reglas comunes de editar y cancelar: existe, es el dueño, sigue PENDIENTE y la versión coincide. */
+    private Item buscarItemEditable(Long solicitudId, Long itemId, Long usuarioId, Long version) {
+        Item item = items.findByIdAndSolicitudId(itemId, solicitudId)
+                .orElseThrow(() -> new NoEncontradoException(
+                        "No existe el ítem " + itemId + " en la solicitud " + solicitudId));
+        if (!item.getSolicitud().getSolicitanteId().equals(usuarioId)) {
+            throw new SinPermisoException("Solo quien creó la solicitud puede editar sus ítems");
+        }
+        if (!item.puedeEditarse()) {
+            throw new ReglaNegocioException("ITEM_NO_PENDIENTE", "Este ítem ya está siendo cotizado");
+        }
+        if (!item.getVersion().equals(version)) {
+            throw new ConflictoException("CONFLICTO_VERSION",
+                    "Otro usuario modificó este ítem. Recargá la página.");
+        }
+        return item;
     }
 
     private ItemDetalle detalleDe(Item i) {

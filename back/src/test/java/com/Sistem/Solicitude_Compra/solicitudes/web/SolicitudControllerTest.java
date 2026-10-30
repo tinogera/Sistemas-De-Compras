@@ -2,10 +2,12 @@ package com.Sistem.Solicitude_Compra.solicitudes.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -265,6 +267,57 @@ class SolicitudControllerTest {
 
         mockMvc.perform(patch(URL_ITEM).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
                         .content("{\"cantidad\":5,\"version\":1}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+    }
+    // ---- T08.2: DELETE /api/v1/solicitudes/{id}/items/{itemId}?version= ----
+
+    @Test
+    void cancelarUnItemDevuelve204() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+
+        mockMvc.perform(delete(URL_ITEM).param("version", "3").with(solicitante()))
+                .andExpect(status().isNoContent());
+
+        verify(service).cancelarItem(1587L, 4021L, 7L, 3L);
+    }
+
+    @Test
+    void cancelarSinVersionDa400() throws Exception {
+        mockMvc.perform(delete(URL_ITEM).with(solicitante()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("PARAMETRO_INVALIDO"));
+        verify(service, never()).cancelarItem(any(), any(), any(), any());
+    }
+
+    @Test
+    void cancelarUnItemQueYaNoEstaPendienteDa422() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        doThrow(new ReglaNegocioException("ITEM_NO_PENDIENTE", "Este ítem ya está siendo cotizado"))
+                .when(service).cancelarItem(1587L, 4021L, 7L, 1L);
+
+        mockMvc.perform(delete(URL_ITEM).param("version", "1").with(solicitante()))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.codigo").value("ITEM_NO_PENDIENTE"));
+    }
+
+    @Test
+    void cancelarConUnaVersionVencidaDa409() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        doThrow(new ConflictoException("CONFLICTO_VERSION", "Otro usuario modificó este ítem."))
+                .when(service).cancelarItem(1587L, 4021L, 7L, 1L);
+
+        mockMvc.perform(delete(URL_ITEM).param("version", "1").with(solicitante()))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.codigo").value("CONFLICTO_VERSION"));
+    }
+
+    @Test
+    void cancelarElItemDeOtroDa403() throws Exception {
+        when(usuarioActual.id()).thenReturn(8L);
+        doThrow(new SinPermisoException("No es tuyo")).when(service).cancelarItem(1587L, 4021L, 8L, 1L);
+
+        mockMvc.perform(delete(URL_ITEM).param("version", "1").with(solicitante()))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
     }

@@ -14,6 +14,7 @@ import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.NoEncontradoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
@@ -21,6 +22,7 @@ import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
@@ -232,6 +234,108 @@ class SolicitudServiceTest {
         verify(itemRepositorio, never()).saveAndFlush(any());
     }
 
+    // ---- T08.2: cancelar un ítem PENDIENTE ----
+
+    @Test
+    void cancelarPasaElItemACanceladoPublicaItemCanceladoYNoTocaLaSolicitudSiQuedanOtros() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 2L);
+        Item otro = new Item();
+        otro.setId(4022L);
+        item.getSolicitud().agregarItem(otro);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        service.cancelarItem(1587L, 4021L, 7L, 2L);
+
+        assertThat(item.getEstado()).isEqualTo(EstadoItem.CANCELADO);
+        assertThat(item.getSolicitud().getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
+        verify(itemRepositorio).saveAndFlush(item);
+        verify(repositorio, never()).save(any(Solicitud.class));
+
+        ArgumentCaptor<ItemCancelado> captor = ArgumentCaptor.forClass(ItemCancelado.class);
+        verify(eventos).publishEvent(captor.capture());
+        assertThat(captor.getValue().itemId()).isEqualTo(4021L);
+        assertThat(captor.getValue().solicitudId()).isEqualTo(1587L);
+        assertThat(captor.getValue().usuarioId()).isEqualTo(7L);
+        assertThat(captor.getValue().eventoId()).isNotNull();
+    }
+
+    @Test
+    void siTodosLosItemsQuedanCanceladosLaSolicitudPasaACancelada() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        Item otro = new Item();
+        otro.setId(4022L);
+        otro.setEstado(EstadoItem.CANCELADO);
+        item.getSolicitud().agregarItem(otro);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        service.cancelarItem(1587L, 4021L, 7L, 0L);
+
+        assertThat(item.getSolicitud().getEstado()).isEqualTo(EstadoSolicitud.CANCELADA);
+        verify(repositorio).save(item.getSolicitud());
+    }
+
+    @Test
+    void siUnItemYaFueResueltoLaSolicitudNoPasaACancelada() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        Item comprado = new Item();
+        comprado.setId(4022L);
+        comprado.setEstado(EstadoItem.COMPRADO);
+        item.getSolicitud().agregarItem(comprado);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        service.cancelarItem(1587L, 4021L, 7L, 0L);
+
+        assertThat(item.getSolicitud().getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
+        verify(repositorio, never()).save(any(Solicitud.class));
+    }
+
+    @Test
+    void cancelarElItemDeOtroDa403() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.cancelarItem(1587L, 4021L, 8L, 0L))
+                .isInstanceOf(SinPermisoException.class);
+
+        assertThat(item.getEstado()).isEqualTo(EstadoItem.PENDIENTE);
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void cancelarUnItemQueYaNoEstaPendienteDa422() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 0L);
+        item.setEstado(EstadoItem.EN_COTIZACION);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.cancelarItem(1587L, 4021L, 7L, 0L))
+                .isInstanceOfSatisfying(ReglaNegocioException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("ITEM_NO_PENDIENTE"));
+
+        verify(itemRepositorio, never()).saveAndFlush(any());
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void cancelarConUnaVersionDistintaDa409() {
+        Item item = itemPendiente(4021L, 1587L, 7L, 4L);
+        when(itemRepositorio.findByIdAndSolicitudId(4021L, 1587L)).thenReturn(Optional.of(item));
+
+        assertThatThrownBy(() -> service.cancelarItem(1587L, 4021L, 7L, 3L))
+                .isInstanceOfSatisfying(ConflictoException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("CONFLICTO_VERSION"));
+
+        assertThat(item.getEstado()).isEqualTo(EstadoItem.PENDIENTE);
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void cancelarUnItemInexistenteDa404() {
+        when(itemRepositorio.findByIdAndSolicitudId(9L, 1587L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.cancelarItem(1587L, 9L, 7L, 0L))
+                .isInstanceOf(NoEncontradoException.class);
+    }
+
     private static EditarItemRequest cambiarCantidad(Long version) {
         return new EditarItemRequest(null, null, new BigDecimal("3"), null, null, null, version);
     }
@@ -242,7 +346,7 @@ class SolicitudServiceTest {
         solicitud.setSolicitanteId(solicitanteId);
         Item item = new Item();
         item.setId(itemId);
-        item.setSolicitud(solicitud);
+        solicitud.agregarItem(item);
         item.setTipo(TipoItem.PRODUCTO);
         item.setCategoriaId(42L);
         item.setCantidad(new BigDecimal("1"));
