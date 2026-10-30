@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,5 +58,12 @@ public class SolicitudController {
     public ItemDetalle editarItem(@PathVariable Long id, @PathVariable Long itemId,
                                   @Valid @RequestBody EditarItemRequest request) {
         return service.editarItem(id, itemId, usuarioActual.id(), request);
+    }
+
+    @DeleteMapping("/{id}/items/{itemId}")
+    public ResponseEntity<Void> cancelarItem(@PathVariable Long id, @PathVariable Long itemId,
+                                             @RequestParam Long version) {
+        service.cancelarItem(id, itemId, usuarioActual.id(), version);
+        return ResponseEntity.noContent().build();
     }
 }
