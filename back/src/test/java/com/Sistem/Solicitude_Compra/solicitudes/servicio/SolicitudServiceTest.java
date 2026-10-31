@@ -16,6 +16,7 @@ import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
@@ -334,6 +335,93 @@ class SolicitudServiceTest {
 
         assertThatThrownBy(() -> service.cancelarItem(1587L, 9L, 7L, 0L))
                 .isInstanceOf(NoEncontradoException.class);
+    }
+
+    // ---- T08.3: cancelar la solicitud entera ----
+
+    @Test
+    void cancelarSolicitudCancelaTodosLosItemsYPublicaElEvento() {
+        Solicitud solicitud = solicitudConItems(5L, 7L, EstadoItem.PENDIENTE, EstadoItem.PENDIENTE);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.cancelarSolicitud(1587L, 7L, 5L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.CANCELADA);
+        assertThat(solicitud.getItems()).allMatch(i -> i.getEstado() == EstadoItem.CANCELADO);
+        verify(repositorio).saveAndFlush(solicitud);
+        ArgumentCaptor<SolicitudCancelada> evento = ArgumentCaptor.forClass(SolicitudCancelada.class);
+        verify(eventos).publishEvent(evento.capture());
+        assertThat(evento.getValue().solicitudId()).isEqualTo(1587L);
+        assertThat(evento.getValue().itemIds()).containsExactly(100L, 101L);
+        assertThat(evento.getValue().usuarioId()).isEqualTo(7L);
+    }
+
+    @Test
+    void cancelarSolicitudInexistenteDa404() {
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.cancelarSolicitud(1587L, 7L, 5L))
+                .isInstanceOf(NoEncontradoException.class);
+    }
+
+    @Test
+    void cancelarSolicitudDeOtroUsuarioDa403() {
+        Solicitud solicitud = solicitudConItems(5L, 7L, EstadoItem.PENDIENTE);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        assertThatThrownBy(() -> service.cancelarSolicitud(1587L, 8L, 5L))
+                .isInstanceOf(SinPermisoException.class);
+        verify(repositorio, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void cancelarSolicitudConUnItemYaEnCotizacionDa422() {
+        Solicitud solicitud = solicitudConItems(5L, 7L, EstadoItem.PENDIENTE, EstadoItem.EN_COTIZACION);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        assertThatThrownBy(() -> service.cancelarSolicitud(1587L, 7L, 5L))
+                .isInstanceOfSatisfying(ReglaNegocioException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("SOLICITUD_NO_CANCELABLE"));
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
+        verify(repositorio, never()).saveAndFlush(any());
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void cancelarUnaSolicitudYaCanceladaDa422() {
+        Solicitud solicitud = solicitudConItems(5L, 7L, EstadoItem.CANCELADO);
+        solicitud.setEstado(EstadoSolicitud.CANCELADA);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        assertThatThrownBy(() -> service.cancelarSolicitud(1587L, 7L, 5L))
+                .isInstanceOfSatisfying(ReglaNegocioException.class,
+                        e -> assertThat(e.getCodigo()).isEqualTo("SOLICITUD_NO_CANCELABLE"));
+    }
+
+    @Test
+    void cancelarSolicitudConVersionVencidaDa409() {
+        Solicitud solicitud = solicitudConItems(5L, 7L, EstadoItem.PENDIENTE);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        assertThatThrownBy(() -> service.cancelarSolicitud(1587L, 7L, 4L))
+                .isInstanceOf(ConflictoException.class);
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
+        verify(repositorio, never()).saveAndFlush(any());
+    }
+
+    private static Solicitud solicitudConItems(Long version, Long solicitanteId, EstadoItem... estados) {
+        Solicitud solicitud = new Solicitud();
+        solicitud.setId(1587L);
+        solicitud.setSolicitanteId(solicitanteId);
+        solicitud.setVersion(version);
+        long id = 100L;
+        for (EstadoItem estado : estados) {
+            Item item = new Item();
+            item.setId(id++);
+            item.setEstado(estado);
+            solicitud.agregarItem(item);
+        }
+        return solicitud;
     }
 
     private static EditarItemRequest cambiarCantidad(Long version) {

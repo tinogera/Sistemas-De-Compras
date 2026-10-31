@@ -321,4 +321,63 @@ class SolicitudControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
     }
+
+    // ---- T08.3: POST /api/v1/solicitudes/{id}/cancelar ----
+
+    private static final String URL_CANCELAR = "/api/v1/solicitudes/1587/cancelar";
+
+    @Test
+    void cancelarSolicitudDevuelve200() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+
+        mockMvc.perform(post(URL_CANCELAR).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":5}"))
+                .andExpect(status().isOk());
+
+        verify(service).cancelarSolicitud(1587L, 7L, 5L);
+    }
+
+    @Test
+    void cancelarSolicitudSinVersionDa400() throws Exception {
+        mockMvc.perform(post(URL_CANCELAR).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("VALIDACION"));
+        verify(service, never()).cancelarSolicitud(any(), any(), any());
+    }
+
+    @Test
+    void cancelarSolicitudNoCancelableDa422() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        doThrow(new ReglaNegocioException("SOLICITUD_NO_CANCELABLE", "Cancelá ítem por ítem"))
+                .when(service).cancelarSolicitud(1587L, 7L, 5L);
+
+        mockMvc.perform(post(URL_CANCELAR).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":5}"))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.codigo").value("SOLICITUD_NO_CANCELABLE"));
+    }
+
+    @Test
+    void cancelarSolicitudConVersionVencidaDa409() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        doThrow(new ConflictoException("CONFLICTO_VERSION", "Recargá la página."))
+                .when(service).cancelarSolicitud(1587L, 7L, 5L);
+
+        mockMvc.perform(post(URL_CANCELAR).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":5}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.codigo").value("CONFLICTO_VERSION"));
+    }
+
+    @Test
+    void cancelarSolicitudDeOtroDa403() throws Exception {
+        when(usuarioActual.id()).thenReturn(8L);
+        doThrow(new SinPermisoException("No es tuya")).when(service).cancelarSolicitud(1587L, 8L, 5L);
+
+        mockMvc.perform(post(URL_CANCELAR).with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"version\":5}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+    }
 }

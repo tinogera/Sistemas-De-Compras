@@ -9,6 +9,7 @@ import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
@@ -156,6 +157,35 @@ public class SolicitudService {
         }
         eventos.publishEvent(new ItemCancelado(UUID.randomUUID(), Instant.now(), item.getId(), solicitudId,
                 usuarioId));
+    }
+
+    /**
+     * Cancela la solicitud entera. Solo la puede cancelar quien la creó y solo si todos sus ítems siguen
+     * PENDIENTES; si no, hay que cancelar ítem por ítem. Todos los ítems pasan a CANCELADO.
+     */
+    @Transactional
+    public void cancelarSolicitud(Long solicitudId, Long usuarioId, Long version) {
+        Solicitud solicitud = solicitudes.findConItemsById(solicitudId)
+                .orElseThrow(() -> new NoEncontradoException("No existe la solicitud " + solicitudId));
+        if (!solicitud.getSolicitanteId().equals(usuarioId)) {
+            throw new SinPermisoException("Solo quien creó la solicitud puede cancelarla");
+        }
+        if (solicitud.getEstado() == EstadoSolicitud.CANCELADA) {
+            throw new ReglaNegocioException("SOLICITUD_NO_CANCELABLE", "La solicitud ya está cancelada");
+        }
+        if (!solicitud.puedeCancelarse()) {
+            throw new ReglaNegocioException("SOLICITUD_NO_CANCELABLE",
+                    "La solicitud tiene ítems que ya no están pendientes. Cancelá ítem por ítem");
+        }
+        if (!solicitud.getVersion().equals(version)) {
+            throw new ConflictoException("CONFLICTO_VERSION",
+                    "Otro usuario modificó esta solicitud. Recargá la página.");
+        }
+        solicitud.getItems().forEach(i -> i.setEstado(EstadoItem.CANCELADO));
+        solicitud.setEstado(EstadoSolicitud.CANCELADA);
+        solicitudes.saveAndFlush(solicitud);
+        eventos.publishEvent(new SolicitudCancelada(UUID.randomUUID(), Instant.now(), solicitudId,
+                solicitud.getItems().stream().map(Item::getId).toList(), usuarioId));
     }
 
     /** Reglas comunes de editar y cancelar: existe, es el dueño, sigue PENDIENTE y la versión coincide. */
