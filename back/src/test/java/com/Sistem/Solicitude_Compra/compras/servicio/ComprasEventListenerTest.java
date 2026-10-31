@@ -3,6 +3,10 @@ package com.Sistem.Solicitude_Compra.compras.servicio;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
+import com.Sistem.Solicitude_Compra.compartido.eventos.CancelacionRechazada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
 import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
@@ -14,6 +18,7 @@ import com.Sistem.Solicitude_Compra.compras.repositorio.GestionItemRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
@@ -88,6 +93,112 @@ class ComprasEventListenerTest {
                 .andWaitForStateChange(() -> completadas.findAll().size(),
                         completadas -> completadas >= publicacionesPrevias + 2)
                 .andVerify(completadas -> assertThat(gestiones.count()).isEqualTo(2));
+    }
+
+    // ---- T08.4: ediciones y cancelaciones que vienen de Solicitudes ----
+
+    @Test
+    void editarUnItemPendienteActualizaLaCopia(Scenario scenario) {
+        guardarGestion(100L, false);
+
+        scenario.publish(itemEditado(100L, "Resma A4 x 10", new BigDecimal("9")))
+                .andWaitForStateChange(() -> gestiones.findById(100L).orElseThrow().getDetalle(),
+                        detalle -> detalle.equals("Resma A4 x 10"))
+                .andVerify(detalle -> {
+                    GestionItem g = gestiones.findById(100L).orElseThrow();
+                    assertThat(g.getCategoriaId()).isEqualTo(9L);
+                    assertThat(g.getCantidad()).isEqualByComparingTo("9");
+                    assertThat(g.getPrecioEstimado()).isEqualByComparingTo("2000.00");
+                    assertThat(g.getEstado()).isEqualTo(EstadoGestion.PENDIENTE);
+                });
+    }
+
+    @Test
+    void editarUnItemYaTomadoNoCambiaLaCopia(Scenario scenario) {
+        guardarGestion(100L, true);
+        int previas = completadas.findAll().size();
+
+        scenario.publish(itemEditado(100L, "Resma A4 x 10", new BigDecimal("9")))
+                .andWaitForStateChange(() -> completadas.findAll().size(), c -> c >= previas + 1)
+                .andVerify(c -> {
+                    GestionItem g = gestiones.findById(100L).orElseThrow();
+                    assertThat(g.getDetalle()).isEqualTo("Resma A4");
+                    assertThat(g.getCantidad()).isEqualByComparingTo("3");
+                    assertThat(g.getEstado()).isEqualTo(EstadoGestion.EN_COTIZACION);
+                });
+    }
+
+    @Test
+    void cancelarUnItemPendientePasaLaGestionACancelado(Scenario scenario) {
+        guardarGestion(100L, false);
+
+        scenario.publish(new ItemCancelado(UUID.randomUUID(), Instant.now(), 100L, 10L, 1L))
+                .andWaitForStateChange(() -> gestiones.findById(100L).orElseThrow().getEstado(),
+                        estado -> estado == EstadoGestion.CANCELADO)
+                .andVerify(estado -> assertThat(estado).isEqualTo(EstadoGestion.CANCELADO));
+    }
+
+    @Test
+    void cancelarUnItemYaTomadoPublicaCancelacionRechazadaYNoTocaLaGestion(Scenario scenario) {
+        guardarGestion(100L, true);
+
+        scenario.publish(new ItemCancelado(UUID.randomUUID(), Instant.now(), 100L, 10L, 1L))
+                .andWaitForEventOfType(CancelacionRechazada.class)
+                .toArriveAndVerify(evento -> {
+                    assertThat(evento.itemId()).isEqualTo(100L);
+                    assertThat(evento.solicitudId()).isEqualTo(10L);
+                    assertThat(gestiones.findById(100L).orElseThrow().getEstado())
+                            .isEqualTo(EstadoGestion.EN_COTIZACION);
+                });
+    }
+
+    @Test
+    void cancelarLaSolicitudCancelaLasPendientesYRechazaLasTomadas(Scenario scenario) {
+        guardarGestion(100L, false);
+        guardarGestion(101L, true);
+
+        scenario.publish(new SolicitudCancelada(UUID.randomUUID(), Instant.now(), 10L,
+                        List.of(100L, 101L), 1L))
+                .andWaitForEventOfType(CancelacionRechazada.class)
+                .toArriveAndVerify(evento -> {
+                    assertThat(evento.itemId()).isEqualTo(101L);
+                    assertThat(gestiones.findById(100L).orElseThrow().getEstado())
+                            .isEqualTo(EstadoGestion.CANCELADO);
+                    assertThat(gestiones.findById(101L).orElseThrow().getEstado())
+                            .isEqualTo(EstadoGestion.EN_COTIZACION);
+                });
+    }
+
+    @Test
+    void cancelarDosVecesElMismoItemNoFalla(Scenario scenario) {
+        guardarGestion(100L, false);
+        var evento = new ItemCancelado(UUID.randomUUID(), Instant.now(), 100L, 10L, 1L);
+        int previas = completadas.findAll().size();
+
+        scenario.publish(evento)
+                .andWaitForStateChange(() -> gestiones.findById(100L).orElseThrow().getEstado(),
+                        estado -> estado == EstadoGestion.CANCELADO)
+                .andVerify(estado -> assertThat(estado).isEqualTo(EstadoGestion.CANCELADO));
+
+        scenario.publish(evento)
+                .andWaitForStateChange(() -> completadas.findAll().size(), c -> c >= previas + 2)
+                .andVerify(c -> assertThat(gestiones.findById(100L).orElseThrow().getEstado())
+                        .isEqualTo(EstadoGestion.CANCELADO));
+    }
+
+    private void guardarGestion(Long itemId, boolean tomada) {
+        GestionItem gestion = new GestionItem(itemId, 10L, 2L, 5L, TipoItem.PRODUCTO, "Resma A4",
+                new BigDecimal("3"), Urgencia.ALTA, LocalDate.now().plusDays(5), OffsetDateTime.now(),
+                new BigDecimal("1500.00"), Moneda.ARS);
+        if (tomada) {
+            gestion.tomar(77L);
+        }
+        gestiones.save(gestion);
+    }
+
+    private static ItemEditado itemEditado(Long itemId, String detalle, BigDecimal cantidad) {
+        return new ItemEditado(UUID.randomUUID(), Instant.now(), itemId, 10L, 9L, cantidad, detalle,
+                new BigDecimal("2000.00"), Moneda.ARS, 1L);
     }
 
     private static SolicitudCreada solicitudCreada() {

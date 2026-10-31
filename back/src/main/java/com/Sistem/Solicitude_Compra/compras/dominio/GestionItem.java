@@ -139,6 +139,27 @@ public class GestionItem {
         this.estadoAprobacion = EstadoAprobacion.EN_CURSO;
     }
 
+    public boolean estaPendiente() {
+        return estado == EstadoGestion.PENDIENTE;
+    }
+
+    /**
+     * Copia los datos editados en Solicitudes, pero solo mientras el ítem siga PENDIENTE: si un
+     * Encargado ya lo tomó, lo que cotiza no cambia por debajo. Devuelve si aplicó el cambio.
+     */
+    public boolean actualizarDatos(Long categoriaId, BigDecimal cantidad, String detalle,
+                                   BigDecimal precioEstimado, Moneda monedaEstimada) {
+        if (!estaPendiente()) {
+            return false;
+        }
+        this.categoriaId = categoriaId;
+        this.cantidad = cantidad;
+        this.detalle = detalle;
+        this.precioEstimado = precioEstimado;
+        this.monedaEstimada = monedaEstimada;
+        return true;
+    }
+
     public void tomar(Long encargadoId) {
         if (estado != EstadoGestion.PENDIENTE) {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
