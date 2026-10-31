@@ -66,4 +66,11 @@ public class SolicitudController {
         service.cancelarItem(id, itemId, usuarioActual.id(), version);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/cancelar")
+    public SolicitudDetalleResponse cancelar(@PathVariable Long id,
+                                             @Valid @RequestBody CancelarSolicitudRequest request) {
+        service.cancelarSolicitud(id, usuarioActual.id(), request.version());
+        return service.obtener(id, usuarioActual.id(), usuarioActual.rol());
+    }
 }
