@@ -3,11 +3,14 @@ package com.Sistem.Solicitude_Compra.compras.servicio;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
+import com.Sistem.Solicitude_Compra.auth.AuthApi;
+import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CancelacionRechazada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
+import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
@@ -29,6 +32,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.modulith.events.CompletedEventPublications;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.junit.jupiter.api.BeforeAll;
 import java.util.TimeZone;
 
@@ -42,6 +46,9 @@ class ComprasEventListenerTest {
     }
 
     @Autowired GestionItemRepository gestiones;
+    @MockitoBean AuthApi authApi;
+    @MockitoBean CatalogoApi catalogoApi;
+    @MockitoBean UsuarioActual usuarioActual;
     @Autowired CompletedEventPublications completadas;
 
     // El listener corre en su propia transacción (REQUIRES_NEW): el test no hace rollback, hay que limpiar.
