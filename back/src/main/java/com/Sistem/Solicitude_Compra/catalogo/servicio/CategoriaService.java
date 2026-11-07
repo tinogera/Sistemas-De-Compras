@@ -68,9 +68,9 @@ public class CategoriaService {
             throw new ReglaNegocioException("TRANSICION_INVALIDA",
                     "Solo se puede pasar una categoría de NUEVA a CONOCIDA.");
         }
-        categoria.confirmar();
+        String nombre = null;
         if (pedido.nombre() != null) {
-            String nombre = pedido.nombre().trim();
+            nombre = pedido.nombre().trim();
             if (nombre.isEmpty()) {
                 throw new ParametroInvalidoException("El nombre no puede estar vacío.");
             }
@@ -81,6 +81,10 @@ public class CategoriaService {
                         throw new ConflictoException("DUPLICADO",
                                 "Ya existe la categoría \"" + otra.getNombre() + "\"; unificalas en vez de renombrar.");
                     });
+        }
+        // Recién acá se cambia el estado: si algo de arriba falla, la entidad queda intacta.
+        categoria.confirmar();
+        if (nombre != null) {
             categoria.setNombre(nombre);
         }
         return CategoriaResponse.de(categorias.saveAndFlush(categoria));
