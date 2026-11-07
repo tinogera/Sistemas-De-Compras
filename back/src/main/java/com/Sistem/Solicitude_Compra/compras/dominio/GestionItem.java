@@ -1,7 +1,9 @@
 package com.Sistem.Solicitude_Compra.compras.dominio;
 
 import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
+import com.Sistem.Solicitude_Compra.compartido.errores.ConflictoException;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
+import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
@@ -160,21 +162,85 @@ public class GestionItem {
         return true;
     }
 
-    public void tomar(Long encargadoId) {
+    /**
+     * El Encargado toma el ítem: PENDIENTE pasa a EN_COTIZACION, o queda suyo uno EN_COTIZACION sin encargado
+     * (cuando se quitó el rol al que lo tenía). Si ya es de otro, 409 YA_ASIGNADO. Devuelve si hubo cambio
+     * (tomar dos veces un ítem propio no hace nada).
+     */
+    public boolean tomar(Long encargadoId) {
+        if (estado == EstadoGestion.EN_COTIZACION) {
+            if (this.encargadoId == null) {
+                this.encargadoId = encargadoId;
+                return true;
+            }
+            if (this.encargadoId.equals(encargadoId)) {
+                return false;
+            }
+            throw new ConflictoException("YA_ASIGNADO", "Este ítem ya lo tomó otro Encargado.");
+        }
         if (estado != EstadoGestion.PENDIENTE) {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
                     "Solo se puede tomar un ítem PENDIENTE (estado actual: " + estado + ")");
         }
         this.encargadoId = encargadoId;
         this.estado = EstadoGestion.EN_COTIZACION;
+        return true;
     }
 
+    /** Pasa a ser del Encargado que lo pide. Solo si está EN_COTIZACION y lo tiene otro Encargado. */
     public void reasignar(Long nuevoEncargadoId) {
-        if (estaCerrada()) {
+        if (estado != EstadoGestion.EN_COTIZACION) {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
-                    "No se puede reasignar un ítem " + estado);
+                    "Solo se puede reasignar un ítem EN_COTIZACION (estado actual: " + estado + ")");
+        }
+        if (encargadoId == null) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "El ítem no tiene Encargado: tomalo en vez de reasignarlo.");
+        }
+        if (encargadoId.equals(nuevoEncargadoId)) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO", "Este ítem ya es tuyo.");
         }
         this.encargadoId = nuevoEncargadoId;
+    }
+
+    /** Para operar sobre la cotización: EN_COTIZACION (422) y asignado al usuario (403). */
+    public void exigirAsignadoA(Long usuarioId) {
+        if (estado != EstadoGestion.EN_COTIZACION) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "El ítem tiene que estar EN_COTIZACION (estado actual: " + estado + ")");
+        }
+        if (encargadoId == null || !encargadoId.equals(usuarioId)) {
+            throw new SinPermisoException("Este ítem no está asignado a vos.");
+        }
+    }
+
+    /** Para editar la compra ya hecha: COMPRADO (422) y comprada por el usuario (403). */
+    public void exigirCompraPropia(Long usuarioId) {
+        if (estado != EstadoGestion.COMPRADO) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "Solo se puede editar la compra de un ítem COMPRADO (estado actual: " + estado + ")");
+        }
+        if (encargadoId == null || !encargadoId.equals(usuarioId)) {
+            throw new SinPermisoException("Esta compra no es tuya.");
+        }
+    }
+
+    /** El listener de AprobacionCompletada copia acá el resultado de la cadena. Devuelve si hubo cambio. */
+    public boolean marcarAprobada() {
+        if (estaCerrada() || estadoAprobacion == EstadoAprobacion.APROBADA) {
+            return false;
+        }
+        this.estadoAprobacion = EstadoAprobacion.APROBADA;
+        return true;
+    }
+
+    /** El listener de AprobacionReabierta: el precio cambió y la cadena vuelve a correr. */
+    public boolean reabrirAprobacion() {
+        if (estaCerrada() || estadoAprobacion == EstadoAprobacion.EN_CURSO) {
+            return false;
+        }
+        this.estadoAprobacion = EstadoAprobacion.EN_CURSO;
+        return true;
     }
 
     public void fijarPrecioTotal(BigDecimal importe, Moneda moneda, Long cotizacionId) {
@@ -187,17 +253,40 @@ public class GestionItem {
         this.cotizacionElegidaId = cotizacionId;
     }
 
+    /** El ítem vuelve a evaluarse con el precio estimado. */
+    public void quitarPrecioTotal() {
+        if (estado != EstadoGestion.EN_COTIZACION) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "Solo se puede quitar el precio total de un ítem EN_COTIZACION (estado actual: " + estado + ")");
+        }
+        this.precioTotal = null;
+        this.monedaTotal = null;
+        this.cotizacionElegidaId = null;
+    }
+
+    /** Lo que tiene que estar listo para comprar, con el código de error que ve el front. */
+    public void exigirListaParaComprar() {
+        if (estadoAprobacion != EstadoAprobacion.APROBADA) {
+            throw new ReglaNegocioException("APROBACION_PENDIENTE",
+                    "Este ítem todavía no tiene todas las aprobaciones");
+        }
+        if (precioTotal == null) {
+            throw new ReglaNegocioException("FALTA_PRECIO_TOTAL",
+                    "Fijá el precio total antes de comprar");
+        }
+    }
+
     public void registrarCompra(Long proveedorId, OffsetDateTime fechaCompra) {
         if (estado != EstadoGestion.EN_COTIZACION) {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
                     "Solo se puede registrar la compra de un ítem EN_COTIZACION (estado actual: " + estado + ")");
         }
         if (estadoAprobacion != EstadoAprobacion.APROBADA) {
-            throw new ReglaNegocioException("GESTION_SIN_APROBACION",
+            throw new ReglaNegocioException("APROBACION_PENDIENTE",
                     "No se puede registrar la compra: la cadena de aprobación está " + estadoAprobacion);
         }
         if (precioTotal == null) {
-            throw new ReglaNegocioException("GESTION_SIN_PRECIO",
+            throw new ReglaNegocioException("FALTA_PRECIO_TOTAL",
                     "No se puede registrar la compra sin precio total");
         }
         if (proveedorId == null) {
@@ -224,8 +313,26 @@ public class GestionItem {
         this.proveedorCompraId = nuevoProveedorId;
     }
 
+    /**
+     * Cambios posteriores a la compra. {@code nuevoPrecio} y {@code nuevoEnvio} en null no se tocan; un envío
+     * en cero deja el ítem sin envío. La cadena de aprobación no se re-evalúa: la compra ya está hecha.
+     */
+    public void actualizarCompra(BigDecimal nuevoPrecio, BigDecimal nuevoEnvio) {
+        if (estado != EstadoGestion.COMPRADO) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "Solo se puede editar la compra de un ítem COMPRADO (estado actual: " + estado + ")");
+        }
+        if (nuevoPrecio != null) {
+            this.precioTotal = nuevoPrecio;
+        }
+        if (nuevoEnvio != null) {
+            this.montoEnvio = nuevoEnvio.signum() == 0 ? null : nuevoEnvio;
+        }
+    }
+
     public void rechazar(String motivo, OffsetDateTime fechaResolucion) {
-        if (estado == EstadoGestion.COMPRADO || estado == EstadoGestion.CANCELADO) {
+        if (estado == EstadoGestion.COMPRADO || estado == EstadoGestion.CANCELADO
+                || estado == EstadoGestion.RECHAZADO) {
             throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
                     "No se puede rechazar un ítem " + estado);
         }
@@ -245,6 +352,11 @@ public class GestionItem {
         }
         this.resueltoEn = fechaResolucion;
         this.estado = EstadoGestion.CANCELADO;
+    }
+
+    /** COMPRADO, RECHAZADO o CANCELADO: ya no cambia. Los listeners de otros módulos lo usan para ser idempotentes. */
+    public boolean estaResuelta() {
+        return estaCerrada();
     }
 
     // Estados terminales para reasignar: COMPRADO, RECHAZADO y CANCELADO.

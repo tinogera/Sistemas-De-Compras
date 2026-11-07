@@ -27,5 +27,6 @@ public record BandejaItemResponse(
         EstadoAprobacion estadoAprobacion,
         Long encargadoId,
         String encargadoNombre,
-        Long version) {
+        Long version,
+        boolean todasVencidas) {
 }
