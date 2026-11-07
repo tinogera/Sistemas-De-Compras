@@ -26,4 +26,7 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     // Para que el Encargado vea las Nuevas
     Page<Categoria> findByEstado(EstadoCategoria estado, Pageable pageable);
+
+    // Categorías que ya apuntaban a otra: al unificar esa otra hay que re-apuntarlas (un solo salto).
+    List<Categoria> findByUnificadaEn(Categoria destino);
 }

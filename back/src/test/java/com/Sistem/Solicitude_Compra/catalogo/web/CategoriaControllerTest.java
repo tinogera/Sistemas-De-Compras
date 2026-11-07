@@ -7,6 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.Sistem.Solicitude_Compra.catalogo.dominio.Categoria;
 import com.Sistem.Solicitude_Compra.catalogo.dominio.EstadoCategoria;
 import com.Sistem.Solicitude_Compra.catalogo.repositorio.CategoriaRepository;
+import com.Sistem.Solicitude_Compra.catalogo.repositorio.ProveedorRepository;
+import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
+import org.springframework.context.ApplicationEventPublisher;
 import com.Sistem.Solicitude_Compra.catalogo.servicio.CategoriaService;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.web.ManejadorErrores;
@@ -27,7 +30,9 @@ class CategoriaControllerTest {
     @BeforeEach
     void iniciar() {
         repository = mock(CategoriaRepository.class);
-        mvc = MockMvcBuilders.standaloneSetup(new CategoriaController(new CategoriaService(repository)))
+        mvc = MockMvcBuilders.standaloneSetup(new CategoriaController(
+                new CategoriaService(repository, mock(ProveedorRepository.class), mock(ApplicationEventPublisher.class)),
+                mock(UsuarioActual.class)))
                 .setControllerAdvice(new ManejadorErrores())
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver()).build();
     }
