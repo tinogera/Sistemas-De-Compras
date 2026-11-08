@@ -98,4 +98,16 @@ public class Cotizacion {
     public boolean estaVigente() {
         return estaVigente(LocalDate.now(ZONA));
     }
+
+    public void seleccionar() {
+        this.estado = EstadoCotizacion.SELECCIONADA;
+    }
+
+    public void volverACandidata() {
+        this.estado = EstadoCotizacion.CANDIDATA;
+    }
+
+    public void descartar() {
+        this.estado = EstadoCotizacion.DESCARTADA;
+    }
 }

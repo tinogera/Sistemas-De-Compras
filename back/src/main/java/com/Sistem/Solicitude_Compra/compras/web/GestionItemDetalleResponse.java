@@ -9,6 +9,7 @@ import com.Sistem.Solicitude_Compra.compras.dominio.EstadoGestion;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public record GestionItemDetalleResponse(
         Long itemId,
@@ -31,6 +32,8 @@ public record GestionItemDetalleResponse(
         Long encargadoId,
         String encargadoNombre,
         Long cotizacionElegidaId,
-        Long version) {
+        Long version,
+        boolean todasVencidas,
+        List<CotizacionResponse> cotizaciones) {
 
 }
