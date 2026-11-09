@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
 // Los permisos por rol van con @PreAuthorize en cada controller (T05.1).
-// Pendiente de poner cuando existan: /bandeja, /cotizaciones, /categorias (POST/PATCH) y /reportes.
+// Pendiente para cuando existan: /reportes (hasAnyRole('ENCARGADO','ADMIN')) y /admin/** (hasRole('ADMIN')).
 @Configuration
 @EnableMethodSecurity
 public class SeguridadConfig {

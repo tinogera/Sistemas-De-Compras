@@ -89,6 +89,19 @@ class BandejaComprasAccionesControllerTest {
     }
 
     @Test
+    void niElAdminNiElSupervisorPuedenOperarLaBandeja() throws Exception {
+        for (String rol : List.of("ADMIN", "SUPERVISOR")) {
+            RequestPostProcessor usuario = jwt().authorities(new SimpleGrantedAuthority("ROLE_" + rol));
+            mockMvc.perform(post(RUTA + "/tomar").with(usuario))
+                    .andExpect(status().isForbidden())
+                    .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+            json(post(RUTA + "/comprar"), "{\"proveedorId\":9,\"version\":1}", usuario)
+                    .andExpect(status().isForbidden());
+        }
+        verifyNoInteractions(gestion);
+    }
+
+    @Test
     void sinTokenDa401() throws Exception {
         mockMvc.perform(post(RUTA + "/tomar")).andExpect(status().isUnauthorized());
     }

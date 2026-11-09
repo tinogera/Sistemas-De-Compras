@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -42,6 +43,12 @@ class CategoriaControllerPermisosTest {
 
     private static org.springframework.test.web.servlet.request.RequestPostProcessor como(String rol) {
         return jwt().authorities(new SimpleGrantedAuthority("ROLE_" + rol));
+    }
+
+    @Test
+    void cualquierUsuarioLogueadoPuedeListarCategorias() throws Exception {
+        mockMvc.perform(get("/api/v1/categorias").with(como("SOLICITANTE")))
+                .andExpect(status().isOk());
     }
 
     @Test
