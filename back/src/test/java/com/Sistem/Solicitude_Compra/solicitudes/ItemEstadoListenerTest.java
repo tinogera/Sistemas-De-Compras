@@ -13,12 +13,15 @@ import com.Sistem.Solicitude_Compra.compartido.eventos.ItemAsignado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemResuelto;
 import com.Sistem.Solicitude_Compra.compartido.eventos.OrdenEnviada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.PrecioTotalActualizado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCerrada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudLista;
 import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.compartido.tipos.EstadoAprobacion;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Urgencia;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
@@ -173,6 +176,43 @@ class ItemEstadoListenerTest {
                 .andWaitForStateChange(() -> items.findById(itemId).orElseThrow().getOrdenEnviada(),
                         enviada -> enviada)
                 .andVerify(enviada -> assertThat(enviada).isTrue());
+    }
+
+    @Test
+    void alResolverseElUnicoItemLaSolicitudPasaAListaYAvisa(Scenario scenario) {
+        scenario.publish(itemResuelto("COMPRADO", "Proveedor SA", null, null))
+                .andWaitForEventOfType(SolicitudLista.class)
+                .toArriveAndVerify(evento -> {
+                    assertThat(evento.solicitudId()).isEqualTo(solicitudId);
+                    assertThat(evento.resultados()).extracting(SolicitudLista.ResultadoItem::estado)
+                            .containsExactly("COMPRADO");
+                    assertThat(estadoSolicitud()).isEqualTo(EstadoSolicitud.LISTA);
+                });
+    }
+
+    @Test
+    void alEnviarseLaOrdenDeLoCompradoLaSolicitudSeCierra(Scenario scenario) {
+        scenario.publish(itemResuelto("COMPRADO", "Proveedor SA", null, null))
+                .andWaitForStateChange(this::estadoSolicitud, e -> e == EstadoSolicitud.LISTA)
+                .andVerify(e -> assertThat(e).isEqualTo(EstadoSolicitud.LISTA));
+
+        scenario.publish(new OrdenEnviada(UUID.randomUUID(), Instant.now(), 900L, itemId, solicitudId, 7L))
+                .andWaitForEventOfType(SolicitudCerrada.class)
+                .toArriveAndVerify(evento -> {
+                    assertThat(evento.solicitudId()).isEqualTo(solicitudId);
+                    assertThat(estadoSolicitud()).isEqualTo(EstadoSolicitud.CERRADA);
+                });
+    }
+
+    @Test
+    void alRechazarseElUnicoItemLaSolicitudSeCierraEnseguida(Scenario scenario) {
+        scenario.publish(itemResuelto("RECHAZADO", null, "Sin presupuesto", "Gerencia General"))
+                .andWaitForEventOfType(SolicitudCerrada.class)
+                .toArriveAndVerify(evento -> assertThat(estadoSolicitud()).isEqualTo(EstadoSolicitud.CERRADA));
+    }
+
+    private EstadoSolicitud estadoSolicitud() {
+        return solicitudes.findById(solicitudId).orElseThrow().getEstado();
     }
 
     private EstadoItem estado() {

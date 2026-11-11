@@ -31,9 +31,11 @@ public class ItemEstadoListener {
     private static final Logger log = LoggerFactory.getLogger(ItemEstadoListener.class);
 
     private final ItemRepository items;
+    private final SolicitudService solicitudes;
 
-    public ItemEstadoListener(ItemRepository items) {
+    public ItemEstadoListener(ItemRepository items, SolicitudService solicitudes) {
         this.items = items;
+        this.solicitudes = solicitudes;
     }
 
     // @ApplicationModuleListener ya es @Async + @Transactional(REQUIRES_NEW) + @TransactionalEventListener.
@@ -118,7 +120,7 @@ public class ItemEstadoListener {
         }, () -> log.warn("Llegó un evento para el ítem {}, que no existe en Solicitudes", itemId));
     }
 
-    /** Se completa en T08.6 (Solicitud.recalcularEstado y la publicación de SolicitudLista/SolicitudCerrada). */
     private void recalcularEstadoDeLaSolicitud(Solicitud solicitud) {
+        solicitudes.recalcularEstado(solicitud.getId());
     }
 }
