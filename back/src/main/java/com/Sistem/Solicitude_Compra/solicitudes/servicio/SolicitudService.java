@@ -10,7 +10,9 @@ import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCerrada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudLista;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
@@ -150,13 +152,42 @@ public class SolicitudService {
         item.setEstado(EstadoItem.CANCELADO);
         items.saveAndFlush(item);
 
-        Solicitud solicitud = item.getSolicitud();
-        if (solicitud.getItems().stream().allMatch(i -> i.getEstado() == EstadoItem.CANCELADO)) {
-            solicitud.setEstado(EstadoSolicitud.CANCELADA);
-            solicitudes.save(solicitud);
-        }
         eventos.publishEvent(new ItemCancelado(UUID.randomUUID(), Instant.now(), item.getId(), solicitudId,
                 usuarioId));
+        // Cancelar el último ítem abierto puede dejar la solicitud CANCELADA o LISTA.
+        aplicarRecalculo(item.getSolicitud());
+    }
+
+    /**
+     * Recalcula el estado de la solicitud a partir de sus ítems y avisa de las transiciones: SolicitudLista
+     * una sola vez, cuando pasa de EN_REVISION a LISTA (o directo a CERRADA), y SolicitudCerrada al cerrarse.
+     */
+    @Transactional
+    public void recalcularEstado(Long solicitudId) {
+        Solicitud solicitud = solicitudes.findConItemsById(solicitudId)
+                .orElseThrow(() -> new NoEncontradoException("No existe la solicitud " + solicitudId));
+        aplicarRecalculo(solicitud);
+    }
+
+    private void aplicarRecalculo(Solicitud solicitud) {
+        EstadoSolicitud antes = solicitud.getEstado();
+        solicitud.recalcularEstado();
+        EstadoSolicitud despues = solicitud.getEstado();
+        if (antes == despues) {
+            return;
+        }
+        solicitudes.save(solicitud);
+        if (antes == EstadoSolicitud.EN_REVISION
+                && (despues == EstadoSolicitud.LISTA || despues == EstadoSolicitud.CERRADA)) {
+            eventos.publishEvent(new SolicitudLista(UUID.randomUUID(), Instant.now(), solicitud.getId(),
+                    solicitud.getSolicitanteId(),
+                    solicitud.getItems().stream().map(i -> new SolicitudLista.ResultadoItem(i.getId(),
+                            i.getCategoriaId(), i.getDetalle(), i.getEstado().name(), i.getProveedorComprado(),
+                            i.getMotivoRechazo(), i.getRechazadoPor())).toList()));
+        }
+        if (despues == EstadoSolicitud.CERRADA) {
+            eventos.publishEvent(new SolicitudCerrada(UUID.randomUUID(), Instant.now(), solicitud.getId()));
+        }
     }
 
     /**
