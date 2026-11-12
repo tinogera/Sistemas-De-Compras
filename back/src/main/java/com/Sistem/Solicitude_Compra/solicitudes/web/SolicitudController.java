@@ -4,10 +4,12 @@ import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.compartido.web.Pagina;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.servicio.ResultadoCreacion;
 import com.Sistem.Solicitude_Compra.solicitudes.servicio.SolicitudService;
 import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,10 +38,17 @@ public class SolicitudController {
     }
 
     @PostMapping
-    public ResponseEntity<SolicitudCreadaResponse> crear(@Valid @RequestBody CrearSolicitudRequest request) {
-        Solicitud solicitud = service.crear(usuarioActual.id(), request);
-        return ResponseEntity.created(URI.create("/api/v1/solicitudes/" + solicitud.getId()))
-                .body(SolicitudCreadaResponse.de(solicitud));
+    public ResponseEntity<SolicitudCreadaResponse> crear(
+            @RequestHeader(value = "Idempotency-Key", required = false) UUID clave,
+            @Valid @RequestBody CrearSolicitudRequest request) {
+        ResultadoCreacion resultado = service.crear(usuarioActual.id(), request, clave);
+        Solicitud solicitud = resultado.solicitud();
+        SolicitudCreadaResponse respuesta = SolicitudCreadaResponse.de(solicitud);
+        // Reintento con una clave ya usada: 200 con la solicitud de antes, no 201.
+        if (!resultado.creada()) {
+            return ResponseEntity.ok(respuesta);
+        }
+        return ResponseEntity.created(URI.create("/api/v1/solicitudes/" + solicitud.getId())).body(respuesta);
     }
 
     @GetMapping

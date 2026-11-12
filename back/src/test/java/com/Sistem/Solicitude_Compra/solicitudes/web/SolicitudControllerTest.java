@@ -30,11 +30,13 @@ import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.servicio.ResultadoCreacion;
 import com.Sistem.Solicitude_Compra.solicitudes.servicio.SolicitudService;
 import com.Sistem.Solicitude_Compra.solicitudes.web.SolicitudDetalleResponse.ItemDetalle;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -88,7 +90,7 @@ class SolicitudControllerTest {
         i.setId(4021L);
         creada.agregarItem(i);
         when(usuarioActual.id()).thenReturn(7L);
-        when(service.crear(eq(7L), any())).thenReturn(creada);
+        when(service.crear(eq(7L), any(), any())).thenReturn(new ResultadoCreacion(creada, true));
 
         mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).contentType(MediaType.APPLICATION_JSON)
                         .content(body(manana(), "[" + item("") + "]")))
@@ -106,7 +108,7 @@ class SolicitudControllerTest {
                         .content(body(manana(), "[]")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.codigo").value("VALIDACION"));
-        verify(service, never()).crear(any(), any());
+        verify(service, never()).crear(any(), any(), any());
     }
 
     @Test
@@ -148,7 +150,7 @@ class SolicitudControllerTest {
     @Test
     void unaCategoriaInexistenteDa422() throws Exception {
         when(usuarioActual.id()).thenReturn(7L);
-        when(service.crear(eq(7L), any())).thenThrow(
+        when(service.crear(eq(7L), any(), any())).thenThrow(
                 new ReglaNegocioException("CATEGORIA_INEXISTENTE", "La categoría 42 no existe"));
 
         mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).contentType(MediaType.APPLICATION_JSON)
@@ -379,5 +381,85 @@ class SolicitudControllerTest {
                         .content("{\"version\":5}"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.codigo").value("SIN_PERMISO"));
+    }
+
+    // ---- T08.7: Idempotency-Key ----
+
+    @Test
+    void conIdempotencyKeyNuevaDevuelve201YLaClaveLlegaAlService() throws Exception {
+        UUID clave = UUID.randomUUID();
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.crear(eq(7L), any(), eq(clave))).thenReturn(new ResultadoCreacion(solicitudCreada(), true));
+
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).header("Idempotency-Key", clave.toString())
+                        .contentType(MediaType.APPLICATION_JSON).content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "/api/v1/solicitudes/1587"));
+    }
+
+    @Test
+    void reintentarConLaMismaClaveDevuelve200ConLaSolicitudDeAntes() throws Exception {
+        UUID clave = UUID.randomUUID();
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.crear(eq(7L), any(), eq(clave))).thenReturn(new ResultadoCreacion(solicitudCreada(), false));
+
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).header("Idempotency-Key", clave.toString())
+                        .contentType(MediaType.APPLICATION_JSON).content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1587));
+    }
+
+    @Test
+    void sinElHeaderLaClaveLlegaNull() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.crear(eq(7L), any(), eq(null))).thenReturn(new ResultadoCreacion(solicitudCreada(), true));
+
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).contentType(MediaType.APPLICATION_JSON)
+                        .content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void unaIdempotencyKeyQueNoEsUuidDa400() throws Exception {
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).header("Idempotency-Key", "no-es-un-uuid")
+                        .contentType(MediaType.APPLICATION_JSON).content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("PARAMETRO_INVALIDO"));
+        verify(service, never()).crear(any(), any(), any());
+    }
+
+    @Test
+    void unaClaveDeOtroUsuarioDa422() throws Exception {
+        UUID clave = UUID.randomUUID();
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.crear(eq(7L), any(), eq(clave))).thenThrow(
+                new ReglaNegocioException("CLAVE_IDEMPOTENCIA_INVALIDA", "La clave ya fue usada"));
+
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).header("Idempotency-Key", clave.toString())
+                        .contentType(MediaType.APPLICATION_JSON).content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.codigo").value("CLAVE_IDEMPOTENCIA_INVALIDA"));
+    }
+
+    @Test
+    void siDosRequestsConLaMismaClaveChocanDa409Duplicado() throws Exception {
+        UUID clave = UUID.randomUUID();
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.crear(eq(7L), any(), eq(clave)))
+                .thenThrow(new org.springframework.dao.DataIntegrityViolationException("clave duplicada"));
+
+        mockMvc.perform(post("/api/v1/solicitudes").with(solicitante()).header("Idempotency-Key", clave.toString())
+                        .contentType(MediaType.APPLICATION_JSON).content(body(manana(), "[" + item("") + "]")))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.codigo").value("DUPLICADO"));
+    }
+
+    private static Solicitud solicitudCreada() {
+        Solicitud creada = new Solicitud();
+        creada.setId(1587L);
+        Item i = new Item();
+        i.setId(4021L);
+        creada.agregarItem(i);
+        return creada;
     }
 }

@@ -26,6 +26,7 @@ import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ClaveIdempotenciaRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.SolicitudRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.web.CrearSolicitudRequest;
@@ -49,6 +50,7 @@ class SolicitudServiceTest {
 
     @Mock SolicitudRepository repositorio;
     @Mock ItemRepository itemRepositorio;
+    @Mock ClaveIdempotenciaRepository claves;
     @Mock AuthApi authApi;
     @Mock CatalogoApi catalogoApi;
     @Mock ApplicationEventPublisher eventos;
@@ -57,7 +59,7 @@ class SolicitudServiceTest {
 
     @BeforeEach
     void preparar() {
-        service = new SolicitudService(repositorio, itemRepositorio, authApi, catalogoApi, eventos);
+        service = new SolicitudService(repositorio, itemRepositorio, authApi, catalogoApi, eventos, claves);
     }
 
     @Test
