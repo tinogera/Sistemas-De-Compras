@@ -10,12 +10,16 @@ import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCerrada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudLista;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.dominio.ClaveIdempotencia;
+import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ClaveIdempotenciaRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.SolicitudRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.web.CrearSolicitudRequest;
@@ -41,11 +45,14 @@ public class SolicitudService {
     private final AuthApi authApi;
     private final CatalogoApi catalogoApi;
     private final ApplicationEventPublisher eventos;
+    private final ClaveIdempotenciaRepository claves;
 
     public SolicitudService(SolicitudRepository solicitudes, ItemRepository items, AuthApi authApi,
-                            CatalogoApi catalogoApi, ApplicationEventPublisher eventos) {
+                            CatalogoApi catalogoApi, ApplicationEventPublisher eventos,
+                            ClaveIdempotenciaRepository claves) {
         this.solicitudes = solicitudes;
         this.items = items;
+        this.claves = claves;
         this.authApi = authApi;
         this.catalogoApi = catalogoApi;
         this.eventos = eventos;
@@ -53,6 +60,30 @@ public class SolicitudService {
 
     @Transactional
     public Solicitud crear(Long solicitanteId, CrearSolicitudRequest request) {
+        return crear(solicitanteId, request, null).solicitud();
+    }
+
+    /**
+     * Crea la solicitud. Con una clave de idempotencia (header Idempotency-Key):
+     * si ya existe para este solicitante devuelve la solicitud de antes sin crear nada; si es de otro
+     * usuario, 422; si es nueva, se guarda junto con la solicitud en la misma transacción. Si dos requests
+     * con la misma clave llegan a la vez, el segundo choca con la PRIMARY KEY y se deshace todo (409 DUPLICADO).
+     */
+    @Transactional
+    public ResultadoCreacion crear(Long solicitanteId, CrearSolicitudRequest request, UUID clave) {
+        if (clave != null) {
+            var previa = claves.findById(clave);
+            if (previa.isPresent()) {
+                if (!previa.get().getSolicitanteId().equals(solicitanteId)) {
+                    throw new ReglaNegocioException("CLAVE_IDEMPOTENCIA_INVALIDA",
+                            "La clave de idempotencia ya fue usada en otra solicitud");
+                }
+                Solicitud existente = solicitudes.findConItemsById(previa.get().getSolicitudId())
+                        .orElseThrow(() -> new NoEncontradoException(
+                                "No existe la solicitud " + previa.get().getSolicitudId()));
+                return new ResultadoCreacion(existente, false);
+            }
+        }
         Solicitud solicitud = new Solicitud();
         solicitud.setSolicitanteId(solicitanteId);
         // El sector se copia: si el usuario cambia de sector, las solicitudes viejas no cambian.
@@ -63,13 +94,17 @@ public class SolicitudService {
         request.items().forEach(item -> solicitud.agregarItem(armarItem(item)));
 
         Solicitud guardada = solicitudes.saveAndFlush(solicitud);
+        if (clave != null) {
+            // saveAndFlush: el choque con la PRIMARY KEY tiene que saltar acá, antes de publicar el evento.
+            claves.saveAndFlush(new ClaveIdempotencia(clave, solicitanteId, guardada.getId()));
+        }
         eventos.publishEvent(new SolicitudCreada(UUID.randomUUID(), Instant.now(), guardada.getId(),
                 guardada.getSolicitanteId(), guardada.getSectorId(), guardada.getUrgencia(),
                 guardada.getFechaNecesaria(),
                 guardada.getItems().stream().map(i -> new SolicitudCreada.ItemCreado(i.getId(), i.getTipo(),
                         i.getCategoriaId(), i.getCantidad(), i.getDetalle(), i.getPrecioEstimado(),
                         i.getMonedaEstimada())).toList()));
-        return guardada;
+        return new ResultadoCreacion(guardada, true);
     }
 
     public Page<SolicitudResumenResponse> listar(Long usuarioId, Rol rol, boolean mias, EstadoSolicitud estado,
@@ -150,13 +185,42 @@ public class SolicitudService {
         item.setEstado(EstadoItem.CANCELADO);
         items.saveAndFlush(item);
 
-        Solicitud solicitud = item.getSolicitud();
-        if (solicitud.getItems().stream().allMatch(i -> i.getEstado() == EstadoItem.CANCELADO)) {
-            solicitud.setEstado(EstadoSolicitud.CANCELADA);
-            solicitudes.save(solicitud);
-        }
         eventos.publishEvent(new ItemCancelado(UUID.randomUUID(), Instant.now(), item.getId(), solicitudId,
                 usuarioId));
+        // Cancelar el último ítem abierto puede dejar la solicitud CANCELADA o LISTA.
+        aplicarRecalculo(item.getSolicitud());
+    }
+
+    /**
+     * Recalcula el estado de la solicitud a partir de sus ítems y avisa de las transiciones: SolicitudLista
+     * una sola vez, cuando pasa de EN_REVISION a LISTA (o directo a CERRADA), y SolicitudCerrada al cerrarse.
+     */
+    @Transactional
+    public void recalcularEstado(Long solicitudId) {
+        Solicitud solicitud = solicitudes.findConItemsById(solicitudId)
+                .orElseThrow(() -> new NoEncontradoException("No existe la solicitud " + solicitudId));
+        aplicarRecalculo(solicitud);
+    }
+
+    private void aplicarRecalculo(Solicitud solicitud) {
+        EstadoSolicitud antes = solicitud.getEstado();
+        solicitud.recalcularEstado();
+        EstadoSolicitud despues = solicitud.getEstado();
+        if (antes == despues) {
+            return;
+        }
+        solicitudes.save(solicitud);
+        if (antes == EstadoSolicitud.EN_REVISION
+                && (despues == EstadoSolicitud.LISTA || despues == EstadoSolicitud.CERRADA)) {
+            eventos.publishEvent(new SolicitudLista(UUID.randomUUID(), Instant.now(), solicitud.getId(),
+                    solicitud.getSolicitanteId(),
+                    solicitud.getItems().stream().map(i -> new SolicitudLista.ResultadoItem(i.getId(),
+                            i.getCategoriaId(), i.getDetalle(), i.getEstado().name(), i.getProveedorComprado(),
+                            i.getMotivoRechazo(), i.getRechazadoPor())).toList()));
+        }
+        if (despues == EstadoSolicitud.CERRADA) {
+            eventos.publishEvent(new SolicitudCerrada(UUID.randomUUID(), Instant.now(), solicitud.getId()));
+        }
     }
 
     /**

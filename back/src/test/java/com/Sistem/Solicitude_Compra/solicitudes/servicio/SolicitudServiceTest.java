@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,7 +18,9 @@ import com.Sistem.Solicitude_Compra.compartido.errores.SinPermisoException;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCerrada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCreada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudLista;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import com.Sistem.Solicitude_Compra.compartido.tipos.TipoItem;
@@ -26,6 +29,7 @@ import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoItem;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.EstadoSolicitud;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Item;
 import com.Sistem.Solicitude_Compra.solicitudes.dominio.Solicitud;
+import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ClaveIdempotenciaRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.ItemRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.repositorio.SolicitudRepository;
 import com.Sistem.Solicitude_Compra.solicitudes.web.CrearSolicitudRequest;
@@ -49,6 +53,7 @@ class SolicitudServiceTest {
 
     @Mock SolicitudRepository repositorio;
     @Mock ItemRepository itemRepositorio;
+    @Mock ClaveIdempotenciaRepository claves;
     @Mock AuthApi authApi;
     @Mock CatalogoApi catalogoApi;
     @Mock ApplicationEventPublisher eventos;
@@ -57,7 +62,7 @@ class SolicitudServiceTest {
 
     @BeforeEach
     void preparar() {
-        service = new SolicitudService(repositorio, itemRepositorio, authApi, catalogoApi, eventos);
+        service = new SolicitudService(repositorio, itemRepositorio, authApi, catalogoApi, eventos, claves);
     }
 
     @Test
@@ -276,7 +281,7 @@ class SolicitudServiceTest {
     }
 
     @Test
-    void siUnItemYaFueResueltoLaSolicitudNoPasaACancelada() {
+    void siAlCancelarSoloQuedanItemsResueltosLaSolicitudPasaALista() {
         Item item = itemPendiente(4021L, 1587L, 7L, 0L);
         Item comprado = new Item();
         comprado.setId(4022L);
@@ -286,8 +291,12 @@ class SolicitudServiceTest {
 
         service.cancelarItem(1587L, 4021L, 7L, 0L);
 
-        assertThat(item.getSolicitud().getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
-        verify(repositorio, never()).save(any(Solicitud.class));
+        assertThat(item.getSolicitud().getEstado()).isEqualTo(EstadoSolicitud.LISTA);
+        verify(repositorio).save(item.getSolicitud());
+        ArgumentCaptor<Object> publicados = ArgumentCaptor.forClass(Object.class);
+        verify(eventos, times(2)).publishEvent(publicados.capture());
+        assertThat(publicados.getAllValues()).hasSize(2).hasAtLeastOneElementOfType(ItemCancelado.class)
+                .hasAtLeastOneElementOfType(SolicitudLista.class);
     }
 
     @Test
@@ -407,6 +416,95 @@ class SolicitudServiceTest {
                 .isInstanceOf(ConflictoException.class);
         assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
         verify(repositorio, never()).saveAndFlush(any());
+    }
+
+    // ---- T08.6: estado automático de la solicitud ----
+
+    @Test
+    void recalcularPasaALaSolicitudAListaYAvisaUnaSolaVez() {
+        Solicitud solicitud = solicitudConItems(0L, 7L, EstadoItem.COMPRADO, EstadoItem.RECHAZADO);
+        solicitud.getItems().get(0).setProveedorComprado("Proveedor SA");
+        solicitud.getItems().get(1).setMotivoRechazo("Sin presupuesto");
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.recalcularEstado(1587L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.LISTA);
+        verify(repositorio).save(solicitud);
+        ArgumentCaptor<Object> publicados = ArgumentCaptor.forClass(Object.class);
+        verify(eventos).publishEvent(publicados.capture());
+        SolicitudLista lista = (SolicitudLista) publicados.getValue();
+        assertThat(lista.solicitudId()).isEqualTo(1587L);
+        assertThat(lista.solicitanteId()).isEqualTo(7L);
+        assertThat(lista.resultados()).extracting(SolicitudLista.ResultadoItem::estado)
+                .containsExactly("COMPRADO", "RECHAZADO");
+        assertThat(lista.resultados().get(0).proveedorRazonSocial()).isEqualTo("Proveedor SA");
+        assertThat(lista.resultados().get(1).motivoRechazo()).isEqualTo("Sin presupuesto");
+
+        // Segunda vez, sin cambios: no vuelve a avisar.
+        service.recalcularEstado(1587L);
+        verify(eventos, times(1)).publishEvent(any(Object.class));
+        verify(repositorio, times(1)).save(any(Solicitud.class));
+    }
+
+    @Test
+    void siTodosFueronRechazadosPublicaListaYCerradaEnOrden() {
+        Solicitud solicitud = solicitudConItems(0L, 7L, EstadoItem.RECHAZADO, EstadoItem.RECHAZADO);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.recalcularEstado(1587L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.CERRADA);
+        ArgumentCaptor<Object> publicados = ArgumentCaptor.forClass(Object.class);
+        verify(eventos, times(2)).publishEvent(publicados.capture());
+        assertThat(publicados.getAllValues().get(0)).isInstanceOf(SolicitudLista.class);
+        assertThat(publicados.getAllValues().get(1)).isInstanceOf(SolicitudCerrada.class);
+    }
+
+    @Test
+    void unaSolicitudListaConTodasLasOrdenesEnviadasSeCierraSinAvisarListaDeNuevo() {
+        Solicitud solicitud = solicitudConItems(0L, 7L, EstadoItem.COMPRADO);
+        solicitud.setEstado(EstadoSolicitud.LISTA);
+        solicitud.getItems().get(0).setOrdenEnviada(true);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.recalcularEstado(1587L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.CERRADA);
+        ArgumentCaptor<Object> publicados = ArgumentCaptor.forClass(Object.class);
+        verify(eventos).publishEvent(publicados.capture());
+        assertThat(publicados.getValue()).isInstanceOf(SolicitudCerrada.class);
+    }
+
+    @Test
+    void recalcularSinCambiosNoGuardaNiPublica() {
+        Solicitud solicitud = solicitudConItems(0L, 7L, EstadoItem.PENDIENTE, EstadoItem.COMPRADO);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.recalcularEstado(1587L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.EN_REVISION);
+        verify(repositorio, never()).save(any(Solicitud.class));
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void siTodosLosItemsEstanCanceladosRecalcularLaDejaCanceladaSinAvisarComoResuelta() {
+        Solicitud solicitud = solicitudConItems(0L, 7L, EstadoItem.CANCELADO, EstadoItem.CANCELADO);
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.of(solicitud));
+
+        service.recalcularEstado(1587L);
+
+        assertThat(solicitud.getEstado()).isEqualTo(EstadoSolicitud.CANCELADA);
+        verify(repositorio).save(solicitud);
+        verify(eventos, never()).publishEvent(any(Object.class));
+    }
+
+    @Test
+    void recalcularUnaSolicitudInexistenteDa404() {
+        when(repositorio.findConItemsById(1587L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.recalcularEstado(1587L)).isInstanceOf(NoEncontradoException.class);
     }
 
     private static Solicitud solicitudConItems(Long version, Long solicitanteId, EstadoItem... estados) {

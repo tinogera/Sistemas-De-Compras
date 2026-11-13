@@ -53,6 +53,29 @@ public class Solicitud {
         this.items.add(item);
     }
 
+    /**
+     * Deriva el estado de la solicitud a partir del estado de sus ítems (ver T08.6):
+     * todos CANCELADOS -> CANCELADA; todos en estado final (con al menos uno no cancelado) -> LISTA,
+     * y CERRADA si además cada ítem COMPRADO ya tiene su orden enviada (si no hay ninguno comprado,
+     * CERRADA enseguida); en cualquier otro caso, EN_REVISION. Un ítem aprobado pero sin comprar
+     * no es final.
+     */
+    public void recalcularEstado() {
+        if (items.isEmpty()) {
+            return;
+        }
+        if (items.stream().allMatch(i -> i.getEstado() == EstadoItem.CANCELADO)) {
+            estado = EstadoSolicitud.CANCELADA;
+        } else if (!items.stream().allMatch(i -> i.getEstado().esFinal())) {
+            estado = EstadoSolicitud.EN_REVISION;
+        } else if (items.stream().filter(i -> i.getEstado() == EstadoItem.COMPRADO)
+                .allMatch(i -> Boolean.TRUE.equals(i.getOrdenEnviada()))) {
+            estado = EstadoSolicitud.CERRADA;
+        } else {
+            estado = EstadoSolicitud.LISTA;
+        }
+    }
+
     public boolean puedeCancelarse() {
         return items.stream().allMatch(item -> item.getEstado() == EstadoItem.PENDIENTE);
     }
