@@ -179,6 +179,19 @@ class SolicitudControllerTest {
     }
 
     @Test
+    void cualquierRolLogueadoPuedeListarSolicitudes() throws Exception {
+        when(usuarioActual.id()).thenReturn(7L);
+        when(service.listar(eq(7L), any(), eq(true), eq(null), any())).thenReturn(new PageImpl<>(List.of()));
+
+        for (Rol rol : Rol.values()) {
+            when(usuarioActual.rol()).thenReturn(rol);
+            mockMvc.perform(get("/api/v1/solicitudes")
+                            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_" + rol))))
+                    .andExpect(status().isOk());
+        }
+    }
+
+    @Test
     void verLaSolicitudDeOtroDa403ConSinPermiso() throws Exception {
         when(usuarioActual.id()).thenReturn(7L);
         when(usuarioActual.rol()).thenReturn(Rol.SOLICITANTE);

@@ -1,6 +1,8 @@
 package com.Sistem.Solicitude_Compra.compras.servicio;
 
 import com.Sistem.Solicitude_Compra.compartido.eventos.CancelacionRechazada;
+import com.Sistem.Solicitude_Compra.compartido.eventos.EncargadoDesasignado;
+import com.Sistem.Solicitude_Compra.compartido.eventos.ItemAsignado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.SolicitudCancelada;
@@ -71,6 +73,22 @@ public class ComprasEventListener {
     @ApplicationModuleListener
     void alCancelarseLaSolicitud(SolicitudCancelada evento) {
         evento.itemIds().forEach(itemId -> cancelarGestion(itemId, evento.solicitudId()));
+    }
+
+    /**
+     * Sus ítems EN_COTIZACION vuelven a la bandeja general (siguen En cotización, sin Encargado) y cada uno
+     * queda en el historial con ItemAsignado(encargadoNuevoId = null). Idempotente: el segundo evento ya no
+     * encuentra ítems suyos.
+     */
+    @ApplicationModuleListener
+    void alDesasignarseUnEncargado(EncargadoDesasignado evento) {
+        for (GestionItem gestion : gestiones.findByEncargadoIdAndEstado(evento.usuarioId(),
+                EstadoGestion.EN_COTIZACION)) {
+            gestion.quitarEncargado();
+            gestiones.save(gestion);
+            eventos.publishEvent(new ItemAsignado(UUID.randomUUID(), Instant.now(), gestion.getItemId(),
+                    gestion.getSolicitudId(), evento.usuarioId(), null));
+        }
     }
 
     /**

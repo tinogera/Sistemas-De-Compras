@@ -193,6 +193,26 @@ class ComprasEventListenerTest {
                         .isEqualTo(EstadoGestion.CANCELADO));
     }
 
+    @Test
+    void encargadoDesasignadoDejaSusItemsEnCotizacionSinEncargadoYPublicaItemAsignado(Scenario scenario) {
+        guardarGestion(100L, true); // tomada por el 77
+        guardarGestion(101L, false); // PENDIENTE: no se toca
+
+        scenario.publish(new com.Sistem.Solicitude_Compra.compartido.eventos.EncargadoDesasignado(
+                        UUID.randomUUID(), Instant.now(), 77L, 1L))
+                .andWaitForEventOfType(com.Sistem.Solicitude_Compra.compartido.eventos.ItemAsignado.class)
+                .toArriveAndVerify(evento -> {
+                    assertThat(evento.itemId()).isEqualTo(100L);
+                    assertThat(evento.encargadoAnteriorId()).isEqualTo(77L);
+                    assertThat(evento.encargadoNuevoId()).isNull();
+                    GestionItem g = gestiones.findById(100L).orElseThrow();
+                    assertThat(g.getEstado()).isEqualTo(EstadoGestion.EN_COTIZACION);
+                    assertThat(g.getEncargadoId()).isNull();
+                    assertThat(gestiones.findById(101L).orElseThrow().getEstado())
+                            .isEqualTo(EstadoGestion.PENDIENTE);
+                });
+    }
+
     private void guardarGestion(Long itemId, boolean tomada) {
         GestionItem gestion = new GestionItem(itemId, 10L, 2L, 5L, TipoItem.PRODUCTO, "Resma A4",
                 new BigDecimal("3"), Urgencia.ALTA, LocalDate.now().plusDays(5), OffsetDateTime.now(),
