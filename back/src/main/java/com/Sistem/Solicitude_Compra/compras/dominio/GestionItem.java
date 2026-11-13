@@ -203,6 +203,15 @@ public class GestionItem {
         this.encargadoId = nuevoEncargadoId;
     }
 
+    /** El Encargado dejó de serlo: el ítem sigue EN_COTIZACION pero vuelve a la bandeja general. */
+    public void quitarEncargado() {
+        if (estado != EstadoGestion.EN_COTIZACION) {
+            throw new ReglaNegocioException("GESTION_ESTADO_INVALIDO",
+                    "Solo se puede quitar el Encargado de un ítem EN_COTIZACION (estado actual: " + estado + ")");
+        }
+        this.encargadoId = null;
+    }
+
     /** Para operar sobre la cotización: EN_COTIZACION (422) y asignado al usuario (403). */
     public void exigirAsignadoA(Long usuarioId) {
         if (estado != EstadoGestion.EN_COTIZACION) {
