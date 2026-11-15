@@ -7,3 +7,24 @@ services:
       - 'POSTGRES_USER=${POSTGRES_USER}'
     ports:
       - '127.0.0.1:${DB_PORT}:5432'
+  mailpit:
+    image: 'axllent/mailpit'
+    ports:
+      - '127.0.0.1:${PORT_WEB_N8N}:8025'
+      - '127.0.0.1:${SMTP}:1025'
+  n8n:
+    image: 'n8nio/n8n'
+    environment:
+      - 'GENERIC_TIMEZONE=America/Argentina/Buenos_Aires'
+      - 'TZ=America/Argentina/Buenos_Aires'
+      - 'N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true'
+    ports:
+      - '127.0.0.1:${PORT_N8N}:5678'
+    volumes:
+      - 'n8n_data:/home/node/.n8n'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+volumes:
+  n8n_data:
+    name: n8n_data

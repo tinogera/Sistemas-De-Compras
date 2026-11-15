@@ -156,7 +156,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T10.8 | Editar la compra y cargar el monto de envío | Back | 2 | 2 | 4 | 22/11 | T10.7 | — | ⬜ |
 | T13.3 | Consultar el historial | Back | 2 | 2 | 4 | 22/11 | T13.2 | — | ⬜ |
 | T14.3 | Adjuntos de una cotización | Back | 2 | 2 | 4 | 22/11 | T14.2, T10.1 | — | ⬜ |
-| T15.1 | n8n y Mailpit en Docker | Infra | 2 | 2 | 4 | 22/11 | T01.3 | — | ⬜ |
+| T15.1 | n8n y Mailpit en Docker | Infra | 2 | 2 | 4 | 22/11 | T01.3 | tinogera | ✅ |
 | T15.2 | Enviar los avisos a n8n | Back | 2 | 2 | 4 | 22/11 | T15.1, T08.6, T23.4 | — | ⬜ |
 | T16.1 | Schema y dominio de reportes | Back | 2 | 2 | 4 | 22/11 | T02.2 | — | ⬜ |
 | T06.6 | Confirmar una categoría Nueva | Back | 1 | 2 | 2 | 22/11 | T06.4 | — | ⬜ |
