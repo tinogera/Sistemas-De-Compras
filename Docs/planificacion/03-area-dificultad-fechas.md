@@ -9,7 +9,7 @@ Tablero de todas las subtareas. El detalle de cada una está en `02-tareas-espec
 - **Fecha límite:** las subtareas que bloquean a otras vencen a mitad de sprint; el resto, al final.
 - **Responsable:** quien toma la tarea pone su nombre. **Estado:** ⬜ pendiente · 🟨 en curso · ✅ terminada · 🟥 atrasada (la fecha límite ya pasó, o nació atrasada por un cambio de requisito).
 
-Última actualización: 18/10/2026, según los issues de GitHub. Terminadas: T01, T02, T03, T04.1, T04.2 y T23.1. Responsable = quien tiene asignado el issue; las demás siguen pendientes.
+Última actualización: 15/11/2026, según los issues de GitHub. Terminadas: T02 a T11 completas (subtareas y padres cerrados). Responsable = quien tiene asignado el issue; "—" si el issue no tiene a nadie asignado.
 
 **Renumeración en T04/T05:** en GitHub el login pasó a ser T04.3, `AuthApi` a T04.4 y los datos de prueba a T05.5 (necesitan el `PasswordEncoder` del login). Los documentos ya usan esa numeración.
 
@@ -88,7 +88,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T07.6 | Tests del módulo Solicitudes | Back | 2 | 2 | 4 | 18/10 | T07.4, T07.5 | Santino | ✅ |
 | T03.4 | Swagger | Back | 1 | 2 | 2 | 18/10 | T02.3 | — | ✅ |
 | T03.5 | CI con GitHub Actions | Infra | 2 | 1 | 2 | 18/10 | T02.3 | — | ✅ |
-| T05.5 | Datos de prueba | Back | 1 | 2 | 2 | 18/10 | T04.3 | tinogera | ⬜ |
+| T05.5 | Datos de prueba | Back | 1 | 2 | 2 | 18/10 | T04.3 | tinogera | ✅ |
 
 ## S2 — Compras y reglas de aprobación (19/10 → 01/11)
 
@@ -96,48 +96,48 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 |---|---|---|---|---|---|---|---|---|---|
 | T09.2 | Crear las gestiones al entrar una solicitud | Back | 3 | 3 | 9 | 25/10 | T09.1, T07.4 | SantiagoInv | ✅ |
 | T09.1 | Schema y dominio de Compras | Back | 2 | 3 | 6 | 25/10 | T02.2, T03.1 | SantiagoInv | ✅ |
-| T10.1 | Schema y dominio de cotizaciones | Back | 2 | 3 | 6 | 25/10 | T09.1 | — | ⬜ |
+| T10.1 | Schema y dominio de cotizaciones | Back | 2 | 3 | 6 | 25/10 | T09.1 | FdBManini | ✅ |
 | T18.2 | Mis solicitudes | Front | 2 | 3 | 6 | 25/10 | T17.4, T07.5 | — | ⬜ |
 | T06.4 | Búsqueda de categorías | Back | 2 | 2 | 4 | 25/10 | T06.2 | — | ✅ |
 | T17.4 | Componentes comunes | Front | 2 | 2 | 4 | 25/10 | T17.1 | — | ⬜ |
 | T06.7 | Proveedores sugeridos (con unificadas) | Back | 1 | 3 | 3 | 25/10 | T06.5 | — | ✅ |
 | T23.4 | Iniciar y mantener la cadena de cada ítem | Back | 4 | 3 | 12 | 01/11 | T23.2, T07.3, T07.4 | — | ⬜ |
 | T09.4 | Tomar y reasignar | Back | 3 | 3 | 9 | 01/11 | T09.3 | SantiagoInv | ✅ |
-| T10.3 | Elegir una cotización y fijar el precio total | Back | 3 | 3 | 9 | 01/11 | T10.2 | — | ⬜ |
+| T10.3 | Elegir una cotización y fijar el precio total | Back | 3 | 3 | 9 | 01/11 | T10.2 | — | ✅ |
 | T18.1 | Nueva solicitud | Front | 3 | 3 | 9 | 01/11 | T17.3, T07.4, T06.4 | — | ⬜ |
 | T18.3 | Detalle de una solicitud | Front | 3 | 3 | 9 | 01/11 | T18.2, T08.1, T08.2, T08.3 | — | ⬜ |
 | T23.3 | ABM de reglas (Admin) | Back | 3 | 3 | 9 | 01/11 | T23.2, T05.1, T04.4 | — | ⬜ |
-| T05.1 | Permisos por rol en todos los endpoints | Back | 2 | 3 | 6 | 01/11 | T04.3 | tinogera | ⬜ |
-| T08.1 | Editar un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
-| T08.2 | Borrar (cancelar) un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
-| T08.3 | Cancelar la solicitud entera | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
+| T05.1 | Permisos por rol en todos los endpoints | Back | 2 | 3 | 6 | 01/11 | T04.3 | tinogera | ✅ |
+| T08.1 | Editar un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | NLejbman | ✅ |
+| T08.2 | Borrar (cancelar) un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | NLejbman | ✅ |
+| T08.3 | Cancelar la solicitud entera | Back | 2 | 3 | 6 | 01/11 | T07.4 | NLejbman | ✅ |
 | T09.3 | Bandeja | Back | 2 | 3 | 6 | 01/11 | T09.2 | SantiagoInv | ✅ |
-| T10.2 | Cargar y listar cotizaciones | Back | 2 | 3 | 6 | 01/11 | T10.1, T09.4, T06.5 | — | ⬜ |
-| T10.4 | Rechazar un ítem | Back | 2 | 3 | 6 | 01/11 | T09.4 | — | ⬜ |
-| T05.3 | ABM de usuarios | Back | 2 | 2 | 4 | 01/11 | T05.1 | tinogera | ⬜ |
-| T10.5 | Proveedores sugeridos para un ítem | Back | 1 | 3 | 3 | 01/11 | T06.7, T09.3 | — | ⬜ |
-| T05.2 | ABM de sectores | Back | 1 | 2 | 2 | 01/11 | T05.1 | tinogera | ⬜ |
+| T10.2 | Cargar y listar cotizaciones | Back | 2 | 3 | 6 | 01/11 | T10.1, T09.4, T06.5 | — | ✅ |
+| T10.4 | Rechazar un ítem | Back | 2 | 3 | 6 | 01/11 | T09.4 | — | ✅ |
+| T05.3 | ABM de usuarios | Back | 2 | 2 | 4 | 01/11 | T05.1 | tinogera | ✅ |
+| T10.5 | Proveedores sugeridos para un ítem | Back | 1 | 3 | 3 | 01/11 | T06.7, T09.3 | — | ✅ |
+| T05.2 | ABM de sectores | Back | 1 | 2 | 2 | 01/11 | T05.1 | tinogera | ✅ |
 
 ## S3 — Aprobaciones, compra y órdenes (02/11 → 15/11)
 
 | ID | Subtarea | Área | D | I | Peso | Fecha límite | Depende de | Responsable | Estado |
 |---|---|---|---|---|---|---|---|---|---|
-| T10.7 | Registrar la compra | Back | 3 | 3 | 9 | 05/11 | T10.3, T09.4, T07.3 | — | ⬜ |
+| T10.7 | Registrar la compra | Back | 3 | 3 | 9 | 05/11 | T10.3, T09.4, T07.3 | — | ✅ |
 | T23.5 | Aprobar o rechazar un paso | Back | 4 | 3 | 12 | 08/11 | T23.4, T05.1 | — | ⬜ |
 | T11.2 | Generar la orden al registrarse la compra | Back | 3 | 3 | 9 | 08/11 | T11.1, T10.7 | — | ✅ |
 | T19.1 | Bandeja | Front | 3 | 3 | 9 | 08/11 | T09.4 | — | ⬜ |
-| T08.5 | Actualizar el estado de los ítems desde Compras | Back | 2 | 3 | 6 | 08/11 | T09.4, T10.3, T10.7 | — | ⬜ |
+| T08.5 | Actualizar el estado de los ítems desde Compras | Back | 2 | 3 | 6 | 08/11 | T09.4, T10.3, T10.7 | NLejbman | ✅ |
 | T11.1 | Schema y dominio de órdenes | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ✅ |
 | T12.1 | Reintento de eventos pendientes | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ⬜ |
 | T13.1 | Schema, dominio y repository de auditoría | Back | 2 | 3 | 6 | 08/11 | T02.2 | — | ⬜ |
 | T23.6 | Pendientes y detalle para los aprobadores | Back | 2 | 3 | 6 | 08/11 | T23.4 | — | ⬜ |
 | T14.1 | Servicio de almacenamiento de archivos | Back | 2 | 2 | 4 | 08/11 | T03.1 | — | ⬜ |
-| T08.6 | Estado automático de la solicitud | Back | 4 | 3 | 12 | 15/11 | T08.5, T11.4 | — | ⬜ |
+| T08.6 | Estado automático de la solicitud | Back | 4 | 3 | 12 | 15/11 | T08.5, T11.4 | NLejbman | ✅ |
 | T19.2 | Gestión de un ítem | Front | 4 | 3 | 12 | 15/11 | T10.3, T10.4, T10.5, T10.7, T25.1 | — | ⬜ |
 | T13.2 | Registrar los eventos en el historial | Back | 3 | 3 | 9 | 15/11 | T13.1, T07.3 | — | ⬜ |
 | T24.1 | Señales en tiempo real (backend) | Back | 3 | 3 | 9 | 15/11 | T07.3, T04.3 | — | ⬜ |
 | T25.1 | Pantallas del aprobador | Front | 3 | 3 | 9 | 15/11 | T23.5, T23.6, T17.4 | — | ⬜ |
-| T08.4 | Sincronizar ediciones y cancelaciones con Compras | Back | 3 | 2 | 6 | 15/11 | T08.1, T08.2, T08.3, T09.2 | — | ⬜ |
+| T08.4 | Sincronizar ediciones y cancelaciones con Compras | Back | 3 | 2 | 6 | 15/11 | T08.1, T08.2, T08.3, T09.2 | NLejbman | ✅ |
 | T11.4 | Marcar una orden como enviada | Back | 2 | 3 | 6 | 15/11 | T11.2 | — | ✅ |
 | T14.2 | Adjuntos de un ítem | Back | 3 | 2 | 6 | 15/11 | T14.1, T07.1 | — | ⬜ |
 | T19.3 | Órdenes | Front | 2 | 3 | 6 | 15/11 | T11.4 | — | ⬜ |
@@ -153,13 +153,13 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T12.3 | Tests entre módulos | Back | 3 | 2 | 6 | 22/11 | T11.2, T08.5 | — | ⬜ |
 | T15.5 | Endpoints de recordatorios | Back | 3 | 2 | 6 | 22/11 | T09.4 | — | ⬜ |
 | T16.2 | Alimentar los reportes con eventos | Back | 3 | 2 | 6 | 22/11 | T16.1, T11.2, T10.8 | — | ⬜ |
-| T10.8 | Editar la compra y cargar el monto de envío | Back | 2 | 2 | 4 | 22/11 | T10.7 | — | ⬜ |
+| T10.8 | Editar la compra y cargar el monto de envío | Back | 2 | 2 | 4 | 22/11 | T10.7 | — | ✅ |
 | T13.3 | Consultar el historial | Back | 2 | 2 | 4 | 22/11 | T13.2 | — | ⬜ |
 | T14.3 | Adjuntos de una cotización | Back | 2 | 2 | 4 | 22/11 | T14.2, T10.1 | — | ⬜ |
 | T15.1 | n8n y Mailpit en Docker | Infra | 2 | 2 | 4 | 22/11 | T01.3 | tinogera | ✅ |
 | T15.2 | Enviar los avisos a n8n | Back | 2 | 2 | 4 | 22/11 | T15.1, T08.6, T23.4 | — | ⬜ |
 | T16.1 | Schema y dominio de reportes | Back | 2 | 2 | 4 | 22/11 | T02.2 | — | ⬜ |
-| T06.6 | Confirmar una categoría Nueva | Back | 1 | 2 | 2 | 22/11 | T06.4 | — | ⬜ |
+| T06.6 | Confirmar una categoría Nueva | Back | 1 | 2 | 2 | 22/11 | T06.4 | — | ✅ |
 | T15.4 | Workflow: resultado al solicitante | n8n | 3 | 3 | 9 | 29/11 | T15.2 | — | ⬜ |
 | T25.2 | Administración de reglas | Front | 3 | 3 | 9 | 29/11 | T23.3, T05.2 | — | ⬜ |
 | T15.6 | Workflow: recordatorios diarios | n8n | 3 | 2 | 6 | 29/11 | T15.5 | — | ⬜ |
@@ -172,11 +172,11 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T16.4 | Tiempo de resolución | Back | 2 | 2 | 4 | 29/11 | T16.2 | — | ⬜ |
 | T20.1 | Administración de usuarios y sectores | Front | 2 | 2 | 4 | 29/11 | T05.3 | — | ⬜ |
 | T20.3 | Adjuntos | Front | 2 | 2 | 4 | 29/11 | T14.2, T14.3 | — | ⬜ |
-| T05.4 | Reglas del último Encargado y quitar el rol | Back | 3 | 1 | 3 | 29/11 | T05.3, T09.4 | tinogera | ⬜ |
-| T06.8 | Unificar categorías duplicadas | Back | 3 | 1 | 3 | 29/11 | T06.6 | — | ⬜ |
+| T05.4 | Reglas del último Encargado y quitar el rol | Back | 3 | 1 | 3 | 29/11 | T05.3, T09.4 | tinogera | ✅ |
+| T06.8 | Unificar categorías duplicadas | Back | 3 | 1 | 3 | 29/11 | T06.6 | — | ✅ |
 | T11.5 | Orden en PDF | Back | 3 | 1 | 3 | 29/11 | T11.2 | — | ✅ |
-| T08.7 | Evitar duplicados por doble click | Back | 2 | 1 | 2 | 29/11 | T07.4 | — | ⬜ |
-| T10.6 | Marcar cotizaciones vencidas en la bandeja | Back | 2 | 1 | 2 | 29/11 | T10.2 | — | ⬜ |
+| T08.7 | Evitar duplicados por doble click | Back | 2 | 1 | 2 | 29/11 | T07.4 | NLejbman | ✅ |
+| T10.6 | Marcar cotizaciones vencidas en la bandeja | Back | 2 | 1 | 2 | 29/11 | T10.2 | — | ✅ |
 | T15.7 | Seguridad de la integración | Back | 2 | 1 | 2 | 29/11 | T15.5 | — | ⬜ |
 | T15.8 | Exportar los workflows al repo | n8n | 1 | 2 | 2 | 29/11 | T15.3, T15.4, T15.6, T15.9 | — | ⬜ |
 | T20.4 | Historial | Front | 1 | 2 | 2 | 29/11 | T13.3 | — | ⬜ |
