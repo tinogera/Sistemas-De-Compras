@@ -94,7 +94,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 
 | ID | Subtarea | Área | D | I | Peso | Fecha límite | Depende de | Responsable | Estado |
 |---|---|---|---|---|---|---|---|---|---|
-| T09.2 | Crear las gestiones al entrar una solicitud | Back | 3 | 3 | 9 | 25/10 | T09.1, T07.4 | — | ⬜ |
+| T09.2 | Crear las gestiones al entrar una solicitud | Back | 3 | 3 | 9 | 25/10 | T09.1, T07.4 | SantiagoInv | ✅ |
 | T09.1 | Schema y dominio de Compras | Back | 2 | 3 | 6 | 25/10 | T02.2, T03.1 | SantiagoInv | ✅ |
 | T10.1 | Schema y dominio de cotizaciones | Back | 2 | 3 | 6 | 25/10 | T09.1 | — | ⬜ |
 | T18.2 | Mis solicitudes | Front | 2 | 3 | 6 | 25/10 | T17.4, T07.5 | — | ⬜ |
@@ -102,7 +102,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T17.4 | Componentes comunes | Front | 2 | 2 | 4 | 25/10 | T17.1 | — | ⬜ |
 | T06.7 | Proveedores sugeridos (con unificadas) | Back | 1 | 3 | 3 | 25/10 | T06.5 | — | ✅ |
 | T23.4 | Iniciar y mantener la cadena de cada ítem | Back | 4 | 3 | 12 | 01/11 | T23.2, T07.3, T07.4 | — | ⬜ |
-| T09.4 | Tomar y reasignar | Back | 3 | 3 | 9 | 01/11 | T09.3 | — | ⬜ |
+| T09.4 | Tomar y reasignar | Back | 3 | 3 | 9 | 01/11 | T09.3 | SantiagoInv | ✅ |
 | T10.3 | Elegir una cotización y fijar el precio total | Back | 3 | 3 | 9 | 01/11 | T10.2 | — | ⬜ |
 | T18.1 | Nueva solicitud | Front | 3 | 3 | 9 | 01/11 | T17.3, T07.4, T06.4 | — | ⬜ |
 | T18.3 | Detalle de una solicitud | Front | 3 | 3 | 9 | 01/11 | T18.2, T08.1, T08.2, T08.3 | — | ⬜ |
@@ -111,7 +111,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | T08.1 | Editar un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
 | T08.2 | Borrar (cancelar) un ítem Pendiente | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
 | T08.3 | Cancelar la solicitud entera | Back | 2 | 3 | 6 | 01/11 | T07.4 | — | ⬜ |
-| T09.3 | Bandeja | Back | 2 | 3 | 6 | 01/11 | T09.2 | — | ⬜ |
+| T09.3 | Bandeja | Back | 2 | 3 | 6 | 01/11 | T09.2 | SantiagoInv | ✅ |
 | T10.2 | Cargar y listar cotizaciones | Back | 2 | 3 | 6 | 01/11 | T10.1, T09.4, T06.5 | — | ⬜ |
 | T10.4 | Rechazar un ítem | Back | 2 | 3 | 6 | 01/11 | T09.4 | — | ⬜ |
 | T05.3 | ABM de usuarios | Back | 2 | 2 | 4 | 01/11 | T05.1 | tinogera | ⬜ |
@@ -148,7 +148,7 @@ Peso por sprint: S1 138 (de los cuales 18 ya están hechos, T03), S2 146, S3 151
 | ID | Subtarea | Área | D | I | Peso | Fecha límite | Depende de | Responsable | Estado |
 |---|---|---|---|---|---|---|---|---|---|
 | T24.2 | Tiempo real en el front | Front | 3 | 3 | 9 | 22/11 | T24.1, T17.2 | — | ⬜ |
-| T09.5 | Test de concurrencia | Back | 3 | 2 | 6 | 22/11 | T09.4 | — | ⬜ |
+| T09.5 | Test de concurrencia | Back | 3 | 2 | 6 | 22/11 | T09.4 | tinogera | ✅ |
 | T12.2 | Listeners idempotentes | Back | 3 | 2 | 6 | 22/11 | T11.2, T13.2 | — | ⬜ |
 | T12.3 | Tests entre módulos | Back | 3 | 2 | 6 | 22/11 | T11.2, T08.5 | — | ⬜ |
 | T15.5 | Endpoints de recordatorios | Back | 3 | 2 | 6 | 22/11 | T09.4 | — | ⬜ |
