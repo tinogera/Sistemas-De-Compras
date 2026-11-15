@@ -1,4 +1,4 @@
-package com.Sistem.Solicitude_Compra.catalogo.dominio.enums;
+package com.Sistem.Solicitude_Compra.catalogo.dominio;
 
 public enum EstadoCategoria {
     NUEVA,

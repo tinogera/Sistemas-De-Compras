@@ -104,7 +104,7 @@ class MotorDeReglasTest {
     @Test
     void caso5_dosReglasQueCumplenGanaLaDePrioridad5() {
         Regla prioridad10 = reglaMonto("Prioridad 10", 10, OperadorCondicion.MAYOR, "100000", Moneda.ARS,
-                pasoRol(1, Rol.JEFE));
+                pasoRol(1, Rol.ENCARGADO));
         Regla prioridad5 = reglaMonto("Prioridad 5", 5, OperadorCondicion.MAYOR, "500000", Moneda.ARS,
                 pasoRol(1, Rol.SUPERVISOR));
         // Se pasan desordenadas: el repositorio simulado las devuelve por prioridad ascendente.

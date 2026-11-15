@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
+import java.time.Instant;
+
 @Entity
 @Getter
 @Setter
@@ -24,6 +27,28 @@ public class Usuario {
     @Column(nullable = false)
     private String passwordHash;
     private Boolean activo = true;
+
+    private int intentosFallidos;
+    private Instant bloqueadoHasta;
+
+    public boolean estaBloqueado(Instant ahora) {
+        return bloqueadoHasta != null && bloqueadoHasta.isAfter(ahora);
+    }
+
+    /** Desde el 5.º fallo seguido bloquea 10 minutos; desde el 10.º, 20 minutos. */
+    public void registrarFallo(Instant ahora) {
+        intentosFallidos++;
+        if (intentosFallidos >= 10) {
+            bloqueadoHasta = ahora.plus(Duration.ofMinutes(20));
+        } else if (intentosFallidos >= 5) {
+            bloqueadoHasta = ahora.plus(Duration.ofMinutes(10));
+        }
+    }
+
+    public void registrarExito() {
+        intentosFallidos = 0;
+        bloqueadoHasta = null;
+    }
 
 }
 

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +23,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 
+// Los permisos por rol van con @PreAuthorize en cada controller (T05.1).
+// Pendiente para cuando existan: /reportes (hasAnyRole('ENCARGADO','ADMIN')) y /admin/** (hasRole('ADMIN')).
 @Configuration
+@EnableMethodSecurity
 public class SeguridadConfig {
 
     private static final int BYTES_MINIMOS_CLAVE = 48;
@@ -63,15 +67,20 @@ public class SeguridadConfig {
 
     @Bean
     SecurityFilterChain filtros(HttpSecurity http, JwtAuthenticationConverter converter,
-                                EntradaNoAutenticado entrada, ManejadorAccesoDenegado denegado)
+                                EntradaNoAutenticado entrada, ManejadorAccesoDenegado denegado,
+                                @Value("${springdoc.swagger-ui.enabled:false}") boolean docsHabilitadas)
             throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(a -> a
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(a -> {
+                    a.requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll();
+                    // Swagger solo se abre sin login cuando esta habilitado (perfil dev).
+                    if (docsHabilitadas) {
+                        a.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll();
+                    }
+                    a.requestMatchers("/actuator/health").permitAll();
+                    a.anyRequest().authenticated();
+                })
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(entrada)
                         .accessDeniedHandler(denegado))
