@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
+import com.Sistem.Solicitude_Compra.compartido.archivos.AlmacenamientoArchivos;
+import com.Sistem.Solicitude_Compra.compartido.archivos.ValidadorArchivos;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CancelacionRechazada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemCancelado;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemEditado;
@@ -49,6 +51,8 @@ class ComprasEventListenerTest {
     @MockitoBean AuthApi authApi;
     @MockitoBean CatalogoApi catalogoApi;
     @MockitoBean UsuarioActual usuarioActual;
+    @MockitoBean ValidadorArchivos validadorArchivos;
+    @MockitoBean AlmacenamientoArchivos almacenamientoArchivos;
     @Autowired CompletedEventPublications completadas;
 
     // El listener corre en su propia transacción (REQUIRES_NEW): el test no hace rollback, hay que limpiar.
