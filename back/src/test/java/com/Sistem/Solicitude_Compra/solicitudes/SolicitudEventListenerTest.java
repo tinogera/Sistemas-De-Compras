@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
+import com.Sistem.Solicitude_Compra.compartido.archivos.AlmacenamientoArchivos;
+import com.Sistem.Solicitude_Compra.compartido.archivos.ValidadorArchivos;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CancelacionRechazada;
 import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
@@ -46,6 +48,8 @@ class SolicitudEventListenerTest {
     @MockitoBean AuthApi authApi;
     @MockitoBean CatalogoApi catalogoApi;
     @MockitoBean UsuarioActual usuarioActual;
+    @MockitoBean ValidadorArchivos validadorArchivos;
+    @MockitoBean AlmacenamientoArchivos almacenamientoArchivos;
 
     // El listener corre en su propia transacción (REQUIRES_NEW): el test no hace rollback, hay que limpiar.
     @BeforeEach
