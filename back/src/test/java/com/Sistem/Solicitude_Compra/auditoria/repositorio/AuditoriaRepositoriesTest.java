@@ -74,7 +74,8 @@ class AuditoriaRepositoriesTest {
     void elHistorialNoExponeBorradoNiEdicion() {
         assertThat(Arrays.stream(HistorialRepository.class.getMethods()).map(Method::getName))
                 .noneMatch(nombre -> nombre.startsWith("delete") || nombre.startsWith("remove"))
-                .containsExactlyInAnyOrder("save", "findByEntidadAndEntidadIdOrderByOcurridoEnAsc");
+                .containsExactlyInAnyOrder("save", "findByEntidadAndEntidadIdOrderByOcurridoEnAsc",
+                        "findByEntidadAndEntidadIdInOrderByOcurridoEnAsc");
         assertThat(Arrays.stream(EntradaHistorial.class.getMethods()).map(Method::getName))
                 .noneMatch(nombre -> nombre.startsWith("set"));
     }
