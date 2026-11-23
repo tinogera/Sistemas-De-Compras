@@ -12,6 +12,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -67,6 +68,12 @@ public class ManejadorErrores {
     ResponseEntity<ErrorApi> parametroInvalido(Exception ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorApi("PARAMETRO_INVALIDO", "Falta un parámetro o tiene un valor inválido."));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    ResponseEntity<ErrorApi> archivoGrande(MaxUploadSizeExceededException ex) {
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE)
+                .body(new ErrorApi("ARCHIVO_DEMASIADO_GRANDE", "El archivo supera los 10 MB."));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

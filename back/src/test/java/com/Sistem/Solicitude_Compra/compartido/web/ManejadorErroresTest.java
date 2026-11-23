@@ -75,6 +75,11 @@ class ManejadorErroresTest {
             throw new DataIntegrityViolationException("duplicate key value violates unique constraint");
         }
 
+        @GetMapping("/archivo-grande")
+        void archivoGrande() {
+            throw new org.springframework.web.multipart.MaxUploadSizeExceededException(10_485_760L);
+        }
+
         @GetMapping("/interno")
         void interno() {
             throw new IllegalStateException("detalle interno que no tiene que salir");
@@ -136,6 +141,13 @@ class ManejadorErroresTest {
         mockMvc.perform(get("/prueba/duplicado"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.codigo").value("DUPLICADO"));
+    }
+
+    @Test
+    void archivoDemasiadoGrandeDevuelve413() throws Exception {
+        mockMvc.perform(get("/prueba/archivo-grande"))
+                .andExpect(status().isContentTooLarge())
+                .andExpect(jsonPath("$.codigo").value("ARCHIVO_DEMASIADO_GRANDE"));
     }
 
     @Test
