@@ -3,6 +3,8 @@ package com.Sistem.Solicitude_Compra.reportes.servicio;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
+import com.Sistem.Solicitude_Compra.auth.AuthApi;
+import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CategoriaUnificada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.CompraActualizada;
 import com.Sistem.Solicitude_Compra.compartido.eventos.ItemResuelto;
@@ -28,6 +30,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.modulith.events.CompletedEventPublications;
 import org.springframework.modulith.test.ApplicationModuleTest;
 import org.springframework.modulith.test.Scenario;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /** T16.2: eventos de entrada del módulo Reportes, con Scenario. */
 @ApplicationModuleTest
@@ -45,6 +48,9 @@ class AlimentadorDeReportesEventosTest {
     @Autowired HechoGastoRepository gastos;
     @Autowired HechoResolucionRepository resoluciones;
     @Autowired CompletedEventPublications completadas;
+    // El reporte de gasto (T16.3) usa estas APIs de otros módulos: en el test del módulo se simulan.
+    @MockitoBean AuthApi authApi;
+    @MockitoBean CatalogoApi catalogoApi;
 
     // Los listeners corren en su propia transacción: no hay rollback del test, hay que limpiar.
     @BeforeEach
