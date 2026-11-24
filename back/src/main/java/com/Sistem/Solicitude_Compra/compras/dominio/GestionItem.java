@@ -363,6 +363,10 @@ public class GestionItem {
         this.estado = EstadoGestion.CANCELADO;
     }
 
+    public void registrarRecordatorio(OffsetDateTime cuando) {
+        this.ultimoRecordatorioEn = cuando;
+    }
+
     /** COMPRADO, RECHAZADO o CANCELADO: ya no cambia. Los listeners de otros módulos lo usan para ser idempotentes. */
     public boolean estaResuelta() {
         return estaCerrada();
