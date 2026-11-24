@@ -14,4 +14,12 @@ public interface ReglaRepository extends JpaRepository<Regla, Long> {
      */
     @EntityGraph(attributePaths = {"condiciones", "pasos"})
     List<Regla> findByActivaTrueOrderByPrioridadAsc();
+
+    /** Todas las reglas (activas o no) por prioridad, con condiciones y pasos en una sola consulta. */
+    @EntityGraph(attributePaths = {"condiciones", "pasos"})
+    List<Regla> findAllByOrderByPrioridadAscIdAsc();
+
+    boolean existsByNombreIgnoreCase(String nombre);
+
+    boolean existsByNombreIgnoreCaseAndIdNot(String nombre, Long id);
 }

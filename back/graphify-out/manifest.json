@@ -1,0 +1,608 @@
+{
+  "compose.yaml": {
+    "mtime": 1792011557.887016,
+    "seen": 1792952921.652794,
+    "ast_hash": "a1c856c51af17c014d7e5f7e9f1245c2",
+    "semantic_hash": "a1c856c51af17c014d7e5f7e9f1245c2"
+  },
+  "mvnw": {
+    "mtime": 1790714373.1295903,
+    "seen": 1792952921.652802,
+    "ast_hash": "a2a96102e44344e62ceb287667ebf497",
+    "semantic_hash": "a2a96102e44344e62ceb287667ebf497"
+  },
+  "pom.xml": {
+    "mtime": 1792945196.3431623,
+    "seen": 1792952921.6528053,
+    "ast_hash": "4c85f55ea2001484b5843eb7539dfbe6",
+    "semantic_hash": "4c85f55ea2001484b5843eb7539dfbe6"
+  },
+  "src/Main.java": {
+    "mtime": 1792945196.3431623,
+    "seen": 1792952921.6528077,
+    "ast_hash": "9b0e3cdaf2dcd593e63efda027f73212",
+    "semantic_hash": "9b0e3cdaf2dcd593e63efda027f73212"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/SolicitudeCompraApplication.java": {
+    "mtime": 1790714373.1338415,
+    "seen": 1792952921.6528094,
+    "ast_hash": "f1d4bb13ab1776a291cd02f598bf640c",
+    "semantic_hash": "f1d4bb13ab1776a291cd02f598bf640c"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/AprobacionItem.java": {
+    "mtime": 1792945196.3451674,
+    "seen": 1792952921.652811,
+    "ast_hash": "b72a3dd73c3be9feb8b062c00d1e5dca",
+    "semantic_hash": "b72a3dd73c3be9feb8b062c00d1e5dca"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/EstadoCadena.java": {
+    "mtime": 1792945196.3451674,
+    "seen": 1792952921.652813,
+    "ast_hash": "f0f5361a36077ca3007f1b8a43cd502a",
+    "semantic_hash": "f0f5361a36077ca3007f1b8a43cd502a"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/EstadoPaso.java": {
+    "mtime": 1792945196.3465896,
+    "seen": 1792952921.6528146,
+    "ast_hash": "55a2205cb4747831cfb626e87fcfd8d3",
+    "semantic_hash": "55a2205cb4747831cfb626e87fcfd8d3"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/OperadorCondicion.java": {
+    "mtime": 1792945196.3475893,
+    "seen": 1792952921.6528163,
+    "ast_hash": "2b5e016638697c43c0d92eeb10640881",
+    "semantic_hash": "2b5e016638697c43c0d92eeb10640881"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/PasoItem.java": {
+    "mtime": 1792945196.3475893,
+    "seen": 1792952921.652818,
+    "ast_hash": "bfe865f9be8d49a94569488b35ebbb4f",
+    "semantic_hash": "bfe865f9be8d49a94569488b35ebbb4f"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/Regla.java": {
+    "mtime": 1792945196.3475893,
+    "seen": 1792952921.6528192,
+    "ast_hash": "d4f33fa528f101254d9f570e06615ae2",
+    "semantic_hash": "d4f33fa528f101254d9f570e06615ae2"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/ReglaCondicion.java": {
+    "mtime": 1792945196.3485894,
+    "seen": 1792952921.652821,
+    "ast_hash": "8f6239d09e1daa818fc950fb995e4d25",
+    "semantic_hash": "8f6239d09e1daa818fc950fb995e4d25"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/ReglaPaso.java": {
+    "mtime": 1792945196.3485894,
+    "seen": 1792952921.6528225,
+    "ast_hash": "f360e03ed28e83f8bec5c14b73ecc0db",
+    "semantic_hash": "f360e03ed28e83f8bec5c14b73ecc0db"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/TipoAprobador.java": {
+    "mtime": 1792945196.3496006,
+    "seen": 1792952921.6528244,
+    "ast_hash": "ab4bb3344ce7d26e23896fcfd56536c9",
+    "semantic_hash": "ab4bb3344ce7d26e23896fcfd56536c9"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/TipoCondicion.java": {
+    "mtime": 1792945196.3496006,
+    "seen": 1792952921.6528258,
+    "ast_hash": "0e93c0ad22257420a59479509a6b89c3",
+    "semantic_hash": "0e93c0ad22257420a59479509a6b89c3"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/package-info.java": {
+    "mtime": 1792945196.350591,
+    "seen": 1792952921.6528275,
+    "ast_hash": "41726a5fcc55d9694696db896507d828",
+    "semantic_hash": "41726a5fcc55d9694696db896507d828"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/repository/AprobacionItemRepository.java": {
+    "mtime": 1792945196.3519418,
+    "seen": 1792952921.652829,
+    "ast_hash": "5dca19ff358f8c2e20b655288c928610",
+    "semantic_hash": "5dca19ff358f8c2e20b655288c928610"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/repository/PasoItemRepository.java": {
+    "mtime": 1792945196.3519418,
+    "seen": 1792952921.6528301,
+    "ast_hash": "917766f9184647ce1442902bd4290680",
+    "semantic_hash": "917766f9184647ce1442902bd4290680"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/repository/ReglaRepository.java": {
+    "mtime": 1792945196.3554606,
+    "seen": 1792952921.6528318,
+    "ast_hash": "75a78c3b026b19f6d065966cedd5ea3c",
+    "semantic_hash": "75a78c3b026b19f6d065966cedd5ea3c"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/ContextoEvaluacion.java": {
+    "mtime": 1792945196.3584757,
+    "seen": 1792952921.6528332,
+    "ast_hash": "dbc0377eedc3a0390b0885391ada1063",
+    "semantic_hash": "dbc0377eedc3a0390b0885391ada1063"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/EvaluadorCondicion.java": {
+    "mtime": 1792945196.359475,
+    "seen": 1792952921.652835,
+    "ast_hash": "7c5c37b5cdc6c2b1c3d3280a56194122",
+    "semantic_hash": "7c5c37b5cdc6c2b1c3d3280a56194122"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/EvaluadorMonto.java": {
+    "mtime": 1792945196.361473,
+    "seen": 1792952921.6528363,
+    "ast_hash": "a7d8d08ea248fbaa91d01f188b237f5f",
+    "semantic_hash": "a7d8d08ea248fbaa91d01f188b237f5f"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/Monto.java": {
+    "mtime": 1792945196.361473,
+    "seen": 1792952921.6528385,
+    "ast_hash": "e678c13d16d5d25beb4beead8b938805",
+    "semantic_hash": "e678c13d16d5d25beb4beead8b938805"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/MotorDeReglas.java": {
+    "mtime": 1792945196.3634725,
+    "seen": 1792952921.6528397,
+    "ast_hash": "cf0e44cd0a92381d01cfe13e8c5a3ab4",
+    "semantic_hash": "cf0e44cd0a92381d01cfe13e8c5a3ab4"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/PasoRequerido.java": {
+    "mtime": 1792945196.3644743,
+    "seen": 1792952921.6528416,
+    "ast_hash": "a5ba6d08bf958b7a84147ce9eae90452",
+    "semantic_hash": "a5ba6d08bf958b7a84147ce9eae90452"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/ResultadoEvaluacion.java": {
+    "mtime": 1792945196.3659823,
+    "seen": 1792952921.6528428,
+    "ast_hash": "15cf702cc60c66b6bc3f83a82f8b3494",
+    "semantic_hash": "15cf702cc60c66b6bc3f83a82f8b3494"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auditoria/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6528442,
+    "ast_hash": "fa46a168a27a40055e934b16a35953d9",
+    "semantic_hash": "fa46a168a27a40055e934b16a35953d9"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/AuthApi.java": {
+    "mtime": 1792945196.3669837,
+    "seen": 1792952921.6528459,
+    "ast_hash": "3f34c20735cd8645207db0972416f1a4",
+    "semantic_hash": "3f34c20735cd8645207db0972416f1a4"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/UsuarioResumen.java": {
+    "mtime": 1792945196.3669837,
+    "seen": 1792952921.6528473,
+    "ast_hash": "caaffe0c01807fdeb4c51880a4eda2ac",
+    "semantic_hash": "caaffe0c01807fdeb4c51880a4eda2ac"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/dominio/Sector.java": {
+    "mtime": 1792945196.3679833,
+    "seen": 1792952921.652849,
+    "ast_hash": "4c093546809d2bb8feb76c5f7f471fb8",
+    "semantic_hash": "4c093546809d2bb8feb76c5f7f471fb8"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/dominio/Usuario.java": {
+    "mtime": 1792945196.3689828,
+    "seen": 1792952921.6528504,
+    "ast_hash": "d38c98c966d5df76727021f4ece824c8",
+    "semantic_hash": "d38c98c966d5df76727021f4ece824c8"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652852,
+    "ast_hash": "e05e714aecde274f7f67302ba0808d76",
+    "semantic_hash": "e05e714aecde274f7f67302ba0808d76"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/repositorio/SectorRepository.java": {
+    "mtime": 1792945196.369982,
+    "seen": 1792952921.6528535,
+    "ast_hash": "d9d01d0cc6ad0ac28e0fd7d3c10b3dc2",
+    "semantic_hash": "d9d01d0cc6ad0ac28e0fd7d3c10b3dc2"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/repositorio/UsuarioRepository.java": {
+    "mtime": 1792945196.369982,
+    "seen": 1792952921.6528552,
+    "ast_hash": "daf515750419994ffb4ca0f42c8b7bc7",
+    "semantic_hash": "daf515750419994ffb4ca0f42c8b7bc7"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/servicio/EntradaNoAutenticado.java": {
+    "mtime": 1792945196.370983,
+    "seen": 1792952921.6528566,
+    "ast_hash": "4ef7c86e7e7347c08c2b673f76d30c33",
+    "semantic_hash": "4ef7c86e7e7347c08c2b673f76d30c33"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/servicio/LoginService.java": {
+    "mtime": 1792945196.3719847,
+    "seen": 1792952921.652858,
+    "ast_hash": "b30e3e8e6e2bbbebbd46f2b8a64a7a07",
+    "semantic_hash": "b30e3e8e6e2bbbebbd46f2b8a64a7a07"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/servicio/ManejadorAccesoDenegado.java": {
+    "mtime": 1792945196.3739967,
+    "seen": 1792952921.6528594,
+    "ast_hash": "627936df7273b462bed7f423c72831d6",
+    "semantic_hash": "627936df7273b462bed7f423c72831d6"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/servicio/SeguridadConfig.java": {
+    "mtime": 1792945196.3739967,
+    "seen": 1792952921.6528609,
+    "ast_hash": "658befc82a37cd92ff9e02acb74c39f8",
+    "semantic_hash": "658befc82a37cd92ff9e02acb74c39f8"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/web/AuthController.java": {
+    "mtime": 1792945196.3755088,
+    "seen": 1792952921.6528625,
+    "ast_hash": "f9b17c8f49ff8c4d2db5d0ad84fdeaea",
+    "semantic_hash": "f9b17c8f49ff8c4d2db5d0ad84fdeaea"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/web/LoginRequest.java": {
+    "mtime": 1792945196.3755088,
+    "seen": 1792952921.652864,
+    "ast_hash": "671e75b18772f9036e388adf5f17b71b",
+    "semantic_hash": "671e75b18772f9036e388adf5f17b71b"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/web/LoginResponse.java": {
+    "mtime": 1792945196.3765252,
+    "seen": 1792952921.6528652,
+    "ast_hash": "61abfc08f29c0010de5503ef8494bb84",
+    "semantic_hash": "61abfc08f29c0010de5503ef8494bb84"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/web/UsuarioActualResponse.java": {
+    "mtime": 1792945196.3765252,
+    "seen": 1792952921.6528668,
+    "ast_hash": "7e48702b336dd6c287ab124bc397c425",
+    "semantic_hash": "7e48702b336dd6c287ab124bc397c425"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/auth/web/UsuarioLogin.java": {
+    "mtime": 1792945196.377514,
+    "seen": 1792952921.6528683,
+    "ast_hash": "f2306c111183b7d313417b51134c0039",
+    "semantic_hash": "f2306c111183b7d313417b51134c0039"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/dominio/Categoria.java": {
+    "mtime": 1792945196.3785136,
+    "seen": 1792952921.6528704,
+    "ast_hash": "96bc91830702a239d5a88b4cb5f5c9ee",
+    "semantic_hash": "96bc91830702a239d5a88b4cb5f5c9ee"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/dominio/EstadoCategoria.java": {
+    "mtime": 1792945196.3785136,
+    "seen": 1792952921.652872,
+    "ast_hash": "2e0a17b4e461cdcc5a0793ebb51fd144",
+    "semantic_hash": "2e0a17b4e461cdcc5a0793ebb51fd144"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/dominio/Proveedor.java": {
+    "mtime": 1792945196.3795137,
+    "seen": 1792952921.6528738,
+    "ast_hash": "aa22381188d503f7894326f9713008ca",
+    "semantic_hash": "aa22381188d503f7894326f9713008ca"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652875,
+    "ast_hash": "398d62707f49947bceb0d685c7e20c44",
+    "semantic_hash": "398d62707f49947bceb0d685c7e20c44"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/repositorio/CategoriaRepository.java": {
+    "mtime": 1792945196.3805134,
+    "seen": 1792952921.6528766,
+    "ast_hash": "be848a36dfbdfc3c59631bae779953e4",
+    "semantic_hash": "be848a36dfbdfc3c59631bae779953e4"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/catalogo/repositorio/ProveedorRepository.java": {
+    "mtime": 1792945196.3815134,
+    "seen": 1792952921.652878,
+    "ast_hash": "ffc4d90608e1aa430149a7bc5d9b8999",
+    "semantic_hash": "ffc4d90608e1aa430149a7bc5d9b8999"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/ConflictoException.java": {
+    "mtime": 1792945196.3825133,
+    "seen": 1792952921.6528797,
+    "ast_hash": "249bc91a40fa9f61a8b7dcc6fcc1e11e",
+    "semantic_hash": "249bc91a40fa9f61a8b7dcc6fcc1e11e"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/CredencialesInvalidasException.java": {
+    "mtime": 1792945196.3835132,
+    "seen": 1792952921.652881,
+    "ast_hash": "d44ef87b81110219c8bee22f3a095a9a",
+    "semantic_hash": "d44ef87b81110219c8bee22f3a095a9a"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/ErrorNegocioException.java": {
+    "mtime": 1792945196.3845148,
+    "seen": 1792952921.6528823,
+    "ast_hash": "21071585b5efac304c35d3ef8ebd352c",
+    "semantic_hash": "21071585b5efac304c35d3ef8ebd352c"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/NoEncontradoException.java": {
+    "mtime": 1792945196.3845148,
+    "seen": 1792952921.652884,
+    "ast_hash": "54216f7e5d687adfa2728ae82fafd885",
+    "semantic_hash": "54216f7e5d687adfa2728ae82fafd885"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/ReglaNegocioException.java": {
+    "mtime": 1792945196.3855138,
+    "seen": 1792952921.6528854,
+    "ast_hash": "99d78f27a92a45a4bb0baf120742fbe8",
+    "semantic_hash": "99d78f27a92a45a4bb0baf120742fbe8"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/SesionInvalidaException.java": {
+    "mtime": 1792945196.3860178,
+    "seen": 1792952921.6528869,
+    "ast_hash": "20d8218ffcb4fde06844cf80c30d2edb",
+    "semantic_hash": "20d8218ffcb4fde06844cf80c30d2edb"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/errores/SinPermisoException.java": {
+    "mtime": 1792945196.3870249,
+    "seen": 1792952921.6528883,
+    "ast_hash": "20d1abcb8a2f36b144b1bc2399713317",
+    "semantic_hash": "20d1abcb8a2f36b144b1bc2399713317"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/package-info.java": {
+    "mtime": 1792945196.3870249,
+    "seen": 1792952921.6528902,
+    "ast_hash": "346fa9b255d4d9ddab8bd08f7c30e2a6",
+    "semantic_hash": "346fa9b255d4d9ddab8bd08f7c30e2a6"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/seguridad/UsuarioActual.java": {
+    "mtime": 1792945196.3900242,
+    "seen": 1792952921.6528914,
+    "ast_hash": "f4b2cc5e5aed99ba89ab12107e397bb5",
+    "semantic_hash": "f4b2cc5e5aed99ba89ab12107e397bb5"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/tipos/Check.java": {
+    "mtime": 1792945196.3910232,
+    "seen": 1792952921.652893,
+    "ast_hash": "aaa03388b57a83f8b2e34c854e98ce0e",
+    "semantic_hash": "aaa03388b57a83f8b2e34c854e98ce0e"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/tipos/Moneda.java": {
+    "mtime": 1792945196.3920248,
+    "seen": 1792952921.6528945,
+    "ast_hash": "e88f53a9f27e1d543ede0cd759b50bfe",
+    "semantic_hash": "e88f53a9f27e1d543ede0cd759b50bfe"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/tipos/Rol.java": {
+    "mtime": 1792945196.3920248,
+    "seen": 1792952921.652896,
+    "ast_hash": "0c98a4ecaf359abe27412ddd897f1993",
+    "semantic_hash": "0c98a4ecaf359abe27412ddd897f1993"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/tipos/TipoItem.java": {
+    "mtime": 1792945196.3930228,
+    "seen": 1792952921.6528976,
+    "ast_hash": "ee6f4f2152292771c83b05b778bbb5c4",
+    "semantic_hash": "ee6f4f2152292771c83b05b778bbb5c4"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/tipos/Urgencia.java": {
+    "mtime": 1792945196.394023,
+    "seen": 1792952921.652899,
+    "ast_hash": "2c78bb91e1db04923d19329df5abb9ce",
+    "semantic_hash": "2c78bb91e1db04923d19329df5abb9ce"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/web/ErrorApi.java": {
+    "mtime": 1792945196.394023,
+    "seen": 1792952921.6529007,
+    "ast_hash": "70cd09a435f951621a797f58f4f075e9",
+    "semantic_hash": "70cd09a435f951621a797f58f4f075e9"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/web/ManejadorErrores.java": {
+    "mtime": 1792945196.3955274,
+    "seen": 1792952921.652902,
+    "ast_hash": "3f6409ece6afdbc62e01a49f305b2beb",
+    "semantic_hash": "3f6409ece6afdbc62e01a49f305b2beb"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compartido/web/Pagina.java": {
+    "mtime": 1792945196.3955274,
+    "seen": 1792952921.6529033,
+    "ast_hash": "404d355f85b546234815e8995eaac2fc",
+    "semantic_hash": "404d355f85b546234815e8995eaac2fc"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/compras/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652905,
+    "ast_hash": "abd43f3725ff742bb71e419c612218ce",
+    "semantic_hash": "abd43f3725ff742bb71e419c612218ce"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/integraciones/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6529064,
+    "ast_hash": "cd7b5ef164c24917ea07408d8c69c06c",
+    "semantic_hash": "cd7b5ef164c24917ea07408d8c69c06c"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/ordenes/dominio/EstadoOrden.java": {
+    "mtime": 1792945196.3975384,
+    "seen": 1792952921.6529078,
+    "ast_hash": "8c266578abcc70afd5772a5b67360f79",
+    "semantic_hash": "8c266578abcc70afd5772a5b67360f79"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/ordenes/dominio/OrdenPedido.java": {
+    "mtime": 1792945196.3975384,
+    "seen": 1792952921.6529093,
+    "ast_hash": "560b9875e6ea101d52385e196960592b",
+    "semantic_hash": "560b9875e6ea101d52385e196960592b"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/ordenes/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652911,
+    "ast_hash": "b9abf8f2391122584cea2ef39eeec4fc",
+    "semantic_hash": "b9abf8f2391122584cea2ef39eeec4fc"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/ordenes/repositorio/OrdenPedidoRepository.java": {
+    "mtime": 1792945196.399537,
+    "seen": 1792952921.6529124,
+    "ast_hash": "b175004e37f89a1fea4718e6b59f80f2",
+    "semantic_hash": "b175004e37f89a1fea4718e6b59f80f2"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/reportes/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652917,
+    "ast_hash": "d465f15f4053aa96f2538763945135d0",
+    "semantic_hash": "d465f15f4053aa96f2538763945135d0"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/dominio/EstadoSolicitud.java": {
+    "mtime": 1792945196.4005375,
+    "seen": 1792952921.6529186,
+    "ast_hash": "79645a5ce670e4ab6202099c6f27845d",
+    "semantic_hash": "79645a5ce670e4ab6202099c6f27845d"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/dominio/Item.java": {
+    "mtime": 1792945196.4005375,
+    "seen": 1792952921.65292,
+    "ast_hash": "47ca3e8c200069d84130c69b8868c4de",
+    "semantic_hash": "47ca3e8c200069d84130c69b8868c4de"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/dominio/Solicitud.java": {
+    "mtime": 1792945196.401537,
+    "seen": 1792952921.6529217,
+    "ast_hash": "78033fda3b381c10d88d0662f23be02a",
+    "semantic_hash": "78033fda3b381c10d88d0662f23be02a"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/package-info.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.652923,
+    "ast_hash": "be0670b6dd67d084f5123f88cdc98a8b",
+    "semantic_hash": "be0670b6dd67d084f5123f88cdc98a8b"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/repositorio/ItemRepository.java": {
+    "mtime": 1792945196.401537,
+    "seen": 1792952921.6529243,
+    "ast_hash": "4c4140904dac76a912a7f5db351e73fc",
+    "semantic_hash": "4c4140904dac76a912a7f5db351e73fc"
+  },
+  "src/main/java/com/Sistem/Solicitude_Compra/solicitudes/repositorio/SolicitudRepository.java": {
+    "mtime": 1792945196.402537,
+    "seen": 1792952921.6529262,
+    "ast_hash": "383f822b6bb36cb2f56af18951586fe6",
+    "semantic_hash": "383f822b6bb36cb2f56af18951586fe6"
+  },
+  "src/main/resources/db/migration/V1__schemas_iniciales.sql": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6529274,
+    "ast_hash": "7fdc2ea7d9bb4facb57bb10a23c5feeb",
+    "semantic_hash": "7fdc2ea7d9bb4facb57bb10a23c5feeb"
+  },
+  "src/main/resources/db/migration/V20261008_1__aprobaciones_tablas.sql": {
+    "mtime": 1792945196.4070556,
+    "seen": 1792952921.652929,
+    "ast_hash": "445d44f9d67c5338f73371d817f9dd2c",
+    "semantic_hash": "445d44f9d67c5338f73371d817f9dd2c"
+  },
+  "src/main/resources/db/migration/V20261010_1__auth_tablas.sql": {
+    "mtime": 1792945196.4080632,
+    "seen": 1792952921.6529305,
+    "ast_hash": "e6cc122fd60e30d9ecb78391d9c60adc",
+    "semantic_hash": "e6cc122fd60e30d9ecb78391d9c60adc"
+  },
+  "src/main/resources/db/migration/V20261011_1__solicitudes_tablas.sql": {
+    "mtime": 1792945196.409064,
+    "seen": 1792952921.6529322,
+    "ast_hash": "746c22659e92e62483e2177007986e3b",
+    "semantic_hash": "746c22659e92e62483e2177007986e3b"
+  },
+  "src/main/resources/db/migration/V20261013_1__catalogo_tablas.sql": {
+    "mtime": 1792945196.4100628,
+    "seen": 1792952921.6529334,
+    "ast_hash": "e478994b359acf1b801774318c5875ea",
+    "semantic_hash": "e478994b359acf1b801774318c5875ea"
+  },
+  "src/main/resources/db/migration/V20261022_1__ordenes_tablas.sql": {
+    "mtime": 1792945196.4100628,
+    "seen": 1792952921.652935,
+    "ast_hash": "c4153c01ac6f862382ff093d9be60924",
+    "semantic_hash": "c4153c01ac6f862382ff093d9be60924"
+  },
+  "src/main/resources/db/migration/V2__event_publication.sql": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6529365,
+    "ast_hash": "f855e8625f38c0c4fc1d6e3c38a65cca",
+    "semantic_hash": "f855e8625f38c0c4fc1d6e3c38a65cca"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/BaseDeDatosTest.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6529393,
+    "ast_hash": "80c93eef0f43eccbad2953a41b5184da",
+    "semantic_hash": "80c93eef0f43eccbad2953a41b5184da"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/ModularityTests.java": {
+    "mtime": 1792011557.8891556,
+    "seen": 1792952921.6529408,
+    "ast_hash": "99815f9faa60b0f510775fdddd4fb2c7",
+    "semantic_hash": "99815f9faa60b0f510775fdddd4fb2c7"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/SolicitudeCompraApplicationTests.java": {
+    "mtime": 1792011557.9029007,
+    "seen": 1792952921.6529424,
+    "ast_hash": "3c032b3358a843cbc1d5cf2974bca652",
+    "semantic_hash": "3c032b3358a843cbc1d5cf2974bca652"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/TestcontainersConfiguration.java": {
+    "mtime": 1792011557.9029007,
+    "seen": 1792952921.6529438,
+    "ast_hash": "3fbd705ff3a9caace694f47e28a9d393",
+    "semantic_hash": "3fbd705ff3a9caace694f47e28a9d393"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/aprobaciones/dominio/AprobacionItemTest.java": {
+    "mtime": 1792945196.4120598,
+    "seen": 1792952921.6529455,
+    "ast_hash": "36ca503500e458703ec46324c056334c",
+    "semantic_hash": "36ca503500e458703ec46324c056334c"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/aprobaciones/repository/ReglaRepositoryIntegrationTest.java": {
+    "mtime": 1792945196.4130611,
+    "seen": 1792952921.6529467,
+    "ast_hash": "8d243ed1f63305b8dc3d008af5c9ba2a",
+    "semantic_hash": "8d243ed1f63305b8dc3d008af5c9ba2a"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/aprobaciones/servicios/motorDeReglasTest.java": {
+    "mtime": 1792945196.414061,
+    "seen": 1792952921.6529481,
+    "ast_hash": "daad3b69092667004d0cffff6fc677d9",
+    "semantic_hash": "daad3b69092667004d0cffff6fc677d9"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/auth/AuthApiTest.java": {
+    "mtime": 1792945196.415566,
+    "seen": 1792952921.65295,
+    "ast_hash": "f82436fa380f77bd48607bac76e8fdeb",
+    "semantic_hash": "f82436fa380f77bd48607bac76e8fdeb"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/auth/repositorio/AuthRepositoriesTest.java": {
+    "mtime": 1792945196.4172068,
+    "seen": 1792952921.6529512,
+    "ast_hash": "c4979399d334e2fd2a23bd03c1df7c1e",
+    "semantic_hash": "c4979399d334e2fd2a23bd03c1df7c1e"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/auth/web/AuthControllerIdentificateTest.java": {
+    "mtime": 1792945196.418221,
+    "seen": 1792952921.6529531,
+    "ast_hash": "5caab04ccbf2ddfdf038008bdf0a3bb5",
+    "semantic_hash": "5caab04ccbf2ddfdf038008bdf0a3bb5"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/auth/web/AuthControllerTest.java": {
+    "mtime": 1792945196.419221,
+    "seen": 1792952921.6529546,
+    "ast_hash": "2bce2c4349e732fc48ac689fb938dd1d",
+    "semantic_hash": "2bce2c4349e732fc48ac689fb938dd1d"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/catalogo/dominio/CatalogoDominioTest.java": {
+    "mtime": 1792945196.420226,
+    "seen": 1792952921.652956,
+    "ast_hash": "72fa5638fad095f8d5d59bdc89a29040",
+    "semantic_hash": "72fa5638fad095f8d5d59bdc89a29040"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/compartido/web/ManejadorErroresTest.java": {
+    "mtime": 1792945196.422223,
+    "seen": 1792952921.6529574,
+    "ast_hash": "d483aca6ff395d1f1abd17bed99fe6c2",
+    "semantic_hash": "d483aca6ff395d1f1abd17bed99fe6c2"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/compartido/web/PaginaTest.java": {
+    "mtime": 1792945196.4232242,
+    "seen": 1792952921.6529589,
+    "ast_hash": "cd38449dd28ff58266516feedef525bf",
+    "semantic_hash": "cd38449dd28ff58266516feedef525bf"
+  },
+  "src/test/java/com/Sistem/Solicitude_Compra/ordenes/repositorio/OrdenPedidoRepositoryTest.java": {
+    "mtime": 1792945196.4252236,
+    "seen": 1792952921.6529603,
+    "ast_hash": "4570c384da9f8b25a2e713a30d25dadb",
+    "semantic_hash": "4570c384da9f8b25a2e713a30d25dadb"
+  }
+}
