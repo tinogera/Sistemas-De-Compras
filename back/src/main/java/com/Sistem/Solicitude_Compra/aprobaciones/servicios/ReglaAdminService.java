@@ -19,6 +19,8 @@ import com.Sistem.Solicitude_Compra.compartido.tipos.Rol;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
+import com.Sistem.Solicitude_Compra.aprobaciones.web.SimulacionRequest;
+import com.Sistem.Solicitude_Compra.aprobaciones.web.SimulacionResponse;
 import java.util.List;
 import java.util.Comparator;
 import java.util.Objects;
@@ -38,11 +40,27 @@ public class ReglaAdminService {
     private final ReglaRepository reglas;
     private final AuthApi auth;
     private final ApplicationEventPublisher eventos;
+    private final MotorDeReglas motor;
 
-    public ReglaAdminService(ReglaRepository reglas, AuthApi auth, ApplicationEventPublisher eventos) {
+    public ReglaAdminService(ReglaRepository reglas, AuthApi auth, ApplicationEventPublisher eventos,
+                             MotorDeReglas motor) {
+        this.motor = motor;
         this.reglas = reglas;
         this.auth = auth;
         this.eventos = eventos;
+    }
+
+    /** Qué regla y qué pasos tocarían para un monto, sin guardar nada. */
+    @Transactional(readOnly = true)
+    public SimulacionResponse simular(SimulacionRequest r) {
+        ResultadoEvaluacion res = motor.evaluar(new ContextoEvaluacion(new Monto(r.monto(), r.moneda()),
+                r.sectorId(), r.categoriaId(), null, null));
+        List<SimulacionResponse.PasoSimulado> pasos = res.pasos().stream()
+                .map(p -> new SimulacionResponse.PasoSimulado(p.orden(),
+                        p.tipoAprobador() == TipoAprobador.SECTOR ? auth.nombreSector(p.sectorId()) : p.nombre()))
+                .toList();
+        return new SimulacionResponse(new SimulacionResponse.ReglaElegida(res.regla().getId(), res.regla().getNombre()),
+                pasos.isEmpty(), pasos);
     }
 
     @Transactional(readOnly = true)

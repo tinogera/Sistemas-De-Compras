@@ -28,6 +28,11 @@ public class AdminReglaController {
         this.usuarioActual = usuarioActual;
     }
 
+    @PostMapping("/simular")
+    public SimulacionResponse simular(@Valid @RequestBody SimulacionRequest request) {
+        return service.simular(request);
+    }
+
     @GetMapping
     public List<ReglaResponse> listar() {
         return service.listar();
