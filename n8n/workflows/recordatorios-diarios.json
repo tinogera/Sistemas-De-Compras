@@ -1,0 +1,178 @@
+{
+  "name": "Recordatorios diarios",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "e90260f4-ae2e-577c-80d9-f93cd3b22ada",
+      "name": "Todos los días hábiles 9:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:8080/api/v1/integraciones/recordatorios-pendientes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "5cc69f29-64be-5b00-b1b8-06dd70309d3e",
+      "name": "Pedir recordatorios pendientes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "backend-api-key",
+          "name": "Backend API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "439b9282-9358-5fd1-ba90-8d2f48ee3156",
+              "leftValue": "={{ $json.destinatarios.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0c244d0a-112d-5f20-8b0e-5e0d38a75bd9",
+      "name": "Hay destinatarios",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Sistema de Compras <compras@sistema.local>",
+        "toEmail": "={{ $json.destinatarios.join(',') }}",
+        "subject": "=Recordatorio: {{ $json.detalle }} (urgencia {{ $json.urgencia }})",
+        "emailFormat": "text",
+        "options": {},
+        "text": "=El ítem \"{{ $json.detalle }}\" de la solicitud #{{ $json.solicitudId }} sigue sin resolverse hace {{ $json.diasSinResolver }} días.\nUrgencia: {{ $json.urgencia }}\nFecha necesaria: {{ $json.fechaNecesaria || 'sin fecha' }}\n"
+      },
+      "id": "14bcb11c-bd71-5aca-978f-4b2d3f084e64",
+      "name": "Mandar recordatorio",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        0
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "mailpit-smtp",
+          "name": "Mailpit SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://host.docker.internal:8080/api/v1/integraciones/recordatorios/{{ $('Hay destinatarios').item.json.itemId }}/enviado",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "37d98d2c-38b7-581b-a276-816046be928a",
+      "name": "Avisar al backend que se envió",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "backend-api-key",
+          "name": "Backend API Key"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Todos los días hábiles 9:00": {
+      "main": [
+        [
+          {
+            "node": "Pedir recordatorios pendientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pedir recordatorios pendientes": {
+      "main": [
+        [
+          {
+            "node": "Hay destinatarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mandar recordatorio": {
+      "main": [
+        [
+          {
+            "node": "Avisar al backend que se envió",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hay destinatarios": {
+      "main": [
+        [
+          {
+            "node": "Mandar recordatorio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "active": false
+}

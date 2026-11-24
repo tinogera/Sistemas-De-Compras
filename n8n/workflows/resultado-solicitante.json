@@ -1,0 +1,87 @@
+{
+  "name": "Resultado al solicitante",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solicitud-lista",
+        "options": {}
+      },
+      "id": "e2cca446-80b9-542d-96f0-0eb7f8fa1673",
+      "name": "Solicitud lista",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "555d9d49-7475-5c50-a6fb-b20f24e55272"
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $input.first().json.body;\nconst esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst filas = d.items.map(i => {\n  const resultado = i.resultado === 'COMPRADO'\n    ? 'Comprado — ' + esc(i.proveedor)\n    : 'Rechazado por ' + esc(i.rechazadoPor) + ' — ' + esc(i.motivoRechazo);\n  return '<tr><td>' + esc(i.categoria) + '</td><td>' + esc(i.detalle) + '</td><td>' + resultado + '</td></tr>';\n}).join('');\nconst html = '<p>Hola ' + esc(d.solicitanteNombre) + ', tu solicitud #' + d.solicitudId + ' ya fue resuelta:</p>'\n  + '<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\"><tr><th>Categoría</th><th>Ítem</th><th>Resultado</th></tr>'\n  + filas + '</table>';\nreturn [{ json: { solicitanteEmail: d.solicitanteEmail, solicitudId: d.solicitudId, html } }];"
+      },
+      "id": "50d4acc8-09d5-5e20-b32f-2f7d65350187",
+      "name": "Armar el cuerpo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Sistema de Compras <compras@sistema.local>",
+        "toEmail": "={{ $json.solicitanteEmail }}",
+        "subject": "=Tu solicitud #{{ $json.solicitudId }} está lista",
+        "emailFormat": "html",
+        "options": {},
+        "html": "={{ $json.html }}"
+      },
+      "id": "d89ac94f-8971-55c9-8d87-34dc4446a92f",
+      "name": "Avisar al solicitante",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "mailpit-smtp",
+          "name": "Mailpit SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Solicitud lista": {
+      "main": [
+        [
+          {
+            "node": "Armar el cuerpo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar el cuerpo": {
+      "main": [
+        [
+          {
+            "node": "Avisar al solicitante",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "active": false
+}
