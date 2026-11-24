@@ -1,0 +1,107 @@
+{
+  "name": "Aviso de aprobación pendiente",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "aprobacion-pendiente",
+        "options": {}
+      },
+      "id": "10e59719-5f56-5431-98a9-f01b8848c825",
+      "name": "Aprobación pendiente",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "068b9490-ac98-5879-a57c-dd8d9cf64bdc"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "3d34fdd7-e00b-5364-8d86-8caa32798613",
+              "leftValue": "={{ $json.body.emailsAprobadores.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "be240156-6814-5db2-b842-efd95004466d",
+      "name": "Hay aprobadores",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Sistema de Compras <compras@sistema.local>",
+        "toEmail": "={{ $json.body.emailsAprobadores.join(',') }}",
+        "subject": "=Tenés una compra para aprobar: {{ $json.body.detalle }}",
+        "emailFormat": "text",
+        "options": {},
+        "text": "=Pidió: {{ $json.body.solicitanteNombre }} (sector {{ $json.body.sector }})\nÍtem: {{ $json.body.detalle }}\nMonto: {{ $json.body.monto }} {{ $json.body.moneda }}\nTe toca el paso: {{ $json.body.aprobadorNombre }}\n\nRevisala acá: http://localhost:5173/aprobaciones/{{ $json.body.itemId }}\n"
+      },
+      "id": "da95ee67-506c-574e-aa8a-7edce4196a90",
+      "name": "Avisar al aprobador",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "mailpit-smtp",
+          "name": "Mailpit SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Hay aprobadores": {
+      "main": [
+        [
+          {
+            "node": "Avisar al aprobador",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Aprobación pendiente": {
+      "main": [
+        [
+          {
+            "node": "Hay aprobadores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "active": false
+}
