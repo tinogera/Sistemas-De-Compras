@@ -1,14 +1,17 @@
 package com.Sistem.Solicitude_Compra.integraciones.servicio;
 
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.HexFormat;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
@@ -29,7 +32,17 @@ public class ClienteN8n {
     @Autowired
     public ClienteN8n(ObjectMapper mapper, @Value("${app.n8n.webhook-url}") String urlBase,
                       @Value("${app.n8n.webhook-secret:}") String secreto) {
-        this(RestClient.builder(), mapper, urlBase, secreto);
+        this(RestClient.builder().requestFactory(conHttp11()), mapper, urlBase, secreto);
+    }
+
+    // El cliente del JDK intenta pasar a HTTP/2 en texto plano y n8n no contesta: el pedido se cuelga.
+    // Por eso se fuerza HTTP/1.1; y los timeouts hacen que un n8n caído falle (y el evento se reintente).
+    private static JdkClientHttpRequestFactory conHttp11() {
+        HttpClient http = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(Duration.ofSeconds(5)).build();
+        JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
+        factory.setReadTimeout(Duration.ofSeconds(15));
+        return factory;
     }
 
     // Para los tests, que le pasan un builder atado a un servidor simulado.
