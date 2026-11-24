@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import com.Sistem.Solicitude_Compra.TestcontainersConfiguration;
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
+import com.Sistem.Solicitude_Compra.compartido.archivos.AlmacenamientoArchivos;
+import com.Sistem.Solicitude_Compra.compartido.archivos.ValidadorArchivos;
 import com.Sistem.Solicitude_Compra.compartido.errores.ReglaNegocioException;
 import com.Sistem.Solicitude_Compra.compartido.seguridad.UsuarioActual;
 import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
@@ -47,6 +49,8 @@ class SolicitudIdempotenciaTest {
     @MockitoBean AuthApi authApi;
     @MockitoBean CatalogoApi catalogoApi;
     @MockitoBean UsuarioActual usuarioActual;
+    @MockitoBean ValidadorArchivos validadorArchivos;
+    @MockitoBean AlmacenamientoArchivos almacenamientoArchivos;
 
     @BeforeEach
     void preparar() {

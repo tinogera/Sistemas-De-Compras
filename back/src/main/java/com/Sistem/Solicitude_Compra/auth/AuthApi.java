@@ -53,6 +53,10 @@ public class AuthApi {
         return usuarios.findByRolAndActivoTrue(rol).stream().map(Usuario::getEmail).toList();
     }
 
+    public List<String> emailsEncargadosActivos() {
+        return emailsActivosConRol(Rol.ENCARGADO);
+    }
+
     public List<String> emailsActivosDelSector(Long idSector) {
         return usuarios.findBySectorIdAndActivoTrue(idSector).stream().map(Usuario::getEmail).toList();
     }

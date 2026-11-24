@@ -13,5 +13,7 @@ public interface GestionItemRepository
 
     boolean existsByItemId(Long itemId);
 
+    List<GestionItem> findByEstadoIn(java.util.Collection<EstadoGestion> estados);
+
     List<GestionItem> findByEncargadoIdAndEstado(Long encargadoId, EstadoGestion estado);
 }
