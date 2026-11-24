@@ -5,6 +5,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.Sistem.Solicitude_Compra.aprobaciones.AprobacionesApi;
+import com.Sistem.Solicitude_Compra.compartido.eventos.PasoAprobacionActivado;
+import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import java.util.Optional;
 import com.Sistem.Solicitude_Compra.auth.AuthApi;
 import com.Sistem.Solicitude_Compra.auth.UsuarioResumen;
 import com.Sistem.Solicitude_Compra.catalogo.CatalogoApi;
@@ -32,9 +38,10 @@ class AvisosN8nTest {
     @Mock ClienteN8n n8n;
     @Mock AuthApi auth;
     @Mock CatalogoApi catalogo;
+    @Mock AprobacionesApi aprobaciones;
 
     AvisosN8n avisos() {
-        return new AvisosN8n(n8n, auth, catalogo);
+        return new AvisosN8n(n8n, auth, catalogo, aprobaciones);
     }
 
     private static UsuarioResumen usuario(long id, String nombre, String email, Rol rol) {
@@ -85,5 +92,51 @@ class AvisosN8nTest {
         ArgumentCaptor<Object> datos = ArgumentCaptor.forClass(Object.class);
         verify(n8n).enviar(eq("encargado-desasignado"), datos.capture());
         assertEquals(new AvisosN8n.EncargadoQuitado("Pedro", List.of("ana@x.com")), datos.getValue());
+    }
+
+    private static PasoAprobacionActivado paso(String tipo, Rol rol, Long sector) {
+        return new PasoAprobacionActivado(UUID.randomUUID(), Instant.now(), 7L, 1587L, 70L, tipo, rol, sector,
+                "Supervisor", new BigDecimal("600000"), Moneda.ARS);
+    }
+
+    @Test
+    void pasoActivadoAvisaALosAprobadoresMenosAlSolicitante() {
+        when(aprobaciones.datosParaAviso(7L)).thenReturn(
+                Optional.of(new AprobacionesApi.DatosParaAviso(5L, 2L, "Pelotero")));
+        when(auth.obtenerUsuario(5L)).thenReturn(usuario(5L, "Laura", "laura@x.com", Rol.SUPERVISOR));
+        when(auth.nombreSector(2L)).thenReturn("Eventos");
+        when(auth.emailsActivosConRol(Rol.SUPERVISOR)).thenReturn(List.of("laura@x.com", "sup@x.com"));
+
+        avisos().alActivarseUnPaso(paso("ROL", Rol.SUPERVISOR, null));
+
+        ArgumentCaptor<Object> datos = ArgumentCaptor.forClass(Object.class);
+        verify(n8n).enviar(eq("aprobacion-pendiente"), datos.capture());
+        assertEquals(new AvisosN8n.AprobacionPendiente(7L, 1587L, "Pelotero", "Laura", "Eventos", "Supervisor",
+                new BigDecimal("600000"), Moneda.ARS, List.of("sup@x.com")), datos.getValue());
+    }
+
+    @Test
+    void pasoDeSectorAvisaALosUsuariosDelSector() {
+        when(aprobaciones.datosParaAviso(7L)).thenReturn(
+                Optional.of(new AprobacionesApi.DatosParaAviso(5L, 2L, "Pelotero")));
+        when(auth.obtenerUsuario(5L)).thenReturn(usuario(5L, "Laura", "laura@x.com", Rol.SOLICITANTE));
+        when(auth.nombreSector(2L)).thenReturn("Eventos");
+        when(auth.emailsActivosDelSector(9L)).thenReturn(List.of("gg@x.com"));
+
+        avisos().alActivarseUnPaso(paso("SECTOR", null, 9L));
+
+        verify(n8n).enviar(eq("aprobacion-pendiente"), any());
+    }
+
+    @Test
+    void sinDestinatariosNoSeEnviaNada() {
+        when(aprobaciones.datosParaAviso(7L)).thenReturn(
+                Optional.of(new AprobacionesApi.DatosParaAviso(5L, 2L, "Pelotero")));
+        when(auth.obtenerUsuario(5L)).thenReturn(usuario(5L, "Laura", "laura@x.com", Rol.SUPERVISOR));
+        when(auth.emailsActivosConRol(Rol.SUPERVISOR)).thenReturn(List.of("laura@x.com"));
+
+        avisos().alActivarseUnPaso(paso("ROL", Rol.SUPERVISOR, null));
+
+        verify(n8n, never()).enviar(anyString(), any());
     }
 }
