@@ -1,0 +1,202 @@
+{
+  "name": "Aviso de solicitud nueva",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "solicitud-creada",
+        "options": {}
+      },
+      "id": "3debb793-ddf9-512c-9081-3b693e714396",
+      "name": "Solicitud creada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "ae91b9db-c2c6-594c-b015-70f522853544"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "84ebc74a-fa30-56ab-8aab-95a1dd3ff09e",
+              "leftValue": "={{ $json.body.emailsEncargados.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a3fb5850-7416-5b25-a92b-2a0757654ca8",
+      "name": "Hay encargados",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Sistema de Compras <compras@sistema.local>",
+        "toEmail": "={{ $json.body.emailsEncargados.join(',') }}",
+        "subject": "=Nueva solicitud #{{ $json.body.solicitudId }} — urgencia {{ $json.body.urgencia }}",
+        "emailFormat": "text",
+        "options": {},
+        "text": "=Llegó una solicitud nueva.\n\nSolicitud: #{{ $json.body.solicitudId }}\nSolicitante: {{ $json.body.solicitanteNombre }}\nSector: {{ $json.body.sector }}\nUrgencia: {{ $json.body.urgencia }}\nFecha necesaria: {{ $json.body.fechaNecesaria || 'sin fecha' }}\nÍtems: {{ $json.body.cantidadItems }}\n"
+      },
+      "id": "e7d157d7-37ba-5d11-a1c9-a8737a9bc0b0",
+      "name": "Avisar a los encargados",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "mailpit-smtp",
+          "name": "Mailpit SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "encargado-desasignado",
+        "options": {}
+      },
+      "id": "8bce90ba-094e-57d3-b66b-dfd048a414f0",
+      "name": "Encargado desasignado",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        240
+      ],
+      "webhookId": "4fbff17a-2d70-55da-a081-4f9d87e36962"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "8fe65869-e65c-597b-8a1c-71bc469ab36d",
+              "leftValue": "={{ $json.body.emailsEncargados.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d8dbb017-aa94-567d-8048-5c2aa514acbd",
+      "name": "Hay otros encargados",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Sistema de Compras <compras@sistema.local>",
+        "toEmail": "={{ $json.body.emailsEncargados.join(',') }}",
+        "subject": "Hay ítems sin asignar en la bandeja",
+        "emailFormat": "text",
+        "options": {},
+        "text": "=Los ítems de {{ $json.body.encargadoNombre }} volvieron a la bandeja general.\n"
+      },
+      "id": "2ac80b34-8515-56e2-8970-bd134ef97c25",
+      "name": "Avisar que hay ítems sin asignar",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        240
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "mailpit-smtp",
+          "name": "Mailpit SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Hay encargados": {
+      "main": [
+        [
+          {
+            "node": "Avisar a los encargados",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Hay otros encargados": {
+      "main": [
+        [
+          {
+            "node": "Avisar que hay ítems sin asignar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Solicitud creada": {
+      "main": [
+        [
+          {
+            "node": "Hay encargados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encargado desasignado": {
+      "main": [
+        [
+          {
+            "node": "Hay otros encargados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "active": false
+}
