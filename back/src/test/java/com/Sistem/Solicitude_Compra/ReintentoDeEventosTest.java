@@ -56,6 +56,7 @@ class ReintentoDeEventosTest {
     @AfterEach
     void limpiar() {
         ordenes.deleteAll();
+        jdbc.update("delete from reportes.hecho_gasto");
         jdbc.update("delete from event_publication");
     }
 
@@ -66,10 +67,11 @@ class ReintentoDeEventosTest {
 
     @Test
     void unEventoQueFalloQuedaPendienteYSeProcesaAlReintentar() {
-        // 1. La actualización llega antes que la compra: no hay orden, el listener falla y el evento queda pendiente.
+        // 1. La actualización llega antes que la compra: no hay orden ni hecho de gasto, los listeners de Órdenes y
+        // de Reportes fallan y el evento queda pendiente una vez por cada listener (2 publicaciones).
         transacciones.executeWithoutResult(t -> eventos.publishEvent(compraActualizada()));
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
-                assertThat(publicaciones("CompraActualizada", "FAILED")).isEqualTo(1));
+                assertThat(publicaciones("CompraActualizada", "FAILED")).isEqualTo(2));
         assertThat(ordenes.existsByItemId(ITEM)).isFalse();
 
         // 2. Llega la compra y se genera la orden (con el precio viejo).
@@ -77,6 +79,11 @@ class ReintentoDeEventosTest {
         await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
                 assertThat(ordenes.existsByItemId(ITEM)).isTrue());
         assertThat(ordenes.findByItemId(ITEM).orElseThrow().getPrecioTotal()).isEqualByComparingTo("1200.00");
+
+        // Reportes también tiene que haber procesado OrdenGenerada, si no su listener volvería a fallar.
+        await().atMost(Duration.ofSeconds(15)).untilAsserted(() ->
+                assertThat(jdbc.queryForObject("select count(*) from reportes.hecho_gasto where item_id = ?",
+                        Integer.class, ITEM)).isEqualTo(1));
 
         // 3. Se reintenta lo pendiente: ahora la actualización encuentra la orden y se aplica.
         incompletas.resubmitIncompletePublications(p -> p.getEvent() instanceof CompraActualizada);
