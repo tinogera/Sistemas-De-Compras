@@ -17,6 +17,9 @@ import com.Sistem.Solicitude_Compra.compartido.tipos.Moneda;
 import com.Sistem.Solicitude_Compra.reportes.dominio.Agrupacion;
 import com.Sistem.Solicitude_Compra.reportes.servicio.GastoAgrupado;
 import com.Sistem.Solicitude_Compra.reportes.servicio.ReporteGastoService;
+import com.Sistem.Solicitude_Compra.reportes.servicio.ReporteTiemposService;
+import com.Sistem.Solicitude_Compra.reportes.servicio.TiemposResolucion;
+import java.util.Map;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -41,6 +44,7 @@ class ReporteControllerTest {
 
     @Autowired MockMvc mockMvc;
     @MockitoBean ReporteGastoService service;
+    @MockitoBean ReporteTiemposService tiempos;
 
     private static RequestPostProcessor como(String rol) {
         return jwt().authorities(new SimpleGrantedAuthority("ROLE_" + rol));
@@ -115,5 +119,34 @@ class ReporteControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.codigo").value("PARAMETRO_INVALIDO"));
         verify(service).gasto(Agrupacion.SECTOR, LocalDate.of(2026, 12, 1), LocalDate.of(2026, 11, 30));
+    }
+
+    @Test
+    void tiemposDeResolucionDevuelveElTotalYElDesglosePorUrgencia() throws Exception {
+        when(tiempos.tiempos(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30))).thenReturn(
+                new TiemposResolucion(2, 15.0, Map.of("ALTA", new TiemposResolucion.PorUrgencia(2, 15.0),
+                        "MEDIA", new TiemposResolucion.PorUrgencia(0, null))));
+
+        mockMvc.perform(get("/api/v1/reportes/tiempos-resolucion?desde=2026-11-01&hasta=2026-11-30")
+                        .with(como("ENCARGADO")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cantidadItems").value(2))
+                .andExpect(jsonPath("$.promedioHoras").value(15.0))
+                .andExpect(jsonPath("$.porUrgencia.ALTA.promedioHoras").value(15.0))
+                .andExpect(jsonPath("$.porUrgencia.MEDIA.cantidad").value(0))
+                .andExpect(jsonPath("$.porUrgencia.MEDIA.promedioHoras").value(org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void tiemposDeResolucionNoEstaAbiertoAlSolicitante() throws Exception {
+        mockMvc.perform(get("/api/v1/reportes/tiempos-resolucion?desde=2026-11-01&hasta=2026-11-30")
+                        .with(como("SOLICITANTE")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void tiemposDeResolucionSinFechasEs400() throws Exception {
+        mockMvc.perform(get("/api/v1/reportes/tiempos-resolucion").with(como("ADMIN")))
+                .andExpect(status().isBadRequest());
     }
 }
