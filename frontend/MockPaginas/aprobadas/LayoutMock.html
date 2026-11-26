@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>00 · Componentes comunes + layout · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens (misma base que la home oscura)
+   ========================================================= */
+:root {
+  --fondo: #1b1916;
+  --superficie: #24221e;
+  --superficie-2: #2b2924;
+  --linea: #2f2c27;
+  --borde: #3a362f;
+  --borde-fuerte: #5a554c;
+  --texto: #fbfaf8;
+  --texto-2: #c9c3b8;
+  --apagado: #a39d92;
+  --tenue: #7d776d;
+  --naranja: #e08a3c;
+  --violeta: #4b3fa6;
+  --foco: #8fb3f0;
+
+  /* Semánticos (texto sobre fondo oscuro, contraste AA) */
+  --info: #8fb3f0;      /* En gestión */
+  --exito: #7fcf97;     /* Comprado, Aprobado, Lista */
+  --peligro: #f08a7e;   /* Rechazado, Alta, errores */
+  --aviso: #e8b25c;     /* Media, avisos */
+  --curso: #b0a6f2;     /* En curso (aprobación) */
+  --neutro: #c9c3b8;    /* Pendiente */
+  --inactivo: #8a857c;  /* Cancelado, Omitido, Baja */
+
+  --radio: 3px;
+  --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --sans: 'Public Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--fondo); color: var(--texto);
+  font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--foco); outline-offset: 2px;
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.mono { font-family: var(--mono); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* =========================================================
+   Barra de maqueta (no es parte del diseño)
+   ========================================================= */
+.maqueta {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde);
+  font: 500 12px var(--mono); color: var(--apagado);
+}
+.maqueta select { font: 500 12px var(--mono); }
+
+/* =========================================================
+   Barra superior
+   ========================================================= */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(27,25,22,.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--linea);
+}
+.topbar__inner {
+  max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px;
+  display: flex; align-items: center; gap: 28px;
+}
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap;
+}
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after {
+  content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja);
+}
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center;
+}
+
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2);
+}
+.topbar .btn-menu { display: none; }
+[hidden] { display: none !important; }
+
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu {
+    display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto;
+    background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px;
+  }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* =========================================================
+   Página
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 40px 24px 120px; }
+.encabezado { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; margin-bottom: 40px; }
+.chip {
+  display: inline-block; font: 600 11px/1.4 var(--mono); letter-spacing: .06em; color: var(--texto-2);
+  border: 1px solid var(--borde); background: var(--superficie); border-radius: 999px; padding: 4px 10px;
+}
+.titulo { margin-top: 14px; font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 10px; color: var(--texto-2); max-width: 640px; }
+
+.seccion { padding: 40px 0; border-top: 1px solid var(--linea); }
+.seccion__cab { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+.seccion__num { font: 600 12px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.seccion__titulo { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+.seccion__nota { flex-basis: 100%; color: var(--apagado); font-size: 14px; }
+.sub { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); margin: 0 0 12px; text-transform: uppercase; }
+
+.grilla { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.card {
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); padding: 20px;
+}
+.fila { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* =========================================================
+   Colores y tipografía
+   ========================================================= */
+.muestras { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.muestra { border: 1px solid var(--borde); border-radius: 6px; overflow: hidden; background: var(--superficie); }
+.muestra__color { height: 56px; }
+.muestra__info { padding: 8px 10px; font-size: 13px; }
+.muestra__info .mono { display: block; font-size: 11px; color: var(--apagado); }
+.tipos > * + * { margin-top: 14px; }
+.tipo__meta { font: 500 11px var(--mono); color: var(--tenue); display: block; margin-bottom: 2px; }
+
+/* =========================================================
+   Botones y campos
+   ========================================================= */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent;
+  font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.btn--grande { height: 52px; padding: 0 28px; font-size: 16px; font-weight: 700; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--primario:hover { background: #e9e5dd; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--peligro { background: #b8463a; color: #fff; }
+.btn--peligro:hover { background: #c95245; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .45; cursor: not-allowed; }
+.btn--icono { width: 40px; padding: 0; }
+.spinner {
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent;
+  animation: girar .7s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label, .campo__label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.campo__ayuda { font-size: 12px; color: var(--apagado); }
+.campo__error { font-size: 12px; color: var(--peligro); display: flex; gap: 6px; align-items: center; }
+.input, .select, .textarea {
+  height: 40px; padding: 0 12px; border-radius: var(--radio);
+  background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans);
+}
+.textarea { height: auto; min-height: 88px; padding: 10px 12px; resize: vertical; }
+.input::placeholder, .textarea::placeholder { color: var(--tenue); }
+.input:hover, .select:hover, .textarea:hover { border-color: var(--borde-fuerte); }
+.input:focus, .select:focus, .textarea:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--peligro); }
+.select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+
+/* Selector de moneda + monto */
+.monto { display: flex; height: 40px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--fondo); }
+.monto:focus-within { border-color: var(--foco); box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.monto__monedas { display: flex; padding: 3px; gap: 2px; border-right: 1px solid var(--borde); }
+.monto__monedas button {
+  border: 0; border-radius: 2px; padding: 0 10px; background: transparent; color: var(--apagado);
+  font: 600 12px var(--mono); cursor: pointer;
+}
+.monto__monedas button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); }
+.monto input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--texto); padding: 0 12px; font: 500 14px var(--mono); text-align: right; }
+.monto input:focus { outline: none; }
+
+/* =========================================================
+   Badges
+   ========================================================= */
+.badge {
+  --c: var(--neutro);
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c);
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+}
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.badge--pendiente { --c: var(--neutro); }
+.badge--gestion { --c: var(--info); }
+.badge--comprado, .badge--aprobado, .badge--aprobada, .badge--lista { --c: var(--exito); }
+.badge--rechazado, .badge--rechazada { --c: var(--peligro); }
+.badge--cancelado, .badge--cancelada, .badge--omitido { --c: var(--inactivo); }
+.badge--cancelado, .badge--cancelada { text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge--omitido { border-style: dashed; }
+.badge--curso { --c: var(--curso); }
+.badge--activo { --c: var(--naranja); }
+.badge--espera { --c: var(--tenue); border-style: dashed; }
+.badge--lleno { background: var(--c); color: #1b1916; border-color: var(--c); }
+
+/* Urgencia: barritas + texto, no depende solo del color */
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+
+.tabla-badges { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla-badges th { text-align: left; font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); padding: 0 16px 10px 0; text-transform: uppercase; }
+.tabla-badges td { padding: 10px 16px 10px 0; border-top: 1px solid var(--linea); vertical-align: top; }
+.tabla-badges td:first-child { color: var(--texto-2); width: 200px; }
+
+/* =========================================================
+   Tabla paginada
+   ========================================================= */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.filtros { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; padding: 16px; border-bottom: 1px solid var(--borde); }
+.filtros .campo { min-width: 150px; }
+.filtros .campo--buscar { flex: 1; min-width: 220px; }
+.filtros__fin { margin-left: auto; display: flex; gap: 8px; }
+.input--buscar { padding-left: 36px; background: var(--fondo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237d776d' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 12px center; }
+.filtros-activos { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid var(--borde); font-size: 13px; color: var(--apagado); align-items: center; }
+.filtro-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 4px 0 10px; border-radius: 999px;
+  background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); font-size: 12px; font-weight: 600;
+}
+.filtro-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: transparent; color: var(--apagado); cursor: pointer; }
+.filtro-chip button:hover { background: var(--borde); color: var(--texto); }
+
+.tabla-scroll { overflow-x: auto; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 880px; }
+.tabla th {
+  text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde);
+  font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap;
+}
+.tabla th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.tabla th button:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.tabla th[aria-sort] button::after { content: "↓"; color: var(--naranja); }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla .der { text-align: right; }
+.tabla tr:last-child td { border-bottom: 0; }
+.celda-id { font: 500 13px var(--mono); color: var(--apagado); }
+.celda-detalle strong { display: block; font-weight: 600; }
+.celda-detalle span { font-size: 13px; color: var(--apagado); }
+.precio { font: 500 13px var(--mono); white-space: nowrap; }
+.precio__mon { color: var(--apagado); margin-right: 4px; }
+.precio--vacio { color: var(--tenue); }
+.precios { display: grid; grid-template-columns: auto auto; gap: 2px 10px; justify-content: end; }
+.precios__lbl { font: 500 10px var(--mono); letter-spacing: .04em; color: var(--tenue); text-align: right; align-self: center; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button {
+  min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent;
+  background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer;
+}
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+
+.segmentado { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.segmentado button {
+  height: 30px; padding: 0 12px; border: 0; border-radius: 4px; background: transparent;
+  color: var(--apagado); font: 600 12px var(--sans); cursor: pointer;
+}
+.segmentado button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); }
+
+/* Esqueleto (cargando) */
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* =========================================================
+   Estados vacío / error / sin permiso / conflicto
+   ========================================================= */
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 56px 24px; }
+.estado__icono {
+  width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px;
+  background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2);
+}
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado__icono--naranja { color: var(--naranja); border-color: color-mix(in srgb, var(--naranja) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 380px; }
+.estado .fila { margin-top: 8px; justify-content: center; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+.aviso {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent);
+  background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent);
+}
+.aviso svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); font-size: 14px; margin-bottom: 2px; }
+.aviso--error { --c: var(--peligro); }
+.aviso--info { --c: var(--info); }
+.aviso + .aviso { margin-top: 12px; }
+
+/* =========================================================
+   Toasts
+   ========================================================= */
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast {
+  display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px;
+  background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c);
+  box-shadow: 0 16px 40px rgba(0,0,0,.45); animation: entrar .25s ease-out;
+}
+.toast svg.toast__icono { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast__cuerpo { flex: 1; font-size: 14px; }
+.toast__cuerpo strong { display: block; }
+.toast__cuerpo span { color: var(--texto-2); font-size: 13px; }
+.toast__cerrar { border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+.toast__cerrar:hover { color: var(--texto); background: var(--borde); }
+.toast--exito { --c: var(--exito); } .toast--error { --c: var(--peligro); } .toast--info { --c: var(--info); }
+@keyframes entrar { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* =========================================================
+   Modal
+   ========================================================= */
+dialog.modal {
+  width: min(480px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card);
+  background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte);
+  box-shadow: 0 30px 80px rgba(0,0,0,.6);
+}
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; }
+.modal__cab h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+.modal__cuerpo { padding: 10px 24px 20px; color: var(--texto-2); font-size: 14px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen { margin: 14px 0 0; padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; }
+.resumen dt { color: var(--apagado); } .resumen dd { margin: 0; color: var(--texto); }
+
+/* =========================================================
+   Pasos de aprobación
+   ========================================================= */
+.pasos { list-style: none; margin: 0; padding: 0; }
+.paso { position: relative; display: grid; grid-template-columns: 32px 1fr; gap: 14px; padding-bottom: 22px; }
+.paso:last-child { padding-bottom: 0; }
+.paso::before { content: ""; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--borde); }
+.paso:last-child::before { display: none; }
+.paso--hecho::before { background: color-mix(in srgb, var(--exito) 50%, transparent); }
+.paso__nodo {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1;
+  background: var(--fondo); border: 2px solid var(--borde-fuerte); font: 600 12px var(--mono); color: var(--apagado);
+}
+.paso__nodo svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.paso--hecho .paso__nodo { border-color: var(--exito); background: var(--exito); color: #1b1916; }
+.paso--rechazado .paso__nodo { border-color: var(--peligro); background: var(--peligro); color: #1b1916; }
+.paso--activo .paso__nodo { border-color: var(--naranja); color: var(--naranja); box-shadow: 0 0 0 5px rgba(224,138,60,.15); }
+.paso--omitido .paso__nodo { border-style: dashed; }
+.paso__grupo { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.paso__caja { padding: 12px 14px; border-radius: 6px; border: 1px solid var(--borde); background: var(--fondo); }
+.paso__caja--activa { border-color: color-mix(in srgb, var(--naranja) 45%, transparent); }
+.paso__fila { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.paso__quien { font-weight: 700; font-size: 14px; }
+.paso__tipo { font: 500 11px var(--mono); color: var(--tenue); margin-left: 6px; }
+.paso__det { margin-top: 6px; font-size: 13px; color: var(--apagado); }
+.paso__motivo { margin-top: 8px; padding: 8px 10px; border-left: 2px solid var(--peligro); background: rgba(240,138,126,.06); font-size: 13px; color: var(--texto-2); }
+.paralelo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--curso); margin-bottom: 8px; }
+
+/* =========================================================
+   Historial
+   ========================================================= */
+.historial { list-style: none; margin: 0; padding: 0; }
+.historial li { display: grid; grid-template-columns: 92px 14px 1fr; gap: 12px; padding-bottom: 18px; position: relative; }
+.historial li::after { content: ""; position: absolute; left: 110px; top: 16px; bottom: 0; width: 1px; background: var(--borde); }
+.historial li:last-child::after { display: none; }
+.historial__fecha { font: 500 12px var(--mono); color: var(--apagado); text-align: right; line-height: 1.4; }
+.historial__punto { width: 9px; height: 9px; margin-top: 5px; border-radius: 50%; background: var(--borde-fuerte); justify-self: center; position: relative; z-index: 1; }
+.historial__punto--naranja { background: var(--naranja); }
+.historial__punto--verde { background: var(--exito); }
+.historial__texto { font-size: 14px; color: var(--texto-2); }
+.historial__texto b { color: var(--texto); font-weight: 600; }
+.historial__cambio { display: inline-flex; gap: 6px; align-items: center; font: 500 12px var(--mono); margin-top: 4px; color: var(--apagado); }
+.historial__cambio del { color: var(--tenue); }
+.historial__cambio ins { text-decoration: none; color: var(--texto); }
+
+/* =========================================================
+   Adjuntos
+   ========================================================= */
+.zona {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 28px 20px; text-align: center;
+  border: 1.5px dashed var(--borde-fuerte); border-radius: var(--radio-card); background: var(--fondo); cursor: pointer;
+  color: var(--texto-2); font-size: 14px;
+}
+.zona:hover, .zona.is-arrastrando { border-color: var(--naranja); background: rgba(224,138,60,.05); }
+.zona svg { width: 26px; height: 26px; fill: none; stroke: var(--apagado); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.zona strong { color: var(--texto); }
+.zona small { color: var(--apagado); font-size: 12px; }
+.adjuntos { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.adjunto { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.adjunto__tipo { width: 36px; height: 36px; border-radius: 4px; display: grid; place-items: center; font: 700 10px var(--mono); background: var(--superficie-2); color: var(--texto-2); flex: none; }
+.adjunto__tipo--pdf { color: var(--peligro); } .adjunto__tipo--img { color: var(--info); }
+.adjunto__info { flex: 1; min-width: 0; font-size: 14px; }
+.adjunto__info strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adjunto__info span { font: 500 12px var(--mono); color: var(--apagado); }
+.adjunto--error { border-color: color-mix(in srgb, var(--peligro) 45%, transparent); }
+.adjunto--error .adjunto__info span { color: var(--peligro); font-family: var(--sans); }
+.barra-carga { height: 4px; border-radius: 2px; background: var(--superficie-2); margin-top: 6px; overflow: hidden; }
+.barra-carga i { display: block; height: 100%; width: 62%; background: var(--naranja); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<!-- Solo para la maqueta: cambia el rol para ver el menú de cada uno -->
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · ver como</span>
+  <select class="select" id="rol" style="height:30px">
+    <option value="solicitante">Solicitante</option>
+    <option value="encargado" selected>Encargado</option>
+    <option value="supervisor">Supervisor</option>
+    <option value="admin">Admin</option>
+    <option value="aprobador">Aprobador por sector (Gerencia General)</option>
+  </select>
+  <span id="destino"></span>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal"></nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos">
+        <div class="usuario__nombre" id="u-nombre"></div>
+        <div class="usuario__rol" id="u-rol"></div>
+      </div>
+      <span class="avatar" id="u-avatar" aria-hidden="true"></span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina">
+  <div class="encabezado">
+    <div>
+      <span class="chip">00 · COMPONENTES COMUNES</span>
+      <h1 class="titulo">Layout y componentes</h1>
+      <p class="bajada">Las piezas que se repiten en todas las pantallas. Misma base que la home: fondo oscuro, Public Sans para leer, JetBrains Mono para números, códigos y etiquetas, y el naranja solo para lo que pide atención.</p>
+    </div>
+  </div>
+
+  <!-- 01 Colores y tipografía -->
+  <section class="seccion" aria-labelledby="s1">
+    <div class="seccion__cab">
+      <span class="seccion__num">01</span><h2 class="seccion__titulo" id="s1">Colores y tipografía</h2>
+      <p class="seccion__nota">Cada color de estado tiene además un ícono o forma propia: nunca se distingue solo por color.</p>
+    </div>
+    <p class="sub">Base</p>
+    <div class="muestras" style="margin-bottom:24px">
+      <div class="muestra"><div class="muestra__color" style="background:#1b1916"></div><div class="muestra__info">Fondo<span class="mono">#1b1916</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#24221e"></div><div class="muestra__info">Superficie<span class="mono">#24221e</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#3a362f"></div><div class="muestra__info">Borde<span class="mono">#3a362f</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#fbfaf8"></div><div class="muestra__info">Texto / primario<span class="mono">#fbfaf8</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#c9c3b8"></div><div class="muestra__info">Texto secundario<span class="mono">#c9c3b8</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#e08a3c"></div><div class="muestra__info">Acento<span class="mono">#e08a3c</span></div></div>
+    </div>
+    <p class="sub">Semánticos</p>
+    <div class="muestras" style="margin-bottom:32px">
+      <div class="muestra"><div class="muestra__color" style="background:#c9c3b8"></div><div class="muestra__info">Pendiente<span class="mono">#c9c3b8</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#8fb3f0"></div><div class="muestra__info">En gestión / info<span class="mono">#8fb3f0</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#b0a6f2"></div><div class="muestra__info">En curso<span class="mono">#b0a6f2</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#7fcf97"></div><div class="muestra__info">Éxito<span class="mono">#7fcf97</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#e8b25c"></div><div class="muestra__info">Aviso / Media<span class="mono">#e8b25c</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#f08a7e"></div><div class="muestra__info">Peligro / Alta<span class="mono">#f08a7e</span></div></div>
+      <div class="muestra"><div class="muestra__color" style="background:#8a857c"></div><div class="muestra__info">Inactivo<span class="mono">#8a857c</span></div></div>
+    </div>
+    <div class="card tipos">
+      <div><span class="tipo__meta">Título de página · 40 / 800</span><div style="font-size:40px;font-weight:800;letter-spacing:-0.03em;line-height:1.05">Mis solicitudes</div></div>
+      <div><span class="tipo__meta">Título de sección · 24 / 800</span><div style="font-size:24px;font-weight:800;letter-spacing:-0.02em">Cadena de aprobación</div></div>
+      <div><span class="tipo__meta">Cuerpo · 15 / 400</span><div style="color:var(--texto-2)">Compras busca precios y actualiza el total. Ves el estimado y el precio final lado a lado.</div></div>
+      <div><span class="tipo__meta">Etiqueta · JetBrains Mono 11 / 600</span><div class="mono" style="font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--apagado)">PRECIO ESTIMADO</div></div>
+      <div><span class="tipo__meta">Montos · JetBrains Mono 14 / 500</span><div class="num" style="font-size:14px"><span style="color:var(--apagado)">ARS</span> 600.000,00 &nbsp; <span style="color:var(--apagado)">USD</span> 1.250,00</div></div>
+    </div>
+  </section>
+
+  <!-- 02 Botones y campos -->
+  <section class="seccion" aria-labelledby="s2">
+    <div class="seccion__cab"><span class="seccion__num">02</span><h2 class="seccion__titulo" id="s2">Botones y campos</h2></div>
+    <div class="grilla">
+      <div class="card">
+        <p class="sub">Botones</p>
+        <div class="fila" style="margin-bottom:12px">
+          <button class="btn btn--primario">Enviar solicitud</button>
+          <button class="btn btn--secundario">Cancelar</button>
+          <button class="btn btn--fantasma">Limpiar</button>
+        </div>
+        <div class="fila" style="margin-bottom:12px">
+          <button class="btn btn--acento">Aprobar</button>
+          <button class="btn btn--peligro">Rechazar</button>
+        </div>
+        <div class="fila">
+          <button class="btn btn--primario" disabled title="Se habilita cuando el ítem está Aprobado">Registrar compra</button>
+          <button class="btn btn--primario" aria-busy="true"><span class="spinner" aria-hidden="true"></span>Guardando…</button>
+        </div>
+        <p class="campo__ayuda" style="margin-top:12px">Naranja = la acción que se espera del usuario en esa pantalla (una sola). Rojo solo para acciones destructivas.</p>
+      </div>
+      <div class="card" style="display:grid;gap:16px">
+        <div class="campo">
+          <label for="c-detalle">Detalle</label>
+          <input class="input" id="c-detalle" placeholder="Ej: Notebook 14&quot; para el área de Ventas">
+        </div>
+        <div class="campo">
+          <label for="c-cant">Cantidad</label>
+          <input class="input" id="c-cant" value="0" aria-invalid="true" aria-describedby="c-cant-err">
+          <span class="campo__error" id="c-cant-err">La cantidad tiene que ser mayor a 0.</span>
+        </div>
+        <div class="campo">
+          <span class="campo__label" id="c-monto-l">Precio estimado</span>
+          <div class="monto" role="group" aria-labelledby="c-monto-l">
+            <div class="monto__monedas">
+              <button type="button" aria-pressed="true" data-moneda>ARS</button>
+              <button type="button" aria-pressed="false" data-moneda>USD</button>
+            </div>
+            <input inputmode="decimal" value="600.000,00" aria-label="Monto">
+          </div>
+          <span class="campo__ayuda">ARS y USD nunca se suman: cada ítem tiene una sola moneda.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 Badges -->
+  <section class="seccion" aria-labelledby="s3">
+    <div class="seccion__cab"><span class="seccion__num">03</span><h2 class="seccion__titulo" id="s3">Badges de estado y urgencia</h2></div>
+    <div class="card" style="overflow-x:auto">
+      <table class="tabla-badges">
+        <thead><tr><th>Concepto</th><th>Valores</th></tr></thead>
+        <tbody>
+          <tr><td>Estado del ítem</td><td class="fila" data-badges="pendiente,gestion,comprado,rechazado,cancelado"></td></tr>
+          <tr><td>Estado de la solicitud</td><td class="fila" data-badges="pendiente,gestion,lista"></td></tr>
+          <tr><td>Aprobación del ítem</td><td class="fila" data-badges="curso,aprobada,rechazada,cancelada"></td></tr>
+          <tr><td>Paso de aprobación</td><td class="fila" data-badges="activo,espera,aprobado,rechazado,omitido,cancelado"></td></tr>
+          <tr><td>Urgencia</td><td class="fila" data-urgencias="alta,media,baja"></td></tr>
+          <tr><td>Contador en menú</td><td class="fila"><span style="display:inline-flex;gap:8px;align-items:center;font-size:14px">Aprobaciones <span class="contador">3</span></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 04 Tabla paginada -->
+  <section class="seccion" aria-labelledby="s4">
+    <div class="seccion__cab">
+      <span class="seccion__num">04</span><h2 class="seccion__titulo" id="s4">Tabla paginada con filtros</h2>
+      <div class="segmentado" role="group" aria-label="Estado de la tabla (maqueta)" style="margin-left:auto" id="modo-tabla">
+        <button type="button" aria-pressed="true" data-modo="datos">Con datos</button>
+        <button type="button" aria-pressed="false" data-modo="cargando">Cargando</button>
+        <button type="button" aria-pressed="false" data-modo="vacio">Vacío</button>
+        <button type="button" aria-pressed="false" data-modo="sinresultados">Sin resultados</button>
+        <button type="button" aria-pressed="false" data-modo="error">Error</button>
+      </div>
+      <p class="seccion__nota">Filas ordenadas por urgencia y fecha necesaria. Precio estimado y total lado a lado, cada uno con su moneda. Clic en la fila → detalle.</p>
+    </div>
+
+    <div class="panel">
+      <form class="filtros" id="filtros" onsubmit="return false">
+        <div class="campo campo--buscar">
+          <label for="f-q">Buscar</label>
+          <input class="input input--buscar" id="f-q" placeholder="Detalle, solicitante o número">
+        </div>
+        <div class="campo">
+          <label for="f-estado">Estado</label>
+          <select class="select" id="f-estado">
+            <option value="">Todos</option><option value="pendiente">Pendiente</option><option value="gestion">En gestión</option>
+            <option value="comprado">Comprado</option><option value="rechazado">Rechazado</option><option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="f-urg">Urgencia</label>
+          <select class="select" id="f-urg"><option value="">Todas</option><option value="alta">Alta</option><option value="media">Media</option><option value="baja">Baja</option></select>
+        </div>
+        <div class="campo">
+          <label for="f-desde">Necesaria desde</label>
+          <input class="input" type="date" id="f-desde">
+        </div>
+        <div class="filtros__fin">
+          <button class="btn btn--fantasma" type="button" id="f-limpiar">Limpiar</button>
+        </div>
+      </form>
+      <div class="filtros-activos" id="filtros-activos" hidden></div>
+      <div id="tabla-cuerpo"></div>
+    </div>
+  </section>
+
+  <!-- 05 Estados -->
+  <section class="seccion" aria-labelledby="s5">
+    <div class="seccion__cab">
+      <span class="seccion__num">05</span><h2 class="seccion__titulo" id="s5">Estados y errores de negocio</h2>
+      <p class="seccion__nota">El mensaje viene del backend (<span class="mono">mensaje</span>); la pantalla reacciona al <span class="mono">codigo</span>.</p>
+    </div>
+    <div class="grilla" style="margin-bottom:20px">
+      <div class="card">
+        <div class="estado">
+          <div class="estado__icono estado__icono--naranja"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <h3>No tenés permiso para ver esto</h3>
+          <p>Esta sección es para el equipo de Compras. Si creés que deberías tener acceso, hablá con un administrador.</p>
+          <div class="fila"><a class="btn btn--secundario" href="#">Ir a Mis solicitudes</a></div>
+          <span class="codigo">403 · SIN_PERMISO</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="estado">
+          <div class="estado__icono"><svg viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M6 20V10l6-6 6 6v10"/><path d="M10 20v-5h4v5"/></svg></div>
+          <h3>En construcción</h3>
+          <p>Esta pantalla todavía no está disponible. Mientras tanto, podés seguir tus pedidos desde Mis solicitudes.</p>
+          <div class="fila"><a class="btn btn--secundario" href="#">Volver</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="aviso" role="alert">
+      <svg viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>
+      <div class="aviso__cuerpo"><strong>Alguien decidió primero</strong>Otro aprobador ya decidió sobre este paso mientras lo estabas viendo. Recargá para ver el estado actual. <span class="codigo">CONFLICTO_VERSION</span></div>
+      <button class="btn btn--secundario btn--chico" type="button">Recargar</button>
+    </div>
+    <div class="aviso aviso--error" role="alert">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div class="aviso__cuerpo"><strong>Otro Encargado tomó este ítem</strong>Martín Ruiz lo tomó hace 2 minutos. Ya no aparece en tu bandeja. <span class="codigo">ITEM_YA_TOMADO</span></div>
+    </div>
+    <div class="aviso aviso--info">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>
+      <div class="aviso__cuerpo"><strong>Todavía no te toca</strong>Este paso se habilita cuando Supervisor apruebe el paso 1. No podés decidir sobre tu propio pedido. <span class="codigo">PASO_NO_ACTIVO · PROPIO_PEDIDO</span></div>
+    </div>
+  </section>
+
+  <!-- 06 Toasts y modales -->
+  <section class="seccion" aria-labelledby="s6">
+    <div class="seccion__cab"><span class="seccion__num">06</span><h2 class="seccion__titulo" id="s6">Toasts y modales</h2>
+      <p class="seccion__nota">Toasts abajo a la derecha, se van solos a los 5 segundos (los de error se quedan hasta cerrarlos).</p></div>
+    <div class="grilla">
+      <div class="card">
+        <p class="sub">Toasts</p>
+        <div class="fila">
+          <button class="btn btn--secundario" type="button" data-toast="exito">Éxito</button>
+          <button class="btn btn--secundario" type="button" data-toast="error">Error</button>
+          <button class="btn btn--secundario" type="button" data-toast="info">Info / tiempo real</button>
+        </div>
+      </div>
+      <div class="card">
+        <p class="sub">Modales</p>
+        <div class="fila">
+          <button class="btn btn--secundario" type="button" data-abrir="m-confirmar">Confirmación</button>
+          <button class="btn btn--secundario" type="button" data-abrir="m-rechazar">Rechazo con motivo</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 Pasos + historial -->
+  <section class="seccion" aria-labelledby="s7">
+    <div class="seccion__cab"><span class="seccion__num">07</span><h2 class="seccion__titulo" id="s7">Pasos de aprobación e historial</h2>
+      <p class="seccion__nota">Pasos con el mismo orden corren en paralelo y se muestran lado a lado.</p></div>
+    <div class="grilla">
+      <div class="card">
+        <div class="paso__fila" style="margin-bottom:18px">
+          <div><p class="sub" style="margin:0">Cadena de aprobación</p><span style="font-size:13px;color:var(--apagado)">Regla: <b style="color:var(--texto-2)">Más de 500.000 ARS</b></span></div>
+          <span class="badge badge--curso" data-badge="curso"></span>
+        </div>
+        <ol class="pasos">
+          <li class="paso paso--hecho">
+            <span class="paso__nodo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+            <div><div class="paso__caja">
+              <div class="paso__fila"><span class="paso__quien">Supervisor<span class="paso__tipo">ROL</span></span><span class="badge" data-badge="aprobado"></span></div>
+              <div class="paso__det">Laura Méndez · 24/11 10:32</div>
+            </div></div>
+          </li>
+          <li class="paso paso--activo">
+            <span class="paso__nodo" aria-hidden="true">2</span>
+            <div>
+              <div class="paralelo">EN PARALELO</div>
+              <div class="paso__grupo">
+                <div class="paso__caja paso__caja--activa">
+                  <div class="paso__fila"><span class="paso__quien">Gerencia General<span class="paso__tipo">SECTOR</span></span><span class="badge" data-badge="activo"></span></div>
+                  <div class="paso__det">Le toca ahora · desde hace 3 h</div>
+                </div>
+                <div class="paso__caja">
+                  <div class="paso__fila"><span class="paso__quien">Finanzas<span class="paso__tipo">SECTOR</span></span><span class="badge" data-badge="aprobado"></span></div>
+                  <div class="paso__det">Diego Paz · 25/11 09:05</div>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="paso">
+            <span class="paso__nodo" aria-hidden="true">3</span>
+            <div><div class="paso__caja">
+              <div class="paso__fila"><span class="paso__quien">Dirección<span class="paso__tipo">SECTOR</span></span><span class="badge" data-badge="espera"></span></div>
+              <div class="paso__det">Se activa cuando terminen los pasos anteriores</div>
+            </div></div>
+          </li>
+        </ol>
+        <hr style="border:0;border-top:1px solid var(--linea);margin:22px 0">
+        <p class="sub">Ejemplo rechazado</p>
+        <ol class="pasos">
+          <li class="paso paso--rechazado">
+            <span class="paso__nodo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+            <div><div class="paso__caja">
+              <div class="paso__fila"><span class="paso__quien">Gerencia General<span class="paso__tipo">SECTOR</span></span><span class="badge" data-badge="rechazado"></span></div>
+              <div class="paso__det">Ana Torres · 25/11 12:40</div>
+              <div class="paso__motivo">“Ya tenemos dos monitores en depósito. Pedí reasignación a Sistemas.”</div>
+            </div></div>
+          </li>
+          <li class="paso paso--omitido">
+            <span class="paso__nodo" aria-hidden="true">3</span>
+            <div><div class="paso__caja">
+              <div class="paso__fila"><span class="paso__quien">Dirección<span class="paso__tipo">SECTOR</span></span><span class="badge" data-badge="omitido"></span></div>
+              <div class="paso__det">No hizo falta: el ítem ya fue rechazado</div>
+            </div></div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <p class="sub">Historial de cambios</p>
+        <ol class="historial">
+          <li><span class="historial__fecha">25/11<br>12:40</span><span class="historial__punto historial__punto--naranja"></span>
+            <div class="historial__texto"><b>Gerencia General</b> aprobó el paso 2.</div></li>
+          <li><span class="historial__fecha">25/11<br>09:05</span><span class="historial__punto"></span>
+            <div class="historial__texto"><b>Martín Ruiz</b> fijó el precio total.
+              <div class="historial__cambio"><del>ARS 550.000,00</del> → <ins>ARS 600.000,00</ins></div></div></li>
+          <li><span class="historial__fecha">24/11<br>16:18</span><span class="historial__punto"></span>
+            <div class="historial__texto"><b>Martín Ruiz</b> cargó 3 cotizaciones.</div></li>
+          <li><span class="historial__fecha">24/11<br>11:02</span><span class="historial__punto"></span>
+            <div class="historial__texto"><b>Sofía Álvarez</b> editó el ítem.
+              <div class="historial__cambio">cantidad <del>2</del> → <ins>3</ins></div></div></li>
+          <li><span class="historial__fecha">24/11<br>10:47</span><span class="historial__punto historial__punto--verde"></span>
+            <div class="historial__texto"><b>Sofía Álvarez</b> creó la solicitud <span class="mono">#1042</span>.</div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 Adjuntos -->
+  <section class="seccion" aria-labelledby="s8">
+    <div class="seccion__cab"><span class="seccion__num">08</span><h2 class="seccion__titulo" id="s8">Adjuntos</h2></div>
+    <div class="grilla">
+      <div class="card">
+        <label class="zona" id="zona">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <span><strong>Arrastrá archivos</strong> o elegilos de tu compu</span>
+          <small>PDF, JPG o PNG · hasta 10 MB cada uno</small>
+          <input type="file" class="sr" multiple accept=".pdf,.jpg,.jpeg,.png">
+        </label>
+        <ul class="adjuntos">
+          <li class="adjunto"><span class="adjunto__tipo adjunto__tipo--pdf">PDF</span>
+            <div class="adjunto__info"><strong>especificacion-notebook.pdf</strong><span>1,2 MB</span></div>
+            <button class="btn btn--fantasma btn--chico" type="button">Ver</button>
+            <button class="btn btn--fantasma btn--chico" type="button" aria-label="Quitar especificacion-notebook.pdf">Quitar</button></li>
+          <li class="adjunto"><span class="adjunto__tipo adjunto__tipo--img">JPG</span>
+            <div class="adjunto__info"><strong>foto-equipo-actual.jpg</strong><span>Subiendo… 62 %</span><div class="barra-carga"><i></i></div></div></li>
+          <li class="adjunto adjunto--error"><span class="adjunto__tipo">DOC</span>
+            <div class="adjunto__info"><strong>presupuesto-proveedor.docx</strong><span>Formato no permitido. Subilo como PDF.</span></div>
+            <button class="btn btn--fantasma btn--chico" type="button" aria-label="Descartar presupuesto-proveedor.docx">Descartar</button></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modales -->
+<dialog class="modal" id="m-confirmar" aria-labelledby="m-confirmar-t">
+  <form method="dialog">
+    <div class="modal__cab"><h2 id="m-confirmar-t">¿Cancelar la solicitud #1042?</h2></div>
+    <div class="modal__cuerpo">
+      Se cancelan los 2 ítems que todavía están pendientes. Esta acción no se puede deshacer.
+      <dl class="resumen"><dt>Solicitud</dt><dd class="mono">#1042</dd><dt>Ítems</dt><dd>Notebook 14" · Monitor 27"</dd><dt>Total estimado</dt><dd class="num">ARS 1.180.000,00</dd></dl>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" value="no">Volver</button>
+      <button class="btn btn--peligro" value="si" data-toast-cierre="exito">Sí, cancelar solicitud</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal" id="m-rechazar" aria-labelledby="m-rechazar-t">
+  <form id="f-rechazo" novalidate>
+    <div class="modal__cab"><h2 id="m-rechazar-t">Rechazar ítem</h2></div>
+    <div class="modal__cuerpo">
+      <dl class="resumen" style="margin:0 0 16px"><dt>Ítem</dt><dd>Monitor 27" 4K × 2</dd><dt>Precio total</dt><dd class="num">ARS 600.000,00</dd></dl>
+      <div class="campo">
+        <label for="motivo">Motivo del rechazo <span style="color:var(--peligro)">*</span></label>
+        <textarea class="textarea" id="motivo" placeholder="El solicitante va a ver este motivo." aria-describedby="motivo-ayuda"></textarea>
+        <span class="campo__ayuda" id="motivo-ayuda">Obligatorio. El solicitante lo ve en el detalle de su pedido.</span>
+      </div>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" type="button" data-cerrar>Volver</button>
+      <button class="btn btn--peligro" type="submit">Rechazar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+const INICIO_MENU = '<a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>';
+/* ---------- Íconos de badges ---------- */
+const ICONOS = {
+  circulo: '<circle cx="12" cy="12" r="7"/>',
+  reloj: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  checks: '<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+  cruz: '<path d="M6 6l12 12M18 6L6 18"/>',
+  barra: '<circle cx="12" cy="12" r="8"/><path d="M7 17L17 7"/>',
+  flecha: '<path d="M5 12h12M13 7l5 5-5 5"/>',
+  punto: '<circle cx="12" cy="12" r="4" fill="currentColor"/>',
+  saltar: '<path d="M5 7l5 5-5 5M12 7l5 5-5 5"/>',
+  espera: '<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>'
+};
+const BADGES = {
+  pendiente: ['Pendiente', 'circulo'], gestion: ['En gestión', 'reloj'], comprado: ['Comprado', 'check'],
+  rechazado: ['Rechazado', 'cruz'], cancelado: ['Cancelado', 'barra'], lista: ['Lista', 'checks'],
+  curso: ['En curso', 'flecha'], aprobada: ['Aprobada', 'check'], rechazada: ['Rechazada', 'cruz'], cancelada: ['Cancelada', 'barra'],
+  aprobado: ['Aprobado', 'check'], omitido: ['Omitido', 'saltar'], activo: ['Le toca', 'punto'], espera: ['Aún no le toca', 'espera']
+};
+const URG = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+
+function badge(k) {
+  const [txt, ic] = BADGES[k];
+  return `<span class="badge badge--${k}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[ic]}</svg>${txt}</span>`;
+}
+function urgencia(k) {
+  return `<span class="urg urg--${k}"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>${URG[k]}</span>`;
+}
+document.querySelectorAll('[data-badges]').forEach(el => el.innerHTML = el.dataset.badges.split(',').map(badge).join(''));
+document.querySelectorAll('[data-urgencias]').forEach(el => el.innerHTML = el.dataset.urgencias.split(',').map(urgencia).join(''));
+document.querySelectorAll('[data-badge]').forEach(el => el.outerHTML = badge(el.dataset.badge));
+
+/* ---------- Barra superior y menú por rol ---------- */
+const ROLES = {
+  solicitante: { nombre: 'Sofía Álvarez', rol: 'SOLICITANTE · VENTAS', menu: [['Mis solicitudes', 1], ['Nueva solicitud']], aprob: 0, destino: 'Mis solicitudes' },
+  encargado: { nombre: 'Martín Ruiz', rol: 'ENCARGADO · COMPRAS', menu: [['Bandeja', 1], ['Órdenes'], ['Catálogo'], ['Reportes'], '|', ['Mis solicitudes'], ['Nueva solicitud']], aprob: 0, destino: 'Bandeja' },
+  supervisor: { nombre: 'Laura Méndez', rol: 'SUPERVISOR · OPERACIONES', menu: [['Aprobaciones', 0, 3], '|', ['Mis solicitudes', 1], ['Nueva solicitud']], aprob: 3, destino: 'Mis solicitudes' },
+  admin: { nombre: 'Pablo Ferreyra', rol: 'ADMIN', menu: [['Usuarios', 1], ['Sectores'], ['Reglas'], ['Reportes']], aprob: 0, destino: 'Usuarios' },
+  aprobador: { nombre: 'Ana Torres', rol: 'GERENCIA GENERAL', menu: [['Aprobaciones', 0, 5], '|', ['Mis solicitudes', 1], ['Nueva solicitud']], aprob: 5, destino: 'Mis solicitudes' }
+};
+function pintarRol(k) {
+  const r = ROLES[k];
+  document.getElementById('menu').innerHTML = INICIO_MENU + r.menu.map(m => m === '|' ? '<span class="menu__sep" aria-hidden="true"></span>' :
+    `<a href="#"${m[1] ? ' aria-current="page"' : ''}>${m[0]}${m[2] ? `<span class="contador" aria-label="${m[2]} para decidir">${m[2]}</span>` : ''}</a>`).join('');
+  document.getElementById('u-nombre').textContent = r.nombre;
+  document.getElementById('u-rol').textContent = r.rol;
+  document.getElementById('u-avatar').textContent = r.nombre.split(' ').map(p => p[0]).join('');
+  document.getElementById('destino').textContent = '· después del login va a: Inicio';
+}
+document.getElementById('rol').addEventListener('change', e => pintarRol(e.target.value));
+pintarRol('encargado');
+document.getElementById('btn-menu').addEventListener('click', e => {
+  const abierto = document.getElementById('topbar').classList.toggle('is-abierto');
+  e.currentTarget.setAttribute('aria-expanded', abierto);
+});
+
+/* ---------- Tabla paginada ---------- */
+const FILAS = [
+  [1051, 'Monitor 27" 4K', '2 unidades', 'Sistemas', 'Lucas Gómez', 'alta', 'gestion', [600000, 'ARS'], [640000, 'ARS'], '2026-11-28'],
+  [1049, 'Licencias Adobe Acrobat Pro', '12 licencias anuales', 'Administración', 'Carla Sosa', 'alta', 'pendiente', [2400, 'USD'], null, '2026-11-30'],
+  [1047, 'Silla ergonómica', '4 unidades', 'Ventas', 'Sofía Álvarez', 'alta', 'comprado', [720000, 'ARS'], [698500, 'ARS'], '2026-12-02'],
+  [1046, 'Servicio de catering evento fin de año', '80 personas', 'RR. HH.', 'Julieta Ramos', 'media', 'gestion', [1850000, 'ARS'], null, '2026-12-05'],
+  [1044, 'Notebook 14" i7 16 GB', '1 unidad', 'Ventas', 'Sofía Álvarez', 'media', 'pendiente', [1350, 'USD'], null, '2026-12-06'],
+  [1043, 'Resmas A4 75 g', '40 resmas', 'Administración', 'Carla Sosa', 'media', 'comprado', [168000, 'ARS'], [159200, 'ARS'], '2026-12-08'],
+  [1042, 'Mantenimiento aire acondicionado', 'Servicio trimestral', 'Operaciones', 'Laura Méndez', 'media', 'rechazado', [420000, 'ARS'], [455000, 'ARS'], '2026-12-10'],
+  [1040, 'Disco SSD 1 TB', '6 unidades', 'Sistemas', 'Lucas Gómez', 'baja', 'pendiente', [540, 'USD'], null, '2026-12-15'],
+  [1038, 'Kit de limpieza oficina', 'Mensual', 'Operaciones', 'Laura Méndez', 'baja', 'comprado', [96000, 'ARS'], [94300, 'ARS'], '2026-12-18'],
+  [1037, 'Suscripción Figma', '3 asientos', 'Marketing', 'Tomás Vera', 'baja', 'cancelado', [540, 'USD'], null, '2026-12-20'],
+  [1035, 'Cafetera para planta baja', '1 unidad', 'RR. HH.', 'Julieta Ramos', 'baja', 'gestion', [210000, 'ARS'], [189900, 'ARS'], '2026-12-22'],
+  [1033, 'Auriculares con micrófono', '10 unidades', 'Atención al cliente', 'Nicolás Díaz', 'baja', 'pendiente', [450000, 'ARS'], null, '2027-01-08']
+];
+const POR_PAGINA = 6;
+let pagina = 1, modo = 'datos';
+const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const precio = p => p ? `<span class="precio"><span class="precio__mon">${p[1]}</span>${nf.format(p[0])}</span>` : '<span class="precio precio--vacio">—</span>';
+const fecha = s => { const [y, m, d] = s.split('-'); return `${d}/${m}/${y.slice(2)}`; };
+
+function filtradas() {
+  const q = document.getElementById('f-q').value.trim().toLowerCase();
+  const e = document.getElementById('f-estado').value, u = document.getElementById('f-urg').value, d = document.getElementById('f-desde').value;
+  return FILAS.filter(f => (!q || `${f[0]} ${f[1]} ${f[4]}`.toLowerCase().includes(q)) && (!e || f[6] === e) && (!u || f[5] === u) && (!d || f[9] >= d));
+}
+const CAB = `<thead><tr><th scope="col">N.º</th><th scope="col">Detalle</th><th scope="col">Sector</th><th scope="col" aria-sort="descending"><button type="button">Urgencia</button></th><th scope="col">Estado</th><th scope="col" class="der">Estimado / Total</th><th scope="col"><button type="button">Necesaria</button></th></tr></thead>`;
+
+function estadoHTML(tipo) {
+  const E = {
+    vacio: ['<path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8h-9A2 2 0 0 1 5.5 19z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/>', '', 'Todavía no hiciste ninguna solicitud', 'Cuando cargues un pedido lo vas a ver acá, con su estado y quién lo está gestionando.', '<a class="btn btn--acento" href="#">Nueva solicitud</a>'],
+    sinresultados: ['<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11h5"/>', '', 'No hay solicitudes con esos filtros', 'Probá con otra urgencia o sacá el filtro de fecha.', '<button class="btn btn--secundario" type="button" onclick="limpiar()">Limpiar filtros</button>'],
+    error: ['<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>', 'estado__icono--error', 'No pudimos cargar las solicitudes', 'Puede ser un problema de conexión. Si sigue pasando, avisá a Sistemas.', '<button class="btn btn--secundario" type="button" onclick="setModo(\'cargando\');setTimeout(()=>setModo(\'datos\'),900)">Reintentar</button>']
+  }[tipo];
+  return `<div class="estado"><div class="estado__icono ${E[1]}"><svg viewBox="0 0 24 24">${E[0]}</svg></div><h3>${E[2]}</h3><p>${E[3]}</p><div class="fila">${E[4]}</div>${tipo === 'error' ? '<span class="codigo">ERROR_RED · 503</span>' : ''}</div>`;
+}
+
+function render() {
+  const cont = document.getElementById('tabla-cuerpo');
+  pintarChips();
+  if (modo === 'cargando') {
+    const fila = '<tr>' + [40, 220, 90, 60, 90, 110, 60].map((w, i) => `<td${i === 5 ? ' class="der"' : ''}><span class="esq" style="width:${w}px;${i === 5 ? 'margin-left:auto' : ''}"></span>${i === 1 ? '<span class="esq" style="width:120px;margin-top:8px;height:10px"></span>' : ''}</td>`).join('') + '</tr>';
+    cont.innerHTML = `<div class="tabla-scroll" aria-busy="true"><table class="tabla">${CAB}<tbody>${fila.repeat(5)}</tbody></table></div><span class="sr" role="status">Cargando solicitudes…</span>`;
+    return;
+  }
+  if (modo === 'vacio' || modo === 'error') { cont.innerHTML = estadoHTML(modo); return; }
+  const lista = modo === 'sinresultados' ? [] : filtradas();
+  if (!lista.length) { cont.innerHTML = estadoHTML('sinresultados'); return; }
+  const paginas = Math.ceil(lista.length / POR_PAGINA);
+  pagina = Math.min(pagina, paginas);
+  const desde = (pagina - 1) * POR_PAGINA;
+  const filas = lista.slice(desde, desde + POR_PAGINA).map(f => `
+    <tr tabindex="0" aria-label="Solicitud ${f[0]}: ${f[1]}">
+      <td class="celda-id">#${f[0]}</td>
+      <td class="celda-detalle"><strong>${f[1]}</strong><span>${f[2]} · ${f[4]}</span></td>
+      <td>${f[3]}</td>
+      <td>${urgencia(f[5])}</td>
+      <td>${badge(f[6])}</td>
+      <td class="der"><div class="precios"><span class="precios__lbl">EST.</span>${precio(f[7])}<span class="precios__lbl">TOTAL</span>${precio(f[8])}</div></td>
+      <td class="num" style="font-size:13px">${fecha(f[9])}</td>
+    </tr>`).join('');
+  let botones = `<button type="button" aria-label="Página anterior" ${pagina === 1 ? 'disabled' : ''} data-pag="${pagina - 1}">←</button>`;
+  for (let i = 1; i <= paginas; i++) botones += `<button type="button" data-pag="${i}" ${i === pagina ? 'aria-current="page"' : ''}>${i}</button>`;
+  botones += `<button type="button" aria-label="Página siguiente" ${pagina === paginas ? 'disabled' : ''} data-pag="${pagina + 1}">→</button>`;
+  cont.innerHTML = `<div class="tabla-scroll"><table class="tabla">${CAB}<tbody>${filas}</tbody></table></div>
+    <nav class="paginacion" aria-label="Paginación"><span>Mostrando <b class="num" style="color:var(--texto-2)">${desde + 1}–${Math.min(desde + POR_PAGINA, lista.length)}</b> de <b class="num" style="color:var(--texto-2)">${lista.length}</b></span><div class="paginas">${botones}</div></nav>`;
+}
+function pintarChips() {
+  const chips = [];
+  const e = document.getElementById('f-estado'), u = document.getElementById('f-urg'), q = document.getElementById('f-q'), d = document.getElementById('f-desde');
+  if (q.value) chips.push(['f-q', `“${q.value}”`]);
+  if (e.value) chips.push(['f-estado', 'Estado: ' + e.selectedOptions[0].text]);
+  if (u.value) chips.push(['f-urg', 'Urgencia: ' + u.selectedOptions[0].text]);
+  if (d.value) chips.push(['f-desde', 'Desde ' + fecha(d.value)]);
+  const box = document.getElementById('filtros-activos');
+  box.hidden = !chips.length;
+  box.innerHTML = 'Filtros:' + chips.map(c => `<span class="filtro-chip">${c[1]}<button type="button" aria-label="Quitar filtro ${c[1]}" data-quitar="${c[0]}">×</button></span>`).join('');
+}
+function setModo(m) {
+  modo = m;
+  document.querySelectorAll('#modo-tabla button').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  render();
+}
+function limpiar() { document.getElementById('filtros').reset(); pagina = 1; setModo('datos'); }
+document.getElementById('modo-tabla').addEventListener('click', e => { if (e.target.dataset.modo) setModo(e.target.dataset.modo); });
+document.getElementById('filtros').addEventListener('input', () => { pagina = 1; render(); });
+document.getElementById('f-limpiar').addEventListener('click', limpiar);
+document.getElementById('filtros-activos').addEventListener('click', e => { const id = e.target.dataset.quitar; if (id) { document.getElementById(id).value = ''; render(); } });
+document.getElementById('tabla-cuerpo').addEventListener('click', e => {
+  const b = e.target.closest('[data-pag]'); if (b && !b.disabled) { pagina = +b.dataset.pag; render(); return; }
+  const tr = e.target.closest('tbody tr'); if (tr && modo === 'datos') toast('info', 'Abrir detalle', tr.getAttribute('aria-label'));
+});
+render();
+
+/* ---------- Toasts ---------- */
+const TOASTS = {
+  exito: ['Solicitud cancelada', 'La #1042 quedó cancelada y se avisó a Compras.'],
+  error: ['No se pudo aprobar', 'Otro aprobador decidió primero. Recargá para ver el estado actual.'],
+  info: ['El precio total cambió', 'Monitor 27" 4K ahora es ARS 640.000,00. La cadena se recalculó.']
+};
+const ICONO_TOAST = { exito: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>' };
+function toast(tipo, titulo, texto) {
+  [titulo, texto] = titulo ? [titulo, texto] : TOASTS[tipo];
+  const el = document.createElement('div');
+  el.className = `toast toast--${tipo}`;
+  el.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
+  el.innerHTML = `<svg class="toast__icono" viewBox="0 0 24 24" aria-hidden="true">${ICONO_TOAST[tipo]}</svg><div class="toast__cuerpo"><strong>${titulo}</strong><span>${texto}</span></div><button class="toast__cerrar" type="button" aria-label="Cerrar">×</button>`;
+  el.querySelector('button').onclick = () => el.remove();
+  document.getElementById('toasts').append(el);
+  if (tipo !== 'error') setTimeout(() => el.remove(), 5000);
+}
+document.querySelectorAll('[data-toast]').forEach(b => b.addEventListener('click', () => toast(b.dataset.toast)));
+
+/* ---------- Modales ---------- */
+document.querySelectorAll('[data-abrir]').forEach(b => b.addEventListener('click', () => document.getElementById(b.dataset.abrir).showModal()));
+document.querySelectorAll('[data-cerrar]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+document.getElementById('m-confirmar').addEventListener('close', e => { if (e.target.returnValue === 'si') toast('exito'); });
+document.getElementById('f-rechazo').addEventListener('submit', e => {
+  e.preventDefault();
+  const m = document.getElementById('motivo');
+  let err = document.getElementById('motivo-err');
+  if (!m.value.trim()) {
+    m.setAttribute('aria-invalid', 'true');
+    if (!err) m.insertAdjacentHTML('afterend', '<span class="campo__error" id="motivo-err">Escribí el motivo para poder rechazar.</span>');
+    m.setAttribute('aria-describedby', 'motivo-err motivo-ayuda');
+    m.focus();
+    return;
+  }
+  m.removeAttribute('aria-invalid'); err && err.remove(); m.value = '';
+  e.target.closest('dialog').close();
+  toast('exito', 'Ítem rechazado', 'El solicitante ya puede ver el motivo.');
+});
+
+/* ---------- Selector de moneda y zona de adjuntos ---------- */
+document.querySelectorAll('[data-moneda]').forEach(b => b.addEventListener('click', () => {
+  b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+}));
+const zona = document.getElementById('zona');
+['dragenter', 'dragover'].forEach(t => zona.addEventListener(t, e => { e.preventDefault(); zona.classList.add('is-arrastrando'); }));
+['dragleave', 'drop'].forEach(t => zona.addEventListener(t, e => { e.preventDefault(); zona.classList.remove('is-arrastrando'); }));
+</script>
+</body>
+</html>

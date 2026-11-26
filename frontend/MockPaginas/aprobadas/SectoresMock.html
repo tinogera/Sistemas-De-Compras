@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Sectores · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   y del patrón de lista de aprobadas/MisSolicitudesMock.html (vía aprobadas/BandejaMock.html)
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Maqueta */
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center; }
+.contador--gris { background: var(--superficie-2); color: var(--texto-2); border: 1px solid var(--borde); line-height: 18px; }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.btn[disabled] { opacity: .5; cursor: progress; }
+.girador { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* Campos */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo label, .campo__titulo { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.select { height: 40px; padding: 0 32px 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); width: 100%; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.select:hover { border-color: var(--borde-fuerte); }
+.select:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+/* Interruptor "Solo los míos" */
+.interruptor { display: inline-flex; align-items: center; gap: 10px; height: 40px; cursor: pointer; font-size: 14px; color: var(--texto-2); user-select: none; }
+.interruptor input { position: absolute; opacity: 0; pointer-events: none; }
+.interruptor__pista { width: 36px; height: 20px; border-radius: 999px; background: var(--superficie-2); border: 1px solid var(--borde-fuerte); position: relative; flex: none; transition: background .15s; }
+.interruptor__pista::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--apagado); transition: transform .15s, background .15s; }
+.interruptor input:checked + .interruptor__pista { background: color-mix(in srgb, var(--foco) 25%, transparent); border-color: var(--foco); }
+.interruptor input:checked + .interruptor__pista::after { transform: translateX(16px); background: var(--foco); }
+.interruptor input:focus-visible + .interruptor__pista { outline: 2px solid var(--foco); outline-offset: 2px; }
+.interruptor:hover { color: var(--texto); }
+
+/* Chips de urgencia (filtro) */
+.segmentos { display: inline-flex; border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; height: 40px; }
+.segmentos button { border: 0; border-right: 1px solid var(--borde); background: var(--fondo); color: var(--texto-2); font: 500 13px var(--sans); padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.segmentos button:last-child { border-right: 0; }
+.segmentos button:hover { color: var(--texto); background: var(--superficie-2); }
+.segmentos button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); font-weight: 600; box-shadow: inset 0 -2px 0 var(--texto-2); }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* EstadoGestion del ítem */
+.badge--pendiente { --c: var(--neutro); border-style: dashed; }
+.badge--cotizacion { --c: var(--info); }
+/* EstadoAprobacion */
+.badge--curso { --c: var(--curso); }
+.badge--aprobada { --c: var(--exito); }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+.badge--chico { height: 20px; font-size: 11px; padding: 0 7px 0 5px; }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+.vos { font: 700 10px var(--mono); letter-spacing: .06em; color: #1b1916; background: var(--naranja); padding: 2px 6px; border-radius: 3px; }
+
+/* Avisos */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso__acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); }
+
+/* Panel, filtros, tabla, paginación */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.filtros { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; padding: 16px; border-bottom: 1px solid var(--borde); }
+.filtros__fin { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--apagado); }
+.orden-fijo { display: inline-flex; align-items: center; gap: 6px; height: 40px; }
+.orden-fijo svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.panel__aviso { padding: 12px 16px 0; }
+.panel__aviso:empty { display: none; }
+
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla th { text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde); font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap; }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; transition: background .3s; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla tbody tr:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tr.is-nueva td { background: rgba(224,138,60,.06); }
+.tabla tr.is-nueva td:first-child { box-shadow: inset 3px 0 0 var(--naranja); }
+.tabla tr.is-mia td:first-child { box-shadow: inset 3px 0 0 var(--borde-fuerte); }
+.tabla tr.is-resaltada td { background: rgba(232,178,92,.08); }
+.tabla .der { text-align: right; }
+
+.celda-item { max-width: 360px; }
+.celda-item strong { font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.celda-item .cant { font: 500 13px var(--mono); color: var(--texto-2); margin-left: 4px; }
+.celda-sub { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--apagado); margin-top: 3px; }
+.celda-sub .num { font-size: 12px; }
+.celda-sub a { color: var(--apagado); text-decoration: none; font-family: var(--mono); }
+.celda-sub a:hover { color: var(--foco); text-decoration: underline; }
+.punto { color: var(--tenue); }
+.tipo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--tenue); border: 1px solid var(--borde); border-radius: 3px; padding: 0 4px; }
+.fecha { font: 500 13px var(--mono); white-space: nowrap; }
+.fecha__hint { display: block; font: 500 12px var(--sans); color: var(--apagado); }
+.fecha__hint--pronto { color: var(--aviso); }
+.fecha__hint--vencida { color: var(--peligro); }
+.monto { font: 500 13px var(--mono); white-space: nowrap; display: block; }
+.monto__mon { color: var(--apagado); font-size: 11px; margin-right: 4px; }
+.monto--total { color: var(--texto); font-weight: 600; }
+.monto--falta { color: var(--tenue); font-family: var(--sans); font-size: 12px; }
+.monto__et { font: 500 11px var(--sans); color: var(--tenue); margin-right: 4px; }
+.estado-celda { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.vencidas { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--aviso); }
+.vencidas svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.encargado { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; }
+.encargado__sin { color: var(--tenue); font-style: italic; }
+.mini-avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 10px var(--mono); color: var(--texto-2); flex: none; }
+.mini-avatar--vacio { border-style: dashed; color: var(--tenue); background: transparent; }
+.celda-accion { width: 1%; white-space: nowrap; text-align: right; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent; background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer; }
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 64px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado__icono--exito { color: var(--exito); border-color: color-mix(in srgb, var(--exito) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 440px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+/* Toasts y modal */
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); } .toast--nuevo { --c: var(--naranja); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+dialog.modal { width: min(520px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 12px 24px 20px; color: var(--texto-2); font-size: 14px; display: grid; gap: 16px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen-modal { padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; margin: 0; }
+.resumen-modal dt { color: var(--apagado); } .resumen-modal dd { margin: 0; color: var(--texto); }
+
+
+/* =========================================================
+   Patrón "lista + formulario" (ABM)
+   Escritorio: lista a la izquierda, formulario fijo a la derecha.
+   Celular: lista sola; el formulario se abre a pantalla completa.
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+.encabezado { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 8px; color: var(--texto-2); max-width: 640px; }
+.card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.abm { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px; align-items: start; }
+
+.input { width: 100%; height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); }
+.input--grande { height: 48px; font-size: 16px; }
+.input::placeholder { color: var(--tenue); }
+.input:hover { border-color: var(--borde-fuerte); }
+.input:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input[aria-invalid="true"] { border-color: var(--peligro); }
+.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px rgba(240,138,126,.18); }
+.campo__pie { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; min-height: 18px; }
+.campo__error { color: var(--peligro); display: flex; gap: 6px; align-items: flex-start; }
+.campo__error svg { width: 14px; height: 14px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; }
+.campo__ayuda { color: var(--apagado); }
+.campo__ok { color: var(--exito); }
+.cuenta-letras { font: 500 11px var(--mono); color: var(--tenue); margin-left: auto; white-space: nowrap; }
+.cuenta-letras.is-cerca { color: var(--aviso); }
+
+/* Lista */
+.lista__barra { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.buscar { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+.buscar svg { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; fill: none; stroke: var(--apagado); stroke-width: 2; }
+.buscar .input { padding-left: 36px; }
+.lista__total { margin-left: auto; font-size: 13px; color: var(--apagado); }
+.filas { list-style: none; margin: 0; padding: 0; }
+.fila { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto 20px; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--linea); cursor: pointer; position: relative; }
+.fila:last-child { border-bottom: 0; }
+.fila:hover { background: rgba(251,250,248,.03); }
+.fila:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.fila[aria-current="true"] { background: rgba(251,250,248,.05); box-shadow: inset 3px 0 0 var(--naranja); }
+.fila.is-flash { animation: flashFila 2.4s ease-out; }
+@keyframes flashFila { 0%, 30% { background: rgba(127,207,151,.13); } 100% { background: transparent; } }
+.inicial { width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 700 13px var(--mono); color: var(--texto-2); }
+.fila__nombre { display: block; font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fila__nombre mark { background: rgba(224,138,60,.28); color: var(--texto); border-radius: 2px; padding: 0 1px; }
+.fila__sub { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--apagado); margin-top: 1px; }
+.uso { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--mono); color: var(--texto-2); white-space: nowrap; }
+.uso svg { width: 14px; height: 14px; fill: none; stroke: var(--apagado); stroke-width: 2; }
+.uso--cero { color: var(--tenue); }
+.chip-regla { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 3px; font: 600 10px var(--mono); letter-spacing: .04em; color: var(--curso); background: color-mix(in srgb, var(--curso) 12%, transparent); white-space: nowrap; }
+.chevron { width: 16px; height: 16px; fill: none; stroke: var(--tenue); stroke-width: 2; }
+.fila[aria-current="true"] .chevron { stroke: var(--naranja); }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+
+/* Formulario */
+.form-card { position: sticky; top: 88px; }
+.form-card.is-editando { border-color: color-mix(in srgb, var(--naranja) 35%, var(--borde)); }
+.form__cab { padding: 18px 20px 14px; border-bottom: 1px solid var(--borde); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.form__cab h2 { font-size: 18px; font-weight: 800; }
+.form__cab p { margin-top: 2px; font-size: 13px; color: var(--apagado); }
+.form__modo { font: 600 10px var(--mono); letter-spacing: .08em; color: var(--apagado); display: block; margin-bottom: 4px; }
+.form__modo--editar { color: var(--naranja); }
+.form__cuerpo { padding: 18px 20px; display: grid; gap: 18px; }
+.form__pie { padding: 14px 20px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); display: flex; gap: 10px; align-items: center; }
+.form__pie .btn--primario { margin-left: auto; }
+.sin-guardar { font-size: 12px; color: var(--aviso); display: inline-flex; gap: 6px; align-items: center; }
+.sin-guardar::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aviso); }
+.impacto { display: grid; gap: 8px; padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); font-size: 13px; color: var(--texto-2); }
+.impacto__fila { display: flex; justify-content: space-between; gap: 10px; }
+.impacto__fila b { font: 600 13px var(--mono); color: var(--texto); }
+.impacto a { color: var(--foco); font-size: 13px; }
+.nota { font-size: 12px; color: var(--apagado); display: flex; gap: 8px; align-items: flex-start; }
+.nota svg { width: 14px; height: 14px; flex: none; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 2; }
+.antes-despues { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.antes-despues del { color: var(--apagado); }
+.antes-despues ins { text-decoration: none; color: var(--texto); font-weight: 600; }
+.form__cerrar-movil { display: none; }
+.kbd { font: 600 10px var(--mono); color: var(--apagado); border: 1px solid var(--borde-fuerte); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; }
+.atajo { font-size: 12px; color: var(--tenue); display: flex; gap: 6px; align-items: center; }
+
+@media (max-width: 1000px) {
+  .abm { grid-template-columns: minmax(0, 1fr); }
+  .form-card { position: fixed; inset: 0; z-index: 40; top: 0; border-radius: 0; border: 0; display: flex; flex-direction: column; background: var(--superficie); transform: translateY(100%); visibility: hidden; transition: transform .25s cubic-bezier(.2,.7,.2,1), visibility 0s .25s; }
+  .form-card.is-abierto { transform: none; visibility: visible; transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+  .form-card > form { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .form__cuerpo { flex: 1; overflow: auto; }
+  .form__pie { border-radius: 0; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .form__cerrar-movil { display: inline-flex; }
+  .atajo { display: none; }
+}
+@media (max-width: 860px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 30px; }
+  .encabezado .btn { width: 100%; }
+  .fila .chip-regla { font-size: 9px; padding: 0 5px; }
+  .buscar { max-width: none; }
+}
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<!-- Solo para la maqueta -->
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · estado:</span>
+  <button type="button" data-modo="datos" aria-pressed="true">Con datos</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-modo="vacio" aria-pressed="false">Sin sectores</button>
+  <button type="button" data-modo="error" aria-pressed="false">Error</button>
+  <span class="maqueta__sep" aria-hidden="true"></span>
+  <span>simular:</span>
+  <button type="button" id="m-dup" aria-pressed="false">Otro Admin crea "Legales" antes</button>
+  <button type="button" id="m-red" aria-pressed="false">Falla al guardar</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#">Usuarios</a>
+      <a href="#" aria-current="page">Sectores</a>
+      <a href="#">Reglas</a>
+      <a href="#">Reportes</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre">Pablo Ferreyra</div><div class="usuario__rol">ADMIN · SISTEMAS</div></div>
+      <span class="avatar" aria-hidden="true">PF</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina">
+  <div class="encabezado">
+    <div>
+      <h1 class="titulo">Sectores</h1>
+      <p class="bajada">Las áreas de la empresa. Cada usuario pertenece a uno y las reglas de aprobación pueden pedir que apruebe un sector.</p>
+    </div>
+    <button class="btn btn--primario" type="button" id="btn-nuevo">+ Nuevo sector</button>
+  </div>
+
+  <div class="abm">
+    <section class="panel" aria-label="Lista de sectores">
+      <div class="lista__barra">
+        <div class="buscar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+          <input class="input" id="f-buscar" type="search" placeholder="Buscar sector" aria-label="Buscar sector"></div>
+        <span class="lista__total" id="total" aria-live="polite"></span>
+      </div>
+      <div id="lista"></div>
+    </section>
+
+    <section class="card form-card" id="form-card" aria-labelledby="form-titulo">
+      <form id="form" novalidate></form>
+    </section>
+  </div>
+</main>
+
+<!-- Descartar cambios -->
+<dialog class="modal" id="modal-descartar" aria-labelledby="md-titulo">
+  <div class="modal__cab"><h2 id="md-titulo">¿Descartar los cambios?</h2></div>
+  <div class="modal__cuerpo"><p id="md-texto"></p></div>
+  <div class="modal__pie">
+    <button type="button" class="btn btn--fantasma" id="md-no">Seguir editando</button>
+    <button type="button" class="btn btn--primario" id="md-si">Descartar</button>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- Datos (forma de SectorResponse + conteos que hoy no devuelve el backend) ---------- */
+let SECTORES = [
+  { id: 1, nombre: 'Administración', usuarios: 6, reglas: 0 },
+  { id: 2, nombre: 'Compras', usuarios: 4, reglas: 0 },
+  { id: 3, nombre: 'Depósito', usuarios: 5, reglas: 0 },
+  { id: 4, nombre: 'Finanzas', usuarios: 3, reglas: 2 },
+  { id: 5, nombre: 'Gerencia General', usuarios: 2, reglas: 3 },
+  { id: 6, nombre: 'Marketing', usuarios: 4, reglas: 0 },
+  { id: 7, nombre: 'Recursos Humanos', usuarios: 3, reglas: 0 },
+  { id: 8, nombre: 'Sistemas', usuarios: 5, reglas: 1 },
+  { id: 9, nombre: 'Ventas', usuarios: 11, reglas: 0 },
+  { id: 10, nombre: 'Mantenimiento', usuarios: 0, reglas: 0 }
+];
+let proximoId = 11;
+SECTORES.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+const MAX = 100;
+
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const norm = s => s.trim().toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '');
+const limpiar = s => s.trim().replace(/\s+/g, ' ');
+const ordenar = () => SECTORES.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+const ICONOS = {
+  usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.5a3.5 3.5 0 010 7M18 20a6.5 6.5 0 00-2.5-5.1"/>',
+  regla: '<path d="M4 6h16M4 12h10M4 18h6"/>',
+  chevron: '<path d="M9 6l6 6-6 6"/>',
+  error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  aviso: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  edificio: '<path d="M4 21V5l8-3v19M12 21V9l8 3v9M2 21h20M7 8h2M7 12h2M7 16h2M15 14h2M15 17h2"/>',
+  lupa: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>'
+};
+const ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k]}</svg>`;
+function resaltar(nombre, q) {
+  if (!q) return esc(nombre);
+  const i = norm(nombre).indexOf(norm(q));
+  if (i < 0) return esc(nombre);
+  return esc(nombre.slice(0, i)) + '<mark>' + esc(nombre.slice(i, i + q.trim().length)) + '</mark>' + esc(nombre.slice(i + q.trim().length));
+}
+
+/* ---------- Estado ---------- */
+// form: { modo: 'nuevo' | 'editar', id, original, valor, error, guardando }
+const V = { modo: 'datos', buscar: '', seleccion: null, flash: null, nuevos: new Set(), dup: false, red: false };
+let F = { modo: 'nuevo', id: null, original: '', valor: '', error: '', tocado: false, guardando: false };
+const sucio = () => limpiar(F.valor) !== F.original;
+const esMovil = () => matchMedia('(max-width: 1000px)').matches;
+
+/* ---------- Lista ---------- */
+function renderLista() {
+  const cont = $('lista');
+  if (V.modo === 'cargando') {
+    $('total').textContent = '';
+    cont.innerHTML = `<ul class="filas">${Array.from({ length: 7 }, () => `<li class="fila" style="cursor:default"><span class="esq" style="width:36px;height:36px;border-radius:6px"></span><span><span class="esq" style="width:160px"></span><span class="esq" style="width:90px;margin-top:6px;height:10px"></span></span><span class="esq" style="width:40px"></span><span></span><span></span></li>`).join('')}</ul>`;
+    return;
+  }
+  if (V.modo === 'error') {
+    $('total').textContent = '';
+    cont.innerHTML = `<div class="estado"><div class="estado__icono estado__icono--error">${ico('error')}</div><h3>No pudimos cargar los sectores</h3><p>Revisá tu conexión e intentá de nuevo. <span class="codigo">ERROR_RED</span></p><div class="acciones"><button class="btn btn--primario" type="button" data-modo-ir="datos">Reintentar</button></div></div>`;
+    return;
+  }
+  if (!SECTORES.length) {
+    $('total').textContent = '0 sectores';
+    cont.innerHTML = `<div class="estado"><div class="estado__icono">${ico('edificio')}</div><h3>Todavía no hay sectores</h3><p>Creá las áreas de la empresa antes de dar de alta usuarios: cada usuario necesita uno.</p><div class="acciones"><button class="btn btn--primario" type="button" data-nuevo>+ Crear el primero</button></div></div>`;
+    return;
+  }
+  const q = V.buscar;
+  const lista = SECTORES.filter(s => !q || norm(s.nombre).includes(norm(q)));
+  $('total').textContent = q ? `${lista.length} de ${SECTORES.length}` : `${SECTORES.length} sectores`;
+  if (!lista.length) {
+    cont.innerHTML = `<div class="estado"><div class="estado__icono">${ico('lupa')}</div><h3>Ningún sector se llama así</h3><p>¿Querés crear <b style="color:var(--texto)">"${esc(limpiar(q))}"</b>?</p><div class="acciones"><button class="btn btn--primario" type="button" data-crear-busqueda>+ Crear "${esc(limpiar(q))}"</button><button class="btn btn--secundario" type="button" data-limpiar>Limpiar búsqueda</button></div></div>`;
+    return;
+  }
+  cont.innerHTML = `<ul class="filas" role="list">${lista.map(s => `
+    <li class="fila ${V.flash === s.id ? 'is-flash' : ''}" tabindex="0" data-id="${s.id}" ${V.seleccion === s.id ? 'aria-current="true"' : ''} aria-label="${esc(s.nombre)}, ${s.usuarios} usuarios. Editar">
+      <span class="inicial" aria-hidden="true">${esc(s.nombre[0].toUpperCase())}</span>
+      <span style="min-width:0"><span class="fila__nombre">${resaltar(s.nombre, q)}</span>
+        <span class="fila__sub">${V.nuevos.has(s.id) ? '<span class="badge badge--nueva">Nuevo</span>' : s.usuarios ? `${s.usuarios} ${s.usuarios === 1 ? 'usuario' : 'usuarios'}` : 'Sin usuarios todavía'}</span></span>
+      <span class="uso">${s.reglas ? `<span class="chip-regla">APRUEBA EN ${s.reglas} ${s.reglas === 1 ? 'REGLA' : 'REGLAS'}</span>` : ''}</span>
+      <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true">${ICONOS.chevron}</svg>
+    </li>`).join('')}</ul>`;
+}
+
+/* ---------- Formulario ---------- */
+function validar(mostrar) {
+  const v = limpiar(F.valor);
+  let e = '';
+  if (!v) e = 'Escribí el nombre del sector.';
+  else if (v.length > MAX) e = `Máximo ${MAX} caracteres.`;
+  else {
+    const otro = SECTORES.find(s => s.id !== F.id && norm(s.nombre) === norm(v));
+    if (otro) e = `Ya existe un sector llamado "${otro.nombre}".`;
+  }
+  if (mostrar) F.error = e;
+  return !e;
+}
+function renderForm() {
+  const card = $('form-card');
+  const editando = F.modo === 'editar';
+  const s = editando ? SECTORES.find(x => x.id === F.id) : null;
+  card.classList.toggle('is-editando', editando);
+  if (V.modo !== 'datos') { $('form').innerHTML = `<div class="form__cuerpo"><p class="nota">${ico('info')}El formulario se habilita cuando carga la lista.</p></div>`; return; }
+  const largo = limpiar(F.valor).length;
+  const ok = F.tocado && !F.error && largo && sucio();
+  const cambia = editando && sucio() && limpiar(F.valor);
+  $('form').innerHTML = `
+    <div class="form__cab">
+      <div><span class="form__modo ${editando ? 'form__modo--editar' : ''}">${editando ? 'EDITANDO' : 'NUEVO'}</span>
+        <h2 id="form-titulo">${editando ? esc(F.original) : 'Nuevo sector'}</h2>
+        <p>${editando ? 'Cambiá el nombre. Usuarios y reglas lo toman solos.' : 'Solo necesita un nombre.'}</p></div>
+      <button class="btn btn--fantasma btn--icono form__cerrar-movil" type="button" data-cerrar aria-label="Cerrar">✕</button>
+    </div>
+    <div class="form__cuerpo">
+      ${F.aviso ? F.aviso : ''}
+      <div class="campo">
+        <label for="f-nombre">Nombre</label>
+        <input class="input input--grande" id="f-nombre" maxlength="${MAX + 20}" autocomplete="off" placeholder="Ej: Legales" value="${esc(F.valor)}" ${F.error ? 'aria-invalid="true" aria-describedby="f-nombre-err"' : ''} ${F.guardando ? 'disabled' : ''}>
+        <div class="campo__pie">
+          ${F.error ? `<span class="campo__error" id="f-nombre-err">${ico('error')}${esc(F.error)}</span>` : ok ? `<span class="campo__ok">Disponible</span>` : `<span class="campo__ayuda">Como lo conoce la gente: "Ventas", no "VTA".</span>`}
+          <span class="cuenta-letras ${largo > MAX - 15 ? 'is-cerca' : ''}">${largo}/${MAX}</span>
+        </div>
+      </div>
+      ${cambia ? `<div class="antes-despues"><del>${esc(F.original)}</del><span aria-hidden="true">→</span><ins>${esc(limpiar(F.valor))}</ins></div>` : ''}
+      ${editando ? `
+      <div class="impacto">
+        <div class="impacto__fila"><span>Usuarios en este sector</span><b>${s.usuarios}</b></div>
+        <div class="impacto__fila"><span>Reglas donde aprueba</span><b>${s.reglas}</b></div>
+        ${s.usuarios ? `<a href="#">Ver usuarios de ${esc(F.original)} →</a>` : ''}
+      </div>
+      <p class="nota">${ico('info')}<span>Los sectores no se borran: tienen usuarios, solicitudes e historial. Si ya no se usa, dejalo sin usuarios.</span></p>` : `
+      <p class="nota">${ico('info')}<span>Después lo asignás a los usuarios desde <a href="#">Usuarios</a> y lo podés usar como aprobador en <a href="#">Reglas</a>.</span></p>`}
+    </div>
+    <div class="form__pie">
+      ${editando || sucio() ? `<button class="btn btn--fantasma" type="button" data-cancelar>${editando ? 'Cancelar' : 'Limpiar'}</button>` : ''}
+      ${sucio() && editando ? '<span class="sin-guardar">Sin guardar</span>' : `<span class="atajo"><span class="kbd">Enter</span> guarda</span>`}
+      <button class="btn btn--primario" type="submit" ${F.guardando ? 'aria-busy="true" disabled' : ''}>${F.guardando ? '<span class="girador"></span>Guardando…' : editando ? 'Guardar cambios' : 'Crear sector'}</button>
+    </div>`;
+}
+function enfocarNombre(seleccionar) {
+  const i = $('f-nombre'); if (!i) return;
+  i.focus(); const n = i.value.length; if (seleccionar) i.select(); else i.setSelectionRange(n, n);
+}
+
+/* Cambiar de registro protegiendo cambios sin guardar */
+let pendiente = null;
+function conCambios(accion, texto) {
+  if (sucio() && limpiar(F.valor)) {
+    pendiente = accion;
+    $('md-texto').textContent = texto;
+    $('modal-descartar').showModal();
+  } else accion();
+}
+$('md-no').onclick = () => { $('modal-descartar').close(); enfocarNombre(); };
+$('md-si').onclick = () => { $('modal-descartar').close(); const a = pendiente; pendiente = null; if (a) a(); };
+
+function abrirNuevo(valor = '') {
+  F = { modo: 'nuevo', id: null, original: '', valor, error: '', tocado: !!valor, guardando: false };
+  V.seleccion = null;
+  if (valor) validar(true);
+  renderLista(); renderForm(); abrirMovil(); enfocarNombre();
+}
+function abrirEditar(id) {
+  const s = SECTORES.find(x => x.id === id);
+  F = { modo: 'editar', id, original: s.nombre, valor: s.nombre, error: '', tocado: false, guardando: false };
+  V.seleccion = id;
+  renderLista(); renderForm(); abrirMovil(); enfocarNombre(true);
+}
+function abrirMovil() { $('form-card').classList.add('is-abierto'); }
+function cerrarMovil() { $('form-card').classList.remove('is-abierto'); }
+
+function guardar() {
+  F.tocado = true;
+  if (!validar(true) || !sucio()) { if (!sucio() && F.modo === 'editar') { F.error = ''; } renderForm(); enfocarNombre(); return; }
+  F.guardando = true; F.aviso = ''; renderForm();
+  const nombre = limpiar(F.valor);
+  setTimeout(() => {
+    F.guardando = false;
+    if (V.red) {
+      V.red = false; $('m-red').setAttribute('aria-pressed', 'false');
+      F.aviso = `<div class="aviso aviso--error" role="alert">${ico('error')}<div class="aviso__cuerpo"><strong>No se pudo guardar</strong>Revisá tu conexión. Lo que escribiste sigue acá. <span class="codigo">ERROR_RED</span></div></div>`;
+      renderForm(); enfocarNombre(); return;
+    }
+    if (V.dup && F.modo === 'nuevo' && norm(nombre) === 'legales') {
+      // Otro Admin lo creó mientras tanto: 409 SECTOR_DUPLICADO
+      V.dup = false; $('m-dup').setAttribute('aria-pressed', 'false');
+      SECTORES.push({ id: proximoId++, nombre: 'Legales', usuarios: 0, reglas: 0 }); ordenar();
+      F.error = 'Ya existe un sector llamado Legales.';
+      F.aviso = `<div class="aviso" role="alert">${ico('aviso')}<div class="aviso__cuerpo"><strong>Alguien lo creó recién</strong>Otro administrador dio de alta "Legales" mientras escribías. Ya aparece en la lista. <span class="codigo">SECTOR_DUPLICADO · 409</span></div></div>`;
+      renderLista(); renderForm(); enfocarNombre(true); return;
+    }
+    let id;
+    if (F.modo === 'nuevo') {
+      id = proximoId++;
+      SECTORES.push({ id, nombre, usuarios: 0, reglas: 0 });
+      V.nuevos.add(id);
+      toast('exito', `Sector "${nombre}" creado`, 'Ya lo podés asignar a usuarios.');
+      F = { modo: 'nuevo', id: null, original: '', valor: '', error: '', tocado: false, guardando: false };
+    } else {
+      id = F.id;
+      const s = SECTORES.find(x => x.id === id);
+      toast('exito', 'Sector renombrado', `${F.original} → ${nombre}${s.usuarios ? ` · ${s.usuarios} usuarios lo ven con el nombre nuevo` : ''}`);
+      s.nombre = nombre;
+      F = { modo: 'editar', id, original: nombre, valor: nombre, error: '', tocado: false, guardando: false };
+    }
+    ordenar();
+    V.flash = id; V.buscar = ''; $('f-buscar').value = '';
+    renderLista(); renderForm();
+    if (esMovil()) cerrarMovil(); else enfocarNombre();
+    const fila = document.querySelector(`.fila[data-id="${id}"]`); if (fila) fila.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    setTimeout(() => { V.flash = null; }, 2500);
+  }, 700);
+}
+
+/* ---------- Eventos ---------- */
+$('form').addEventListener('submit', e => { e.preventDefault(); guardar(); });
+$('form').addEventListener('input', e => {
+  if (e.target.id !== 'f-nombre') return;
+  F.valor = e.target.value; F.tocado = true; F.aviso = '';
+  const antes = F.error; validar(true);
+  // Re-render solo del pie/estado para no perder el cursor
+  const pos = e.target.selectionStart;
+  renderForm(); const i = $('f-nombre'); i.focus(); i.setSelectionRange(pos, pos);
+});
+$('form').addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); cancelar(); }
+});
+function cancelar() {
+  const hacer = () => { if (F.modo === 'editar') { V.seleccion = null; } F = { modo: 'nuevo', id: null, original: '', valor: '', error: '', tocado: false, guardando: false }; renderLista(); renderForm(); cerrarMovil(); };
+  conCambios(hacer, F.modo === 'editar' ? `Cambiaste el nombre de "${F.original}" y no lo guardaste.` : 'Escribiste un sector nuevo y no lo creaste.');
+}
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('[data-cancelar]') || t.closest('[data-cerrar]')) { cancelar(); return; }
+  if (t.closest('#btn-nuevo') || t.closest('[data-nuevo]')) {
+    conCambios(() => abrirNuevo(), F.modo === 'editar' ? `Cambiaste el nombre de "${F.original}" y no lo guardaste.` : 'Escribiste un sector nuevo y no lo creaste.');
+    return;
+  }
+  if (t.closest('[data-crear-busqueda]')) { const q = limpiar(V.buscar); conCambios(() => abrirNuevo(q), 'Tenés cambios sin guardar.'); return; }
+  if (t.closest('[data-limpiar]')) { V.buscar = ''; $('f-buscar').value = ''; renderLista(); $('f-buscar').focus(); return; }
+  const mi = t.closest('[data-modo-ir]'); if (mi) { ponerModo(mi.dataset.modoIr); return; }
+  const fila = t.closest('.fila[data-id]');
+  if (fila) {
+    const id = Number(fila.dataset.id);
+    if (id === F.id) { abrirMovil(); enfocarNombre(); return; }
+    conCambios(() => abrirEditar(id), F.modo === 'editar' ? `Cambiaste el nombre de "${F.original}" y no lo guardaste.` : 'Escribiste un sector nuevo y no lo creaste.');
+  }
+});
+document.addEventListener('keydown', e => {
+  const fila = e.target.closest && e.target.closest('.fila[data-id]');
+  if (fila && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); fila.click(); return; }
+  if (fila && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    e.preventDefault();
+    const sig = e.key === 'ArrowDown' ? fila.nextElementSibling : fila.previousElementSibling;
+    if (sig) sig.focus();
+  }
+});
+$('f-buscar').addEventListener('input', e => { V.buscar = e.target.value; renderLista(); });
+
+/* ---------- Toasts ---------- */
+function toast(tipo, titulo, texto) {
+  const t = document.createElement('div');
+  t.className = 'toast toast--' + tipo;
+  t.innerHTML = `${ico(tipo === 'exito' ? 'check' : 'info')}<div><b>${esc(titulo)}</b>${texto ? `<span>${esc(texto)}</span>` : ''}</div><button class="toast__cerrar" aria-label="Cerrar">×</button>`;
+  t.querySelector('button').onclick = () => t.remove();
+  $('toasts').append(t);
+  setTimeout(() => t.remove(), 6000);
+}
+
+/* ---------- Maqueta ---------- */
+const COPIA = SECTORES.map(s => ({ ...s }));
+function ponerModo(m) {
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  if (m === 'vacio') { SECTORES = []; V.modo = 'datos'; }
+  else { if (!SECTORES.length) SECTORES = COPIA.map(s => ({ ...s })); V.modo = m; }
+  F = { modo: 'nuevo', id: null, original: '', valor: '', error: '', tocado: false, guardando: false }; V.seleccion = null;
+  renderLista(); renderForm();
+  if (m === 'cargando') setTimeout(() => { if (V.modo === 'cargando') ponerModo('datos'); }, 1400);
+}
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => ponerModo(b.dataset.modo)));
+$('m-dup').onclick = e => {
+  V.dup = !V.dup; e.currentTarget.setAttribute('aria-pressed', V.dup);
+  if (V.dup) { toast('info', 'Simulación activada', 'Creá un sector llamado "Legales": otro Admin lo va a crear justo antes.'); abrirNuevo('Legales'); }
+};
+$('m-red').onclick = e => { V.red = !V.red; e.currentTarget.setAttribute('aria-pressed', V.red); if (V.red) toast('info', 'Simulación activada', 'El próximo guardado va a fallar por la red.'); };
+$('btn-menu').onclick = () => { const t = $('topbar'); const a = t.classList.toggle('is-abierto'); $('btn-menu').setAttribute('aria-expanded', a); };
+
+// ?editar=9 abre directo la edición de ese sector
+const pEd = Number(new URLSearchParams(location.search).get('editar'));
+renderLista(); renderForm();
+if (pEd && SECTORES.some(s => s.id === pEd)) abrirEditar(pEd);
+</script>
+</body>
+</html>

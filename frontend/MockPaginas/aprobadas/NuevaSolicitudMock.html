@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Nueva solicitud · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Maqueta */
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--grande { height: 52px; padding: 0 28px; font-size: 16px; font-weight: 700; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--primario:hover { background: #e9e5dd; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--peligro { background: #b8463a; color: #fff; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn--icono { width: 40px; padding: 0; }
+.btn--ancho { width: 100%; }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* Campos */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo > label, .campo__label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.opcional { font-weight: 400; color: var(--tenue); }
+.req { color: var(--naranja); }
+.campo__ayuda { font-size: 12px; color: var(--apagado); }
+.campo__error { font-size: 12px; color: var(--peligro); }
+.input, .textarea { width: 100%; height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); }
+.textarea { height: auto; min-height: 76px; padding: 10px 12px; resize: vertical; line-height: 1.5; }
+.input::placeholder, .textarea::placeholder { color: var(--tenue); }
+.input:hover, .textarea:hover { border-color: var(--borde-fuerte); }
+.input:focus, .textarea:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+[aria-invalid="true"] { border-color: var(--peligro) !important; }
+.input--num { font-family: var(--mono); text-align: right; }
+input[type="date"].input { color-scheme: dark; font-family: var(--mono); }
+
+.monto { display: flex; height: 40px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--fondo); }
+.monto:hover { border-color: var(--borde-fuerte); }
+.monto:focus-within { border-color: var(--foco); box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.monto__monedas { display: flex; padding: 3px; gap: 2px; border-right: 1px solid var(--borde); }
+.monto__monedas button { border: 0; border-radius: 2px; padding: 0 10px; background: transparent; color: var(--apagado); font: 600 12px var(--mono); cursor: pointer; }
+.monto__monedas button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); }
+.monto input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--texto); padding: 0 12px; font: 500 14px var(--mono); text-align: right; }
+.monto input:focus { outline: none; }
+.monto input::placeholder { color: var(--tenue); }
+
+.segmentado { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.segmentado button { height: 30px; padding: 0 12px; border: 0; border-radius: 4px; background: transparent; color: var(--apagado); font: 600 13px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.segmentado button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); }
+.segmentado svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge--nueva { --c: var(--curso); }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.u-alta { --u: var(--peligro); } .u-media { --u: var(--aviso); } .u-baja { --u: var(--texto-2); }
+.u-alta .urg__barras i, .u-media .urg__barras i:nth-child(-n+2), .u-baja .urg__barras i:nth-child(1) { background: var(--u); }
+
+/* Avisos */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso__cuerpo ul { margin: 6px 0 0; padding-left: 18px; }
+.aviso__cuerpo li a { color: var(--texto); }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); } .aviso--exito { --c: var(--exito); }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+/* Adjuntos */
+.zona { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 16px; text-align: center; flex-wrap: wrap; border: 1.5px dashed var(--borde-fuerte); border-radius: 6px; background: var(--fondo); cursor: pointer; color: var(--texto-2); font-size: 13px; }
+.zona:hover, .zona.is-arrastrando { border-color: var(--naranja); background: rgba(224,138,60,.05); }
+.zona:focus-within { outline: 2px solid var(--foco); outline-offset: 2px; }
+.zona svg { width: 20px; height: 20px; fill: none; stroke: var(--apagado); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.zona strong { color: var(--texto); }
+.zona small { color: var(--apagado); font-size: 12px; }
+.adjuntos { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.adjunto { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.adjunto__tipo { width: 32px; height: 32px; border-radius: 4px; display: grid; place-items: center; font: 700 9px var(--mono); background: var(--superficie-2); color: var(--texto-2); flex: none; }
+.adjunto__tipo--pdf { color: var(--peligro); } .adjunto__tipo--img { color: var(--info); }
+.adjunto__info { flex: 1; min-width: 0; font-size: 13px; }
+.adjunto__info strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adjunto__info span { font: 500 11px var(--mono); color: var(--apagado); }
+.adjunto--error { border-color: color-mix(in srgb, var(--peligro) 45%, transparent); }
+.adjunto--error .adjunto__info span { color: var(--peligro); font-family: var(--sans); font-size: 12px; }
+
+/* Modal y toasts */
+dialog.modal { width: min(460px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 10px 24px 20px; color: var(--texto-2); font-size: 14px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+
+/* =========================================================
+   Pantalla: Nueva solicitud
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 28px 24px 120px; }
+.migas { font-size: 13px; color: var(--apagado); display: flex; gap: 8px; align-items: center; }
+.migas a { color: var(--apagado); text-decoration: none; } .migas a:hover { color: var(--texto); }
+.encabezado { margin: 10px 0 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 8px; color: var(--texto-2); max-width: 620px; }
+
+.grilla { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
+.columna { display: grid; gap: 20px; }
+.card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.card__cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.card__titulo { display: flex; align-items: baseline; gap: 12px; }
+.card__num { font: 600 12px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.card__titulo h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.card__cuerpo { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.fila-campos { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+/* Urgencia como tarjetas */
+.urgencias { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border: 0; padding: 0; margin: 0; min-width: 0; }
+.urgencias legend { font-size: 13px; font-weight: 600; color: var(--texto-2); margin-bottom: 6px; padding: 0; }
+.opcion-urg { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); cursor: pointer; }
+.opcion-urg:hover { border-color: var(--borde-fuerte); }
+.opcion-urg input { position: absolute; opacity: 0; pointer-events: none; }
+.opcion-urg__nombre { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: var(--u); }
+.opcion-urg__desc { font-size: 12px; color: var(--apagado); line-height: 1.4; }
+.opcion-urg:has(input:checked) { border-color: var(--u); background: color-mix(in srgb, var(--u) 8%, var(--fondo)); }
+.opcion-urg:has(input:focus-visible) { outline: 2px solid var(--foco); outline-offset: 2px; }
+.opcion-urg__check { position: absolute; top: 10px; right: 10px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--borde-fuerte); }
+.opcion-urg:has(input:checked) .opcion-urg__check { border: 5px solid var(--u); }
+.urgencias.invalido .opcion-urg { border-color: color-mix(in srgb, var(--peligro) 50%, transparent); }
+
+/* Ítems */
+.item__acciones { display: flex; gap: 4px; align-items: center; }
+.item__grid { display: grid; gap: 16px; grid-template-columns: 140px minmax(0, 1fr); }
+.item__grid .ancho { grid-column: 1 / -1; }
+.agregar { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 56px; border: 1.5px dashed var(--borde-fuerte); border-radius: var(--radio-card); background: transparent; color: var(--texto-2); font: 600 14px var(--sans); cursor: pointer; }
+.agregar:hover { border-color: var(--naranja); color: var(--texto); background: rgba(224,138,60,.04); }
+.agregar span { font: 600 18px var(--mono); color: var(--naranja); }
+
+/* Autocompletado de categoría */
+.combo { position: relative; }
+.combo__lista { position: absolute; z-index: 10; top: calc(100% + 4px); left: 0; right: 0; max-height: 240px; overflow-y: auto; margin: 0; padding: 4px; list-style: none; background: var(--superficie-2); border: 1px solid var(--borde-fuerte); border-radius: 6px; box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.combo__op { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 4px; font-size: 14px; cursor: pointer; }
+.combo__op mark { background: none; color: var(--naranja); font-weight: 700; }
+.combo__op small { font: 500 11px var(--mono); color: var(--tenue); }
+.combo__op[aria-selected="true"], .combo__op:hover { background: var(--borde); }
+.combo__op--crear { border-top: 1px solid var(--borde); margin-top: 4px; padding-top: 10px; color: var(--texto); }
+.combo__op--crear b { color: var(--naranja); font: 600 16px var(--mono); }
+.combo__nueva { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--apagado); }
+
+/* Resumen lateral */
+.resumen { position: sticky; top: 88px; }
+.resumen__filas { display: grid; gap: 10px; font-size: 14px; }
+.resumen__fila { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.resumen__fila dt { color: var(--apagado); } .resumen__fila dd { margin: 0; text-align: right; }
+.totales { padding: 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; gap: 8px; }
+.totales__lbl { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.total { display: flex; justify-content: space-between; align-items: baseline; font: 600 18px var(--mono); }
+.total__mon { font-size: 12px; color: var(--apagado); font-weight: 500; }
+.total--vacio { color: var(--tenue); }
+.totales__nota { font-size: 12px; color: var(--tenue); }
+.lista-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; font-size: 13px; }
+.lista-items li { display: flex; justify-content: space-between; gap: 10px; color: var(--texto-2); }
+.lista-items li span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.resumen { min-width: 0; }
+.lista-items .num { color: var(--apagado); font-size: 12px; flex: none; }
+
+/* Barra inferior en celular */
+.barra-movil { display: none; }
+
+/* Progreso de envío y éxito */
+.pasos-envio { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; font-size: 14px; }
+.pasos-envio li { display: flex; gap: 10px; align-items: center; color: var(--apagado); }
+.pasos-envio li.hecho { color: var(--texto-2); } .pasos-envio li.activo { color: var(--texto); font-weight: 600; }
+.pasos-envio .ic { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--borde-fuerte); flex: none; }
+.pasos-envio li.hecho .ic { background: var(--exito); border-color: var(--exito); color: #1b1916; }
+.pasos-envio li.activo .ic { border-color: var(--naranja); color: var(--naranja); }
+.pasos-envio svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.exito { max-width: 640px; margin: 40px auto 0; text-align: center; }
+.exito__icono { width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--exito) 14%, transparent); border: 1px solid color-mix(in srgb, var(--exito) 40%, transparent); color: var(--exito); }
+.exito__icono svg { width: 30px; height: 30px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.exito h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; }
+.exito p { margin-top: 10px; color: var(--texto-2); }
+.exito .card { text-align: left; margin-top: 24px; }
+.exito__acciones { display: flex; gap: 10px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+@media (max-width: 960px) {
+  .grilla { grid-template-columns: 1fr; }
+  .resumen { display: none; }
+  .barra-movil { display: flex; position: sticky; bottom: 0; z-index: 15; align-items: center; gap: 12px; padding: 12px 20px; background: rgba(36,34,30,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--borde-fuerte); }
+  .barra-movil__totales { flex: 1; min-width: 0; font: 600 13px var(--mono); line-height: 1.35; }
+  .barra-movil__totales small { display: block; font: 500 11px var(--sans); color: var(--apagado); }
+  .pagina { padding-bottom: 40px; }
+}
+@media (max-width: 640px) {
+  .pagina { padding: 20px 16px 40px; }
+  .titulo { font-size: 30px; }
+  .urgencias { grid-template-columns: 1fr; }
+  .item__grid { grid-template-columns: 1fr; }
+  .card__cuerpo { padding: 16px; }
+  .card__cab { padding: 14px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · estado:</span>
+  <button type="button" data-estado="vacio" aria-pressed="true">Formulario nuevo</button>
+  <button type="button" data-estado="completo" aria-pressed="false">Con 3 ítems</button>
+  <button type="button" data-estado="errores" aria-pressed="false">Errores de validación</button>
+  <button type="button" data-estado="enviando" aria-pressed="false">Enviando</button>
+  <button type="button" data-estado="error" aria-pressed="false">Error del servidor</button>
+  <button type="button" data-estado="exito" aria-pressed="false">Enviada</button>
+  <button type="button" data-estado="adjfallo" aria-pressed="false">Enviada con adjunto fallido</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#">Mis solicitudes</a>
+      <a href="#" aria-current="page">Nueva solicitud</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre">Sofía Álvarez</div><div class="usuario__rol">SOLICITANTE · VENTAS</div></div>
+      <span class="avatar" aria-hidden="true">SÁ</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= Formulario ================= -->
+<main class="pagina" id="vista-form">
+  <nav class="migas" aria-label="Ubicación"><a href="#">Mis solicitudes</a><span aria-hidden="true">/</span><span>Nueva solicitud</span></nav>
+  <div class="encabezado">
+    <div>
+      <h1 class="titulo">Nueva solicitud</h1>
+      <p class="bajada">Contá qué necesitás. Compras cotiza cada ítem, y si el monto lo requiere, pasa por aprobación antes de comprarse.</p>
+    </div>
+  </div>
+
+  <div id="aviso-form" class="aviso aviso--error" role="alert" tabindex="-1" hidden style="margin-bottom:20px"></div>
+
+  <form class="grilla" id="form" novalidate>
+    <div class="columna">
+      <!-- Datos generales -->
+      <section class="card" aria-labelledby="t-generales">
+        <div class="card__cab"><div class="card__titulo"><span class="card__num">01</span><h2 id="t-generales">Datos de la solicitud</h2></div></div>
+        <div class="card__cuerpo">
+          <fieldset class="urgencias" id="urgencia" aria-describedby="urgencia-err">
+            <legend>Urgencia <span class="req" aria-hidden="true">*</span></legend>
+            <label class="opcion-urg u-alta"><input type="radio" name="urgencia" value="ALTA"><span class="opcion-urg__check" aria-hidden="true"></span>
+              <span class="opcion-urg__nombre"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>Alta</span>
+              <span class="opcion-urg__desc">Sin esto se frena el trabajo.</span></label>
+            <label class="opcion-urg u-media"><input type="radio" name="urgencia" value="MEDIA"><span class="opcion-urg__check" aria-hidden="true"></span>
+              <span class="opcion-urg__nombre"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>Media</span>
+              <span class="opcion-urg__desc">Lo necesito pronto, pero hay margen.</span></label>
+            <label class="opcion-urg u-baja"><input type="radio" name="urgencia" value="BAJA"><span class="opcion-urg__check" aria-hidden="true"></span>
+              <span class="opcion-urg__nombre"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>Baja</span>
+              <span class="opcion-urg__desc">Puede esperar a la próxima compra.</span></label>
+          </fieldset>
+          <span class="campo__error" id="urgencia-err" hidden style="margin-top:-10px"></span>
+
+          <div class="fila-campos">
+            <div class="campo">
+              <label for="fecha">Fecha necesaria <span class="req" aria-hidden="true">*</span></label>
+              <input class="input" type="date" id="fecha" aria-describedby="fecha-ayuda">
+              <span class="campo__ayuda" id="fecha-ayuda">El día que lo necesitás tener. Desde hoy en adelante.</span>
+              <span class="campo__error" id="fecha-err" hidden></span>
+            </div>
+          </div>
+          <div class="campo">
+            <label for="obs">Observaciones <span class="opcional">(opcional)</span></label>
+            <textarea class="textarea" id="obs" placeholder="Ej: entregar en el depósito de planta baja, coordinar con Juan."></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ítems -->
+      <div id="items" class="columna"></div>
+      <button class="agregar" type="button" id="agregar"><span aria-hidden="true">+</span> Agregar otro ítem</button>
+    </div>
+
+    <!-- Resumen -->
+    <aside class="resumen" aria-labelledby="t-resumen">
+      <div class="card">
+        <div class="card__cab"><div class="card__titulo"><h2 id="t-resumen">Resumen</h2></div></div>
+        <div class="card__cuerpo">
+          <dl class="resumen__filas" style="margin:0">
+            <div class="resumen__fila"><dt>Urgencia</dt><dd id="r-urg">—</dd></div>
+            <div class="resumen__fila"><dt>Fecha necesaria</dt><dd class="num" id="r-fecha">—</dd></div>
+            <div class="resumen__fila"><dt>Ítems</dt><dd class="num" id="r-cant">0</dd></div>
+          </dl>
+          <ul class="lista-items" id="r-items"></ul>
+          <div class="totales">
+            <span class="totales__lbl">TOTAL ESTIMADO</span>
+            <div class="total" id="t-ars"><span class="total__mon">ARS</span><span>—</span></div>
+            <div class="total" id="t-usd"><span class="total__mon">USD</span><span>—</span></div>
+            <span class="totales__nota">ARS y USD se muestran por separado: no se suman.</span>
+          </div>
+          <button class="btn btn--acento btn--grande btn--ancho" type="submit" data-enviar>Enviar solicitud</button>
+          <button class="btn btn--fantasma btn--ancho" type="button" data-cancelar>Cancelar</button>
+        </div>
+      </div>
+    </aside>
+  </form>
+</main>
+
+<div class="barra-movil" id="barra-movil">
+  <div class="barra-movil__totales"><small id="m-cant">0 ítems · total estimado</small><span id="m-totales">—</span></div>
+  <button class="btn btn--fantasma btn--chico" type="button" data-cancelar>Cancelar</button>
+  <button class="btn btn--acento" type="submit" form="form" data-enviar>Enviar</button>
+</div>
+
+<!-- ================= Enviada ================= -->
+<main class="pagina" id="vista-exito" hidden>
+  <div class="exito">
+    <div class="exito__icono"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h1>Solicitud <span class="num">#1052</span> enviada</h1>
+    <p>Compras ya la tiene en su bandeja. Te avisamos por mail cuando cada ítem cambie de estado y cuando esté lista.</p>
+    <div id="aviso-adjunto" class="aviso aviso--error" role="alert" style="margin-top:20px;text-align:left" hidden>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+      <div class="aviso__cuerpo"><strong>No se pudo subir un adjunto</strong>La solicitud se creó bien, pero <b>presupuesto-referencia.pdf</b> no se subió. Podés volver a subirlo desde el detalle. <span class="codigo">ADJUNTO_ERROR</span></div>
+      <button class="btn btn--secundario btn--chico" type="button">Reintentar</button>
+    </div>
+    <div class="card">
+      <div class="card__cuerpo" id="exito-resumen"></div>
+    </div>
+    <div class="exito__acciones">
+      <a class="btn btn--primario" href="#">Ver la solicitud</a>
+      <button class="btn btn--secundario" type="button" id="otra">Crear otra</button>
+    </div>
+  </div>
+</main>
+
+<!-- Modal: enviando -->
+<dialog class="modal" id="m-enviando" aria-labelledby="m-enviando-t">
+  <div class="modal__cab"><h2 id="m-enviando-t">Enviando tu solicitud…</h2></div>
+  <div class="modal__cuerpo">
+    No cierres esta pestaña.
+    <ol class="pasos-envio" id="pasos-envio"></ol>
+  </div>
+</dialog>
+
+<!-- Modal: descartar -->
+<dialog class="modal" id="m-descartar" aria-labelledby="m-descartar-t">
+  <form method="dialog">
+    <div class="modal__cab"><h2 id="m-descartar-t">¿Descartar la solicitud?</h2></div>
+    <div class="modal__cuerpo">Vas a perder los datos que cargaste. Todavía no se envió nada.</div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" value="no">Seguir editando</button>
+      <button class="btn btn--peligro" value="si">Descartar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<template id="tpl-item">
+  <section class="card item" aria-labelledby="">
+    <div class="card__cab">
+      <div class="card__titulo"><span class="card__num" data-num></span><h2 data-titulo></h2></div>
+      <div class="item__acciones">
+        <div class="segmentado" role="group" aria-label="Tipo de ítem">
+          <button type="button" data-tipo="PRODUCTO" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>Producto</button>
+          <button type="button" data-tipo="SERVICIO" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>Servicio</button>
+        </div>
+        <button class="btn btn--fantasma btn--chico" type="button" data-quitar>Quitar</button>
+      </div>
+    </div>
+    <div class="card__cuerpo">
+      <div class="campo">
+        <label data-for="detalle">Detalle <span class="req" aria-hidden="true">*</span></label>
+        <textarea class="textarea" data-campo="detalle" rows="2" style="min-height:64px"></textarea>
+        <span class="campo__error" data-err="detalle" hidden></span>
+      </div>
+      <div class="item__grid">
+        <div class="campo">
+          <label data-for="cantidad">Cantidad <span class="req" aria-hidden="true">*</span></label>
+          <input class="input input--num" data-campo="cantidad" inputmode="decimal" value="1">
+          <span class="campo__error" data-err="cantidad" hidden></span>
+        </div>
+        <div class="campo">
+          <label data-for="categoria">Categoría <span class="req" aria-hidden="true">*</span></label>
+          <div class="combo">
+            <input class="input" data-campo="categoria" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" placeholder="Buscá o escribí una nueva">
+            <ul class="combo__lista" role="listbox" hidden></ul>
+          </div>
+          <span class="combo__nueva" data-nueva hidden><span class="badge badge--nueva">Nueva</span>Se crea al enviar. Compras la revisa.</span>
+          <span class="campo__error" data-err="categoria" hidden></span>
+        </div>
+        <div class="campo ancho">
+          <span class="campo__label" data-label="precio">Precio estimado total del ítem <span class="req" aria-hidden="true">*</span></span>
+          <div class="monto" role="group">
+            <div class="monto__monedas">
+              <button type="button" data-moneda="ARS" aria-pressed="true">ARS</button>
+              <button type="button" data-moneda="USD" aria-pressed="false">USD</button>
+            </div>
+            <input data-campo="precio" inputmode="decimal" placeholder="0,00">
+          </div>
+          <span class="campo__ayuda" data-ayuda="precio">Lo que creés que cuesta todo el ítem (no por unidad). Con este monto se define quién aprueba.</span>
+          <span class="campo__error" data-err="precio" hidden></span>
+        </div>
+        <div class="campo ancho">
+          <span class="campo__label">Adjuntos <span class="opcional">(opcional: especificación, foto, presupuesto de referencia)</span></span>
+          <label class="zona">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            <span><strong>Arrastrá archivos</strong> o elegilos</span>
+            <small>PDF, JPG o PNG · hasta 10 MB</small>
+            <input type="file" class="sr" multiple accept=".pdf,.jpg,.jpeg,.png" data-archivos>
+          </label>
+          <ul class="adjuntos" data-adjuntos></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<script>
+/* ---------- Datos de ejemplo ---------- */
+const CATEGORIAS = [
+  [1, 'Informática y hardware', 'CONOCIDA'], [2, 'Software y licencias', 'CONOCIDA'], [3, 'Mobiliario', 'CONOCIDA'],
+  [4, 'Librería e insumos de oficina', 'CONOCIDA'], [5, 'Mantenimiento edilicio', 'CONOCIDA'], [6, 'Catering y eventos', 'CONOCIDA'],
+  [7, 'Limpieza', 'CONOCIDA'], [8, 'Telefonía y conectividad', 'CONOCIDA'], [9, 'Capacitaciones', 'NUEVA']
+];
+const MAX_MB = 10;
+const TIPOS_OK = ['pdf', 'jpg', 'jpeg', 'png'];
+const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+let items = [];
+let secuencia = 0;
+const nuevoItem = (d = {}) => ({ id: ++secuencia, tipo: 'PRODUCTO', detalle: '', cantidad: '1', categoria: null, precio: '', moneda: 'ARS', adjuntos: [], ...d });
+
+/* ---------- Utilidades ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const parseNum = s => { if (!s) return NaN; const t = String(s).trim().replace(/\./g, '').replace(',', '.'); return /^\d+(\.\d+)?$/.test(t) ? +t : NaN; };
+const decimales = s => { const p = String(s).split(','); return p[1] ? p[1].length : 0; };
+const fmtFecha = s => { if (!s) return '—'; const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; };
+const hoyISO = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+$('#fecha').min = hoyISO();
+
+/* ---------- Render de ítems ---------- */
+function renderItems() {
+  const cont = $('#items');
+  cont.innerHTML = '';
+  items.forEach((it, i) => {
+    const el = $('#tpl-item').content.firstElementChild.cloneNode(true);
+    el.dataset.id = it.id;
+    const idT = `item-${it.id}-t`;
+    el.setAttribute('aria-labelledby', idT);
+    $('[data-num]', el).textContent = String(i + 2).padStart(2, '0');
+    const h = $('[data-titulo]', el); h.id = idT; h.textContent = `Ítem ${i + 1}`;
+    // ids únicos para labels y errores
+    el.querySelectorAll('[data-campo]').forEach(c => {
+      const k = c.dataset.campo; c.id = `i${it.id}-${k}`;
+      const lab = el.querySelector(`[data-for="${k}"]`); if (lab) { lab.htmlFor = c.id; }
+      const err = el.querySelector(`[data-err="${k}"]`); err.id = `${c.id}-err`;
+    });
+    const lblPrecio = $('[data-label="precio"]', el); lblPrecio.id = `i${it.id}-precio-l`;
+    $('.monto', el).setAttribute('aria-labelledby', lblPrecio.id);
+    $('[data-campo="precio"]', el).setAttribute('aria-labelledby', lblPrecio.id);
+    $('[data-ayuda="precio"]', el).id = `i${it.id}-precio-ayuda`;
+    $('[data-campo="precio"]', el).setAttribute('aria-describedby', `i${it.id}-precio-ayuda`);
+    $('.combo__lista', el).id = `i${it.id}-lista`;
+    $('[data-campo="categoria"]', el).setAttribute('aria-controls', `i${it.id}-lista`);
+    // valores
+    el.querySelectorAll('[data-tipo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tipo === it.tipo));
+    $('[data-campo="detalle"]', el).value = it.detalle;
+    $('[data-campo="detalle"]', el).placeholder = it.tipo === 'PRODUCTO' ? 'Ej: Notebook 14", i7, 16 GB de RAM, para el área de Ventas' : 'Ej: Mantenimiento trimestral de los 6 aires acondicionados de planta alta';
+    $('[data-campo="cantidad"]', el).value = it.cantidad;
+    $('[data-campo="categoria"]', el).value = it.categoria ? it.categoria.nombre : '';
+    $('[data-nueva]', el).hidden = !(it.categoria && it.categoria.nueva);
+    $('[data-campo="precio"]', el).value = it.precio;
+    el.querySelectorAll('[data-moneda]').forEach(b => b.setAttribute('aria-pressed', b.dataset.moneda === it.moneda));
+    const quitar = $('[data-quitar]', el);
+    quitar.disabled = items.length === 1;
+    quitar.title = items.length === 1 ? 'La solicitud necesita al menos un ítem' : '';
+    quitar.setAttribute('aria-label', `Quitar ítem ${i + 1}`);
+    renderAdjuntos(el, it);
+    cont.append(el);
+  });
+  resumen();
+}
+function renderAdjuntos(el, it) {
+  $('[data-adjuntos]', el).innerHTML = it.adjuntos.map((a, j) => {
+    const ext = a.nombre.split('.').pop().toLowerCase();
+    const cls = ext === 'pdf' ? 'adjunto__tipo--pdf' : (['jpg', 'jpeg', 'png'].includes(ext) ? 'adjunto__tipo--img' : '');
+    return `<li class="adjunto ${a.error ? 'adjunto--error' : ''}"><span class="adjunto__tipo ${cls}">${esc(ext.toUpperCase().slice(0, 4))}</span>
+      <div class="adjunto__info"><strong>${esc(a.nombre)}</strong><span>${a.error ? esc(a.error) : (a.tam / 1048576).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' MB · se sube al enviar'}</span></div>
+      <button class="btn btn--fantasma btn--chico" type="button" data-quitar-adj="${j}" aria-label="Quitar ${esc(a.nombre)}">${a.error ? 'Descartar' : 'Quitar'}</button></li>`;
+  }).join('');
+}
+const itemDe = el => items.find(x => x.id === +el.closest('.item').dataset.id);
+
+/* ---------- Eventos de ítems (delegados) ---------- */
+const cont = $('#items');
+cont.addEventListener('input', e => {
+  const c = e.target.dataset.campo; if (!c) return;
+  const it = itemDe(e.target);
+  if (c === 'categoria') { it.categoria = null; $('[data-nueva]', e.target.closest('.item')).hidden = true; abrirCombo(e.target); }
+  else it[c] = e.target.value;
+  limpiarError(e.target);
+  resumen();
+});
+cont.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  const it = itemDe(t);
+  if (t.dataset.tipo) { it.tipo = t.dataset.tipo; if (it.tipo === 'SERVICIO' && !it.cantidad) it.cantidad = '1'; renderItems(); }
+  else if (t.dataset.moneda) { it.moneda = t.dataset.moneda; t.parentElement.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b === t)); resumen(); }
+  else if ('quitar' in t.dataset) {
+    const tieneDatos = it.detalle || it.precio || it.adjuntos.length;
+    const i = items.indexOf(it); items.splice(i, 1); renderItems();
+    if (tieneDatos) toast('info', `Ítem ${i + 1} quitado`, it.detalle ? esc(it.detalle.slice(0, 60)) : 'Se quitó el ítem.');
+  }
+  else if (t.dataset.quitarAdj !== undefined) { it.adjuntos.splice(+t.dataset.quitarAdj, 1); renderAdjuntos(t.closest('.item'), it); }
+});
+cont.addEventListener('change', e => { if ('archivos' in e.target.dataset) agregarArchivos(e.target, [...e.target.files]); e.target.value = ''; });
+['dragenter', 'dragover'].forEach(t => cont.addEventListener(t, e => { const z = e.target.closest('.zona'); if (z) { e.preventDefault(); z.classList.add('is-arrastrando'); } }));
+['dragleave', 'drop'].forEach(t => cont.addEventListener(t, e => { const z = e.target.closest('.zona'); if (z) { e.preventDefault(); z.classList.remove('is-arrastrando'); if (t === 'drop') agregarArchivos(z, [...e.dataTransfer.files]); } }));
+function agregarArchivos(el, files) {
+  const it = itemDe(el);
+  files.forEach(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    let error = null;
+    if (!TIPOS_OK.includes(ext)) error = 'Formato no permitido. Usá PDF, JPG o PNG.';
+    else if (f.size > MAX_MB * 1048576) error = `Pesa ${(f.size / 1048576).toLocaleString('es-AR', { maximumFractionDigits: 1 })} MB. El máximo es 10 MB.`;
+    it.adjuntos.push({ nombre: f.name, tam: f.size, error });
+  });
+  renderAdjuntos(el.closest('.item'), it);
+}
+$('#agregar').addEventListener('click', () => {
+  items.push(nuevoItem()); renderItems();
+  const ult = cont.lastElementChild; ult.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+  $('[data-campo="detalle"]', ult).focus({ preventScroll: true });
+});
+
+/* ---------- Autocompletado de categoría ---------- */
+let activo = -1;
+function opcionesPara(q) {
+  const n = q.trim().toLowerCase();
+  const lista = CATEGORIAS.filter(c => c[1].toLowerCase().includes(n));
+  const exacta = CATEGORIAS.some(c => c[1].toLowerCase() === n);
+  return { lista, crear: n.length >= 3 && !exacta ? q.trim() : null };
+}
+function abrirCombo(input) {
+  const ul = input.nextElementSibling;
+  const { lista, crear } = opcionesPara(input.value);
+  const q = input.value.trim();
+  const resaltar = t => { if (!q) return esc(t); const i = t.toLowerCase().indexOf(q.toLowerCase()); return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length)); };
+  ul.innerHTML = lista.map((c, i) => `<li class="combo__op" role="option" id="${ul.id}-${i}" data-cat="${c[0]}">${resaltar(c[1])}${c[2] === 'NUEVA' ? '<small>NUEVA</small>' : ''}</li>`).join('')
+    + (crear ? `<li class="combo__op combo__op--crear" role="option" id="${ul.id}-crear" data-crear="${esc(crear)}"><span><b aria-hidden="true">+</b> Crear categoría “${esc(crear)}”</span></li>` : '')
+    + (!lista.length && !crear ? '<li class="combo__op" aria-disabled="true" style="color:var(--apagado);cursor:default">Escribí al menos 3 letras para crear una nueva</li>' : '');
+  ul.hidden = false; input.setAttribute('aria-expanded', 'true'); activo = -1;
+}
+function cerrarCombo(input) { const ul = input.nextElementSibling; ul.hidden = true; input.setAttribute('aria-expanded', 'false'); input.removeAttribute('aria-activedescendant'); }
+function elegir(input, li) {
+  const it = itemDe(input);
+  if (li.dataset.cat) { const c = CATEGORIAS.find(x => x[0] === +li.dataset.cat); it.categoria = { id: c[0], nombre: c[1], nueva: false }; }
+  else if (li.dataset.crear) it.categoria = { id: null, nombre: li.dataset.crear, nueva: true };
+  else return;
+  input.value = it.categoria.nombre;
+  $('[data-nueva]', input.closest('.item')).hidden = !it.categoria.nueva;
+  limpiarError(input); cerrarCombo(input);
+}
+cont.addEventListener('focusin', e => { if (e.target.dataset.campo === 'categoria' && !itemDe(e.target).categoria) abrirCombo(e.target); });
+cont.addEventListener('focusout', e => { if (e.target.dataset.campo === 'categoria') setTimeout(() => cerrarCombo(e.target), 150); });
+cont.addEventListener('mousedown', e => { const li = e.target.closest('.combo__op'); if (li) { e.preventDefault(); elegir(li.closest('.combo').querySelector('input'), li); } });
+cont.addEventListener('keydown', e => {
+  if (e.target.dataset.campo !== 'categoria') return;
+  const ul = e.target.nextElementSibling;
+  const ops = [...ul.querySelectorAll('.combo__op:not([aria-disabled])')];
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault(); if (ul.hidden) abrirCombo(e.target);
+    activo = (activo + (e.key === 'ArrowDown' ? 1 : -1) + ops.length) % ops.length;
+    ops.forEach((o, i) => o.setAttribute('aria-selected', i === activo));
+    if (ops[activo]) { e.target.setAttribute('aria-activedescendant', ops[activo].id); ops[activo].scrollIntoView({ block: 'nearest' }); }
+  } else if (e.key === 'Enter' && !ul.hidden && ops[activo]) { e.preventDefault(); elegir(e.target, ops[activo]); }
+  else if (e.key === 'Escape') cerrarCombo(e.target);
+});
+
+/* ---------- Resumen y totales ---------- */
+function resumen() {
+  const urg = document.querySelector('input[name="urgencia"]:checked');
+  const U = { ALTA: ['u-alta', 'Alta'], MEDIA: ['u-media', 'Media'], BAJA: ['u-baja', 'Baja'] };
+  $('#r-urg').innerHTML = urg ? `<span class="${U[urg.value][0]}" style="display:inline-flex;gap:8px;align-items:center;font-weight:600;color:var(--u)"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>${U[urg.value][1]}</span>` : '—';
+  $('#r-fecha').textContent = fmtFecha($('#fecha').value);
+  $('#r-cant').textContent = items.length;
+  $('#r-items').innerHTML = items.map((it, i) => {
+    const p = parseNum(it.precio);
+    return `<li><span>${i + 1}. ${it.detalle ? esc(it.detalle) : '<i style="color:var(--tenue)">Sin detalle</i>'}</span><span class="num">${isNaN(p) ? '—' : it.moneda + ' ' + nf.format(p)}</span></li>`;
+  }).join('');
+  const tot = { ARS: 0, USD: 0 }, hay = { ARS: false, USD: false };
+  items.forEach(it => { const p = parseNum(it.precio); if (!isNaN(p)) { tot[it.moneda] += p; hay[it.moneda] = true; } });
+  ['ARS', 'USD'].forEach(m => {
+    const el = $('#t-' + m.toLowerCase()); el.classList.toggle('total--vacio', !hay[m]);
+    el.lastElementChild.textContent = hay[m] ? nf.format(tot[m]) : '—';
+  });
+  const partes = ['ARS', 'USD'].filter(m => hay[m]).map(m => `${m} ${nf.format(tot[m])}`);
+  $('#m-totales').textContent = partes.length ? partes.join(' · ') : '—';
+  $('#m-cant').textContent = `${items.length} ${items.length === 1 ? 'ítem' : 'ítems'} · total estimado`;
+}
+document.querySelectorAll('input[name="urgencia"]').forEach(r => r.addEventListener('change', () => { limpiarErrorUrg(); resumen(); }));
+$('#fecha').addEventListener('input', e => { limpiarError(e.target); resumen(); });
+
+/* ---------- Validación ---------- */
+function marcar(input, msg) {
+  const err = document.getElementById(input.id + '-err');
+  input.setAttribute('aria-invalid', 'true');
+  const prev = (input.getAttribute('aria-describedby') || '').split(' ').filter(x => x && x !== err.id);
+  input.setAttribute('aria-describedby', [err.id, ...prev].join(' '));
+  if (input.dataset.campo === 'precio') input.closest('.monto').setAttribute('aria-invalid', 'true');
+  err.textContent = msg; err.hidden = false;
+}
+function limpiarError(input) {
+  const err = document.getElementById(input.id + '-err'); if (!err) return;
+  input.removeAttribute('aria-invalid'); err.hidden = true;
+  if (input.dataset.campo === 'precio') input.closest('.monto').removeAttribute('aria-invalid');
+}
+function limpiarErrorUrg() { $('#urgencia').classList.remove('invalido'); $('#urgencia-err').hidden = true; }
+
+function validar() {
+  const errores = [];
+  document.querySelectorAll('[aria-invalid]').forEach(x => x.removeAttribute('aria-invalid'));
+  document.querySelectorAll('.campo__error').forEach(x => x.hidden = true);
+  limpiarErrorUrg();
+  if (!document.querySelector('input[name="urgencia"]:checked')) {
+    $('#urgencia').classList.add('invalido'); $('#urgencia-err').textContent = 'La urgencia es obligatoria.'; $('#urgencia-err').hidden = false;
+    errores.push(['urgencia', 'Elegí la urgencia', document.querySelector('input[name="urgencia"]')]);
+  }
+  const f = $('#fecha');
+  if (!f.value) { marcar(f, 'La fecha necesaria es obligatoria.'); errores.push(['fecha', 'Falta la fecha necesaria', f]); }
+  else if (f.value < hoyISO()) { marcar(f, 'La fecha necesaria no puede ser anterior a hoy.'); errores.push(['fecha', 'La fecha es anterior a hoy', f]); }
+  items.forEach((it, i) => {
+    const el = cont.querySelector(`[data-id="${it.id}"]`), n = `Ítem ${i + 1}`;
+    const det = $('[data-campo="detalle"]', el), can = $('[data-campo="cantidad"]', el), cat = $('[data-campo="categoria"]', el), pre = $('[data-campo="precio"]', el);
+    if (!it.detalle.trim()) { marcar(det, 'Contá qué necesitás.'); errores.push([det.id, `${n}: falta el detalle`, det]); }
+    const c = parseNum(it.cantidad);
+    if (isNaN(c) || c <= 0) { marcar(can, 'La cantidad debe ser mayor a 0.'); errores.push([can.id, `${n}: cantidad inválida`, can]); }
+    else if (decimales(it.cantidad) > 2) { marcar(can, 'Hasta 2 decimales.'); errores.push([can.id, `${n}: cantidad con más de 2 decimales`, can]); }
+    if (!it.categoria) { marcar(cat, cat.value.trim() ? 'Elegí una categoría de la lista o creá una nueva.' : 'Indicá una categoría.'); errores.push([cat.id, `${n}: falta la categoría`, cat]); }
+    const p = parseNum(it.precio);
+    if (isNaN(p) || p <= 0) { marcar(pre, 'El precio estimado debe ser mayor a 0.'); errores.push([pre.id, `${n}: falta el precio estimado`, pre]); }
+    if (it.adjuntos.some(a => a.error)) errores.push(['', `${n}: hay un adjunto que no se puede subir (descartalo)`, el.querySelector('.adjunto--error button')]);
+  });
+  const av = $('#aviso-form');
+  if (errores.length) {
+    av.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><div class="aviso__cuerpo"><strong>Revisá ${errores.length === 1 ? '1 dato' : errores.length + ' datos'} antes de enviar</strong><ul>${errores.map((e, i) => `<li><a href="#" data-ir="${i}">${e[1]}</a></li>`).join('')}</ul></div>`;
+    av.hidden = false; av._destinos = errores.map(e => e[2]); av.focus();
+    av.scrollIntoView({ block: 'center' });
+  } else av.hidden = true;
+  return !errores.length;
+}
+$('#aviso-form').addEventListener('click', e => { const a = e.target.closest('[data-ir]'); if (a) { e.preventDefault(); const d = e.currentTarget._destinos[+a.dataset.ir]; d && d.focus(); d && d.scrollIntoView({ block: 'center' }); } });
+
+/* ---------- Envío ---------- */
+const PASO_OK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function pintarPasos(n, total, adjSub) {
+  const pasos = [['Creando la solicitud', 0], [`Subiendo adjuntos${total ? ` (${adjSub} de ${total})` : ''}`, 1], ['Listo', 2]];
+  $('#pasos-envio').innerHTML = pasos.filter(p => total || p[1] !== 1).map(([t, i]) => `<li class="${i < n ? 'hecho' : i === n ? 'activo' : ''}"><span class="ic">${i < n ? PASO_OK : i === n ? '<span class="spinner" style="width:10px;height:10px"></span>' : ''}</span>${t}</li>`).join('');
+}
+function enviar(opts = {}) {
+  const m = $('#m-enviando'); m.showModal();
+  document.querySelectorAll('[data-enviar]').forEach(b => { b.disabled = true; });
+  const adj = items.flatMap(i => i.adjuntos.filter(a => !a.error)).length;
+  pintarPasos(0, adj, 0);
+  if (opts.quedarse) return;
+  setTimeout(() => {
+    if (opts.error) {
+      m.close(); document.querySelectorAll('[data-enviar]').forEach(b => b.disabled = false);
+      const av = $('#aviso-form');
+      av.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><div class="aviso__cuerpo"><strong>No pudimos enviar la solicitud</strong>Hubo un problema en el servidor. Tus datos siguen acá: probá de nuevo en un momento. <span class="codigo">ERROR_INTERNO · 500</span></div><button class="btn btn--secundario btn--chico" type="button" onclick="document.querySelector(\'[data-enviar]\').click()">Reintentar</button>';
+      av.hidden = false; av.focus(); av.scrollIntoView({ block: 'center' });
+      return;
+    }
+    let k = 0;
+    const subir = () => {
+      if (k < adj) { pintarPasos(1, adj, ++k); setTimeout(subir, 500); return; }
+      pintarPasos(2, adj, adj);
+      setTimeout(() => { m.close(); mostrarExito(opts.adjFallo); }, 450);
+    };
+    subir();
+  }, 900);
+}
+$('#form').addEventListener('submit', e => { e.preventDefault(); $('#aviso-form').hidden = true; if (validar()) enviar(); });
+
+function mostrarExito(adjFallo) {
+  $('#vista-form').hidden = true; $('#barra-movil').hidden = true; $('#vista-exito').hidden = false;
+  $('#aviso-adjunto').hidden = !adjFallo;
+  const urg = document.querySelector('input[name="urgencia"]:checked');
+  const tot = { ARS: 0, USD: 0 }; items.forEach(it => { const p = parseNum(it.precio); if (!isNaN(p)) tot[it.moneda] += p; });
+  $('#exito-resumen').innerHTML = `
+    <dl class="resumen__filas" style="margin:0">
+      <div class="resumen__fila"><dt>Urgencia</dt><dd>${urg ? urg.value[0] + urg.value.slice(1).toLowerCase() : '—'}</dd></div>
+      <div class="resumen__fila"><dt>Fecha necesaria</dt><dd class="num">${fmtFecha($('#fecha').value)}</dd></div>
+      <div class="resumen__fila"><dt>Estado</dt><dd><span class="badge" style="--c:var(--neutro)"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4"><circle cx="12" cy="12" r="7"/></svg>Pendiente</span></dd></div>
+    </dl>
+    <ul class="lista-items">${items.map((it, i) => `<li><span>${i + 1}. ${esc(it.detalle)}${it.categoria && it.categoria.nueva ? ' <span class="badge badge--nueva" style="height:18px">Categoría nueva</span>' : ''}</span><span class="num">${it.moneda} ${nf.format(parseNum(it.precio) || 0)}</span></li>`).join('')}</ul>
+    <div class="totales">${['ARS', 'USD'].filter(m => tot[m]).map(m => `<div class="total"><span class="total__mon">${m}</span><span>${nf.format(tot[m])}</span></div>`).join('')}</div>`;
+  window.scrollTo(0, 0);
+  $('#vista-exito h1').focus?.();
+}
+$('#otra').addEventListener('click', () => cargarEstado('vacio'));
+
+/* ---------- Cancelar ---------- */
+const hayDatos = () => items.some(i => i.detalle || i.precio || i.adjuntos.length || i.categoria) || $('#fecha').value || $('#obs').value || document.querySelector('input[name="urgencia"]:checked');
+document.querySelectorAll('[data-cancelar]').forEach(b => b.addEventListener('click', () => hayDatos() ? $('#m-descartar').showModal() : toast('info', 'Volver a Mis solicitudes', 'En la app real navega a la lista.')));
+$('#m-descartar').addEventListener('close', e => { if (e.target.returnValue === 'si') { cargarEstado('vacio'); toast('info', 'Solicitud descartada', 'Volvés a Mis solicitudes.'); } });
+
+/* ---------- Toasts ---------- */
+function toast(tipo, titulo, texto) {
+  const el = document.createElement('div'); el.className = `toast toast--${tipo}`; el.setAttribute('role', 'status');
+  el.innerHTML = `<div><strong>${titulo}</strong><span>${texto}</span></div>`;
+  $('#toasts').append(el); setTimeout(() => el.remove(), 4000);
+}
+
+/* ---------- Menú celular ---------- */
+$('#btn-menu').addEventListener('click', e => { const a = $('#topbar').classList.toggle('is-abierto'); e.currentTarget.setAttribute('aria-expanded', a); });
+
+/* ---------- Estados de la maqueta ---------- */
+function enDias(n) { const d = new Date(); d.setDate(d.getDate() + n); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+function completar() {
+  document.querySelector('input[name="urgencia"][value="ALTA"]').checked = true;
+  $('#fecha').value = enDias(10);
+  $('#obs').value = 'Entregar en el depósito de planta baja. Coordinar con Juan (int. 214).';
+  secuencia = 0;
+  items = [
+    nuevoItem({ detalle: 'Notebook 14", i7, 16 GB RAM, SSD 512 GB, para el equipo comercial', cantidad: '3', categoria: { id: 1, nombre: 'Informática y hardware', nueva: false }, precio: '4.200.000,00', moneda: 'ARS', adjuntos: [{ nombre: 'especificacion-notebook.pdf', tam: 1258291 }, { nombre: 'presupuesto-referencia.pdf', tam: 402000 }] }),
+    nuevoItem({ detalle: 'Licencias anuales de Adobe Acrobat Pro', cantidad: '3', categoria: { id: 2, nombre: 'Software y licencias', nueva: false }, precio: '720,00', moneda: 'USD' }),
+    nuevoItem({ tipo: 'SERVICIO', detalle: 'Curso de negociación para el equipo de ventas (8 h)', cantidad: '1', categoria: { id: null, nombre: 'Formación comercial', nueva: true }, precio: '950.000,00', moneda: 'ARS', adjuntos: [{ nombre: 'temario.docx', tam: 88000, error: 'Formato no permitido. Usá PDF, JPG o PNG.' }] })
+  ];
+}
+function cargarEstado(s) {
+  document.querySelectorAll('[data-estado]').forEach(b => b.setAttribute('aria-pressed', b.dataset.estado === s));
+  ['m-enviando', 'm-descartar'].forEach(id => $('#' + id).open && $('#' + id).close());
+  $('#vista-form').hidden = false; $('#barra-movil').hidden = false; $('#vista-exito').hidden = true; $('#aviso-form').hidden = true;
+  document.querySelectorAll('[data-enviar]').forEach(b => b.disabled = false);
+  document.querySelectorAll('input[name="urgencia"]').forEach(r => r.checked = false);
+  $('#fecha').value = ''; $('#obs').value = ''; limpiarErrorUrg(); limpiarError($('#fecha'));
+  secuencia = 0; items = [nuevoItem()];
+  if (s === 'vacio') { renderItems(); window.scrollTo(0, 0); return; }
+  if (s === 'errores') {
+    document.querySelector('input[name="urgencia"][value="MEDIA"]').checked = true;
+    $('#fecha').value = enDias(-2);
+    items = [nuevoItem({ detalle: 'Sillas ergonómicas para la oficina de Ventas', cantidad: '0' }), nuevoItem({ cantidad: '2,555', precio: '18.000,00' })];
+    items[1].categoria = null;
+    renderItems(); setTimeout(() => cont.querySelectorAll('[data-campo="categoria"]')[1].value = 'si', 0);
+    setTimeout(validar, 10); return;
+  }
+  completar(); renderItems();
+  if (s === 'completo') { window.scrollTo(0, 0); return; }
+  items[2].adjuntos = []; renderItems();
+  if (s === 'enviando') { enviar({ quedarse: true }); pintarPasos(1, 2, 1); }
+  if (s === 'error') enviar({ error: true });
+  if (s === 'exito') mostrarExito(false);
+  if (s === 'adjfallo') mostrarExito(true);
+}
+document.querySelectorAll('[data-estado]').forEach(b => b.addEventListener('click', () => cargarEstado(b.dataset.estado)));
+cargarEstado('vacio');
+</script>
+</body>
+</html>

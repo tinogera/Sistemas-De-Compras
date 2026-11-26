@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Compras · Pedir y comprar, sin vueltas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="css/comun.css">
+  <link rel="stylesheet" href="css/oscuro.css">
+  <script src="js/hero.js" defer></script>
+</head>
+<body class="tema-oscuro">
+<div class="pagina">
+
+  <header class="nav" data-nav>
+    <div class="nav__inner">
+      <a class="logo" href="#"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+      <nav class="nav__links" id="nav-links" aria-label="Principal">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#">Para cada rol</a>
+        <a href="#">Aprobaciones</a>
+        <a href="#">Reportes</a>
+      </nav>
+      <div class="nav__acciones">
+        <a class="btn btn--primario btn--nav" href="#">Ingresar <span class="solo-escritorio" aria-hidden="true">→</span></a>
+        <button class="btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="nav-links" data-menu>≡</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="hero" data-hero>
+    <div class="intro">
+      <span class="chip">SISTEMA INTERNO DE COMPRAS</span>
+      <h1>Pedir y comprar,<br><span>sin vueltas.</span></h1>
+      <p class="bajada">Cargás tu pedido, Compras cotiza, se aprueba y te avisamos cuando está listo.<span class="solo-escritorio"> Todo en un solo lugar.</span></p>
+      <div class="acciones">
+        <a class="btn btn--primario" href="#">Ingresar <span aria-hidden="true">→</span></a>
+        <a class="btn btn--secundario" href="#como-funciona">Ver cómo funciona</a>
+      </div>
+    </div>
+
+    <div class="escena">
+      <div class="halo halo--1" aria-hidden="true"></div>
+      <div class="halo halo--2" aria-hidden="true"></div>
+      <div class="marco-wrap">
+        <div class="resplandor" aria-hidden="true"></div>
+        <div class="marco">
+          <span class="etiqueta">IMAGEN GENÉRICA</span>
+          <div class="panel panel--1 is-activo" role="img" aria-label="Imagen genérica: cargar un pedido" data-panel="0">
+            <div class="deco blob" aria-hidden="true"></div><div class="deco tarjeta" aria-hidden="true"></div><div class="deco aro" aria-hidden="true"></div>
+            <div class="icono"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4"/></svg></div>
+          </div>
+          <div class="panel panel--2" role="img" aria-label="Imagen genérica: Compras cotiza" data-panel="1">
+            <div class="deco blob" aria-hidden="true"></div><div class="deco tarjeta" aria-hidden="true"></div><div class="deco aro" aria-hidden="true"></div>
+            <div class="icono"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5"/></svg></div>
+          </div>
+          <div class="panel panel--3" role="img" aria-label="Imagen genérica: se aprueba" data-panel="2">
+            <div class="deco blob" aria-hidden="true"></div><div class="deco tarjeta" aria-hidden="true"></div><div class="deco aro" aria-hidden="true"></div>
+            <div class="icono"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg></div>
+          </div>
+          <div class="panel panel--4" role="img" aria-label="Imagen genérica: te avisamos" data-panel="3">
+            <div class="deco blob" aria-hidden="true"></div><div class="deco tarjeta" aria-hidden="true"></div><div class="deco aro" aria-hidden="true"></div>
+            <div class="icono"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pie">
+        <div class="leyendas" aria-live="polite">
+          <div class="leyenda is-activo" data-leyenda="0"><div class="leyenda__titulo">01 · Cargás tu pedido</div><div class="leyenda__texto">Qué necesitás, cuántos, para cuándo y con qué urgencia. Si tenés una especificación, la adjuntás.</div></div>
+          <div class="leyenda" data-leyenda="1"><div class="leyenda__titulo">02 · Compras cotiza</div><div class="leyenda__texto">Compras busca precios y actualiza el total. Ves el estimado y el precio final lado a lado.</div></div>
+          <div class="leyenda" data-leyenda="2"><div class="leyenda__titulo">03 · Se aprueba</div><div class="leyenda__texto">Cada paso aparece en orden: quién aprobó, cuándo y a quién le toca ahora.</div></div>
+          <div class="leyenda" data-leyenda="3"><div class="leyenda__titulo">04 · Te avisamos cuando está listo</div><div class="leyenda__texto">Cuando la compra se concreta te llega el aviso, y la solicitud queda como comprada.</div></div>
+        </div>
+        <div class="progreso">
+          <button class="progreso__btn is-activo" type="button" aria-label="Ir al paso 1: Cargás tu pedido" aria-current="step" data-ir="0"><span></span></button>
+          <button class="progreso__btn" type="button" aria-label="Ir al paso 2: Compras cotiza" data-ir="1"><span></span></button>
+          <button class="progreso__btn" type="button" aria-label="Ir al paso 3: Se aprueba" data-ir="2"><span></span></button>
+          <button class="progreso__btn" type="button" aria-label="Ir al paso 4: Te avisamos" data-ir="3"><span></span></button>
+          <span class="contador" data-contador>01 / 04</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- En celular se ven como secciones; en escritorio son solo espacio de scroll
+         y el texto del paso activo aparece en el pie de la escena. -->
+    <div class="pasos" id="como-funciona">
+      <section class="paso" data-step="0">
+        <span class="paso__num">01</span>
+        <h2>Cargás tu pedido</h2>
+        <p>Qué necesitás, cuántos, para cuándo y con qué urgencia. Si tenés una especificación, la adjuntás.</p>
+      </section>
+      <section class="paso" data-step="1">
+        <span class="paso__num">02</span>
+        <h2>Compras cotiza</h2>
+        <p>Compras busca precios y actualiza el total. Ves el estimado y el precio final lado a lado.</p>
+      </section>
+      <section class="paso" data-step="2">
+        <span class="paso__num">03</span>
+        <h2>Se aprueba</h2>
+        <p>Cada paso aparece en orden: quién aprobó, cuándo y a quién le toca ahora.</p>
+      </section>
+      <section class="paso" data-step="3">
+        <span class="paso__num">04</span>
+        <h2>Te avisamos cuando está listo</h2>
+        <p>Cuando la compra se concreta te llega el aviso, y la solicitud queda como comprada.</p>
+      </section>
+    </div>
+  </main>
+
+</div>
+</body>
+</html>
