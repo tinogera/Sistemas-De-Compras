@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Reglas de aprobación · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   y del patrón de lista de aprobadas/MisSolicitudesMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Maqueta */
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center; }
+.contador--gris { background: var(--superficie-2); color: var(--texto-2); border: 1px solid var(--borde); line-height: 18px; }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.btn[disabled] { opacity: .5; cursor: progress; }
+.girador { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* Campos */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo label, .campo__titulo { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.select { height: 40px; padding: 0 32px 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); width: 100%; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.select:hover { border-color: var(--borde-fuerte); }
+.select:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+/* Interruptor "Solo los míos" */
+.interruptor { display: inline-flex; align-items: center; gap: 10px; height: 40px; cursor: pointer; font-size: 14px; color: var(--texto-2); user-select: none; }
+.interruptor input { position: absolute; opacity: 0; pointer-events: none; }
+.interruptor__pista { width: 36px; height: 20px; border-radius: 999px; background: var(--superficie-2); border: 1px solid var(--borde-fuerte); position: relative; flex: none; transition: background .15s; }
+.interruptor__pista::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--apagado); transition: transform .15s, background .15s; }
+.interruptor input:checked + .interruptor__pista { background: color-mix(in srgb, var(--foco) 25%, transparent); border-color: var(--foco); }
+.interruptor input:checked + .interruptor__pista::after { transform: translateX(16px); background: var(--foco); }
+.interruptor input:focus-visible + .interruptor__pista { outline: 2px solid var(--foco); outline-offset: 2px; }
+.interruptor:hover { color: var(--texto); }
+
+/* Chips de urgencia (filtro) */
+.segmentos { display: inline-flex; border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; height: 40px; }
+.segmentos button { border: 0; border-right: 1px solid var(--borde); background: var(--fondo); color: var(--texto-2); font: 500 13px var(--sans); padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.segmentos button:last-child { border-right: 0; }
+.segmentos button:hover { color: var(--texto); background: var(--superficie-2); }
+.segmentos button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); font-weight: 600; box-shadow: inset 0 -2px 0 var(--texto-2); }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* EstadoGestion del ítem */
+.badge--pendiente { --c: var(--neutro); border-style: dashed; }
+.badge--cotizacion { --c: var(--info); }
+/* EstadoAprobacion */
+.badge--curso { --c: var(--curso); }
+.badge--aprobada { --c: var(--exito); }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+.badge--chico { height: 20px; font-size: 11px; padding: 0 7px 0 5px; }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+.vos { font: 700 10px var(--mono); letter-spacing: .06em; color: #1b1916; background: var(--naranja); padding: 2px 6px; border-radius: 3px; }
+
+/* Avisos */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso__acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); }
+
+/* Panel, filtros, tabla, paginación */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.filtros { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; padding: 16px; border-bottom: 1px solid var(--borde); }
+.filtros__fin { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--apagado); }
+.orden-fijo { display: inline-flex; align-items: center; gap: 6px; height: 40px; }
+.orden-fijo svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.panel__aviso { padding: 12px 16px 0; }
+.panel__aviso:empty { display: none; }
+
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla th { text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde); font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap; }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; transition: background .3s; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla tbody tr:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tr.is-nueva td { background: rgba(224,138,60,.06); }
+.tabla tr.is-nueva td:first-child { box-shadow: inset 3px 0 0 var(--naranja); }
+.tabla tr.is-mia td:first-child { box-shadow: inset 3px 0 0 var(--borde-fuerte); }
+.tabla tr.is-resaltada td { background: rgba(232,178,92,.08); }
+.tabla .der { text-align: right; }
+
+.celda-item { max-width: 360px; }
+.celda-item strong { font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.celda-item .cant { font: 500 13px var(--mono); color: var(--texto-2); margin-left: 4px; }
+.celda-sub { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--apagado); margin-top: 3px; }
+.celda-sub .num { font-size: 12px; }
+.celda-sub a { color: var(--apagado); text-decoration: none; font-family: var(--mono); }
+.celda-sub a:hover { color: var(--foco); text-decoration: underline; }
+.punto { color: var(--tenue); }
+.tipo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--tenue); border: 1px solid var(--borde); border-radius: 3px; padding: 0 4px; }
+.fecha { font: 500 13px var(--mono); white-space: nowrap; }
+.fecha__hint { display: block; font: 500 12px var(--sans); color: var(--apagado); }
+.fecha__hint--pronto { color: var(--aviso); }
+.fecha__hint--vencida { color: var(--peligro); }
+.monto { font: 500 13px var(--mono); white-space: nowrap; display: block; }
+.monto__mon { color: var(--apagado); font-size: 11px; margin-right: 4px; }
+.monto--total { color: var(--texto); font-weight: 600; }
+.monto--falta { color: var(--tenue); font-family: var(--sans); font-size: 12px; }
+.monto__et { font: 500 11px var(--sans); color: var(--tenue); margin-right: 4px; }
+.estado-celda { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.vencidas { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--aviso); }
+.vencidas svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.encargado { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; }
+.encargado__sin { color: var(--tenue); font-style: italic; }
+.mini-avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 10px var(--mono); color: var(--texto-2); flex: none; }
+.mini-avatar--vacio { border-style: dashed; color: var(--tenue); background: transparent; }
+.celda-accion { width: 1%; white-space: nowrap; text-align: right; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent; background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer; }
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 64px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado__icono--exito { color: var(--exito); border-color: color-mix(in srgb, var(--exito) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 440px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+/* Toasts y modal */
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); } .toast--nuevo { --c: var(--naranja); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+dialog.modal { width: min(520px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 12px 24px 20px; color: var(--texto-2); font-size: 14px; display: grid; gap: 16px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen-modal { padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; margin: 0; }
+.resumen-modal dt { color: var(--apagado); } .resumen-modal dd { margin: 0; color: var(--texto); }
+
+
+/* =========================================================
+   Patrón "lista + formulario" (ABM)
+   Escritorio: lista a la izquierda, formulario fijo a la derecha.
+   Celular: lista sola; el formulario se abre a pantalla completa.
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+.encabezado { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 8px; color: var(--texto-2); max-width: 640px; }
+.card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.abm { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px; align-items: start; }
+
+.input { width: 100%; height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); }
+.input--grande { height: 48px; font-size: 16px; }
+.input::placeholder { color: var(--tenue); }
+.input:hover { border-color: var(--borde-fuerte); }
+.input:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input[aria-invalid="true"] { border-color: var(--peligro); }
+.input[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px rgba(240,138,126,.18); }
+.campo__pie { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; min-height: 18px; }
+.campo__error { color: var(--peligro); display: flex; gap: 6px; align-items: flex-start; }
+.campo__error svg { width: 14px; height: 14px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; }
+.campo__ayuda { color: var(--apagado); }
+.campo__ok { color: var(--exito); }
+.cuenta-letras { font: 500 11px var(--mono); color: var(--tenue); margin-left: auto; white-space: nowrap; }
+.cuenta-letras.is-cerca { color: var(--aviso); }
+
+/* Lista */
+.lista__barra { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.buscar { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
+.buscar svg { position: absolute; left: 12px; top: 12px; width: 16px; height: 16px; fill: none; stroke: var(--apagado); stroke-width: 2; }
+.buscar .input { padding-left: 36px; }
+.lista__total { margin-left: auto; font-size: 13px; color: var(--apagado); }
+.filas { list-style: none; margin: 0; padding: 0; }
+.fila { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto 20px; gap: 14px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--linea); cursor: pointer; position: relative; }
+.fila:last-child { border-bottom: 0; }
+.fila:hover { background: rgba(251,250,248,.03); }
+.fila:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.fila[aria-current="true"] { background: rgba(251,250,248,.05); box-shadow: inset 3px 0 0 var(--naranja); }
+.fila.is-flash { animation: flashFila 2.4s ease-out; }
+@keyframes flashFila { 0%, 30% { background: rgba(127,207,151,.13); } 100% { background: transparent; } }
+.inicial { width: 36px; height: 36px; border-radius: 6px; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 700 13px var(--mono); color: var(--texto-2); }
+.fila__nombre { display: block; font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fila__nombre mark { background: rgba(224,138,60,.28); color: var(--texto); border-radius: 2px; padding: 0 1px; }
+.fila__sub { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--apagado); margin-top: 1px; }
+.uso { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--mono); color: var(--texto-2); white-space: nowrap; }
+.uso svg { width: 14px; height: 14px; fill: none; stroke: var(--apagado); stroke-width: 2; }
+.uso--cero { color: var(--tenue); }
+.chip-regla { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 3px; font: 600 10px var(--mono); letter-spacing: .04em; color: var(--curso); background: color-mix(in srgb, var(--curso) 12%, transparent); white-space: nowrap; }
+.chevron { width: 16px; height: 16px; fill: none; stroke: var(--tenue); stroke-width: 2; }
+.fila[aria-current="true"] .chevron { stroke: var(--naranja); }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+
+/* Formulario */
+.form-card { position: sticky; top: 88px; }
+.form-card.is-editando { border-color: color-mix(in srgb, var(--naranja) 35%, var(--borde)); }
+.form__cab { padding: 18px 20px 14px; border-bottom: 1px solid var(--borde); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.form__cab h2 { font-size: 18px; font-weight: 800; }
+.form__cab p { margin-top: 2px; font-size: 13px; color: var(--apagado); }
+.form__modo { font: 600 10px var(--mono); letter-spacing: .08em; color: var(--apagado); display: block; margin-bottom: 4px; }
+.form__modo--editar { color: var(--naranja); }
+.form__cuerpo { padding: 18px 20px; display: grid; gap: 18px; }
+.form__pie { padding: 14px 20px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); display: flex; gap: 10px; align-items: center; }
+.form__pie .btn--primario { margin-left: auto; }
+.sin-guardar { font-size: 12px; color: var(--aviso); display: inline-flex; gap: 6px; align-items: center; }
+.sin-guardar::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aviso); }
+.impacto { display: grid; gap: 8px; padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); font-size: 13px; color: var(--texto-2); }
+.impacto__fila { display: flex; justify-content: space-between; gap: 10px; }
+.impacto__fila b { font: 600 13px var(--mono); color: var(--texto); }
+.impacto a { color: var(--foco); font-size: 13px; }
+.nota { font-size: 12px; color: var(--apagado); display: flex; gap: 8px; align-items: flex-start; }
+.nota svg { width: 14px; height: 14px; flex: none; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 2; }
+.antes-despues { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.antes-despues del { color: var(--apagado); }
+.antes-despues ins { text-decoration: none; color: var(--texto); font-weight: 600; }
+.form__cerrar-movil { display: none; }
+.kbd { font: 600 10px var(--mono); color: var(--apagado); border: 1px solid var(--borde-fuerte); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; }
+.atajo { font-size: 12px; color: var(--tenue); display: flex; gap: 6px; align-items: center; }
+
+@media (max-width: 1000px) {
+  .abm { grid-template-columns: minmax(0, 1fr); }
+  .form-card { position: fixed; inset: 0; z-index: 40; top: 0; border-radius: 0; border: 0; display: flex; flex-direction: column; background: var(--superficie); transform: translateY(100%); visibility: hidden; transition: transform .25s cubic-bezier(.2,.7,.2,1), visibility 0s .25s; }
+  .form-card.is-abierto { transform: none; visibility: visible; transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+  .form-card > form { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .form__cuerpo { flex: 1; overflow: auto; }
+  .form__pie { border-radius: 0; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .form__cerrar-movil { display: inline-flex; }
+  .atajo { display: none; }
+}
+@media (max-width: 860px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 30px; }
+  .encabezado .btn { width: 100%; }
+  .fila .chip-regla { font-size: 9px; padding: 0 5px; }
+  .buscar { max-width: none; }
+}
+
+/* =========================================================
+   Pantalla: Reglas de aprobación
+   Lista por prioridad + Probador · Editor con pasos ordenables + Probador con el borrador
+   ========================================================= */
+.campo__ayuda { font-size: 12px; }
+.reglas { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 24px; align-items: start; }
+.lateral { position: sticky; top: 88px; display: grid; gap: 16px; }
+.sub { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; }
+.explica { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--texto-2); padding: 12px 14px; border: 1px dashed var(--borde-fuerte); border-radius: 6px; margin-bottom: 14px; }
+.explica svg { width: 16px; height: 16px; flex: none; margin-top: 2px; fill: none; stroke: var(--apagado); stroke-width: 2; }
+.explica b { color: var(--texto); }
+
+/* Lista de reglas */
+.lista-reglas { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.regla { display: grid; grid-template-columns: 28px 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); cursor: pointer; position: relative; transition: border-color .15s, opacity .15s; }
+.regla:hover { border-color: var(--borde-fuerte); }
+.regla:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.regla.is-inactiva { opacity: .6; }
+.regla.is-inactiva:hover { opacity: .85; }
+.regla.is-elegida { border-color: var(--naranja); box-shadow: 0 0 0 1px var(--naranja), 0 0 0 6px rgba(224,138,60,.12); opacity: 1; }
+.regla.is-descartada:not(.is-inactiva) { opacity: .78; }
+.regla.is-arrastrando { opacity: .35; }
+.regla.is-destino-arriba::before, .regla.is-destino-abajo::after { content: ""; position: absolute; left: 0; right: 0; height: 3px; border-radius: 2px; background: var(--naranja); }
+.regla.is-destino-arriba::before { top: -6px; } .regla.is-destino-abajo::after { bottom: -6px; }
+.regla.is-flash { animation: flashFila 2.4s ease-out; }
+.regla--defecto { border-style: dashed; cursor: pointer; }
+.asa { display: grid; place-items: center; width: 28px; height: 36px; border-radius: 4px; color: var(--tenue); cursor: grab; border: 0; background: transparent; }
+.asa:hover { color: var(--texto-2); background: var(--superficie-2); }
+.asa svg { width: 14px; height: 14px; fill: currentColor; }
+.asa--fija { cursor: default; } .asa--fija:hover { background: transparent; color: var(--tenue); }
+.asa--fija svg { fill: none; stroke: currentColor; stroke-width: 2; }
+.prio { width: 40px; height: 40px; border-radius: 8px; display: grid; place-items: center; font: 700 15px var(--mono); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto-2); }
+.regla.is-elegida .prio { background: var(--naranja); border-color: var(--naranja); color: #1b1916; }
+.regla__nombre { font-weight: 700; font-size: 15px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.regla__cond { font-size: 13px; color: var(--texto-2); margin-top: 2px; }
+.regla__cond b { font-family: var(--mono); font-weight: 600; color: var(--texto); font-size: 12.5px; }
+.cadena-mini { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.cadena-mini__paso { display: inline-flex; gap: 4px; align-items: center; }
+.cadena-mini__flecha { color: var(--tenue); font-size: 12px; }
+.ap { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 3px; font-size: 12px; font-weight: 600; color: var(--c, var(--texto-2)); background: color-mix(in srgb, var(--c, var(--texto-2)) 11%, transparent); border: 1px solid color-mix(in srgb, var(--c, var(--texto-2)) 30%, transparent); white-space: nowrap; }
+.ap--ROL { --c: var(--curso); }
+.ap--SECTOR { --c: var(--info); }
+.ap--mal { --c: var(--peligro); }
+.ap__tipo { font: 600 9px var(--mono); letter-spacing: .05em; opacity: .8; }
+.mas { font-size: 11px; color: var(--apagado); }
+.auto { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border-radius: 3px; font-size: 12px; font-weight: 600; color: var(--exito); border: 1px dashed color-mix(in srgb, var(--exito) 50%, transparent); }
+.regla__der { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.ord { display: flex; gap: 2px; }
+.ord button { width: 28px; height: 28px; border-radius: 3px; border: 1px solid var(--borde); background: transparent; color: var(--texto-2); cursor: pointer; font-size: 12px; }
+.ord button:hover:not(:disabled) { color: var(--texto); border-color: var(--borde-fuerte); }
+.ord button:disabled { opacity: .3; cursor: default; }
+.alerta { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; color: var(--c, var(--aviso)); }
+.alerta svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; flex: none; }
+.alerta--error { --c: var(--peligro); }
+.etq { font: 600 10px var(--mono); letter-spacing: .06em; padding: 2px 6px; border-radius: 3px; }
+.etq--defecto { color: var(--texto-2); border: 1px solid var(--borde-fuerte); }
+.etq--elegida { color: #1b1916; background: var(--naranja); }
+.etq--off { color: var(--tenue); border: 1px dashed var(--tenue); }
+
+/* Probador */
+.probador .card__cab { padding: 14px 18px; border-bottom: 1px solid var(--borde); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.probador .card__cab h2 { font-size: 16px; font-weight: 800; }
+.probador__cuerpo { padding: 16px 18px; display: grid; gap: 14px; }
+.monto-campo { display: grid; grid-template-columns: 92px 1fr; }
+.monto-campo .select { border-radius: var(--radio) 0 0 var(--radio); border-right: 0; font: 600 13px var(--mono); height: 48px; }
+.monto-campo .input { border-radius: 0 var(--radio) var(--radio) 0; height: 48px; font: 600 18px var(--mono); text-align: right; }
+.rapidos { display: flex; gap: 6px; flex-wrap: wrap; }
+.rapidos button { height: 26px; padding: 0 8px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto-2); font: 500 11px var(--mono); cursor: pointer; }
+.rapidos button:hover { color: var(--texto); border-color: var(--borde-fuerte); }
+.resultado-p { padding: 14px; border-radius: 8px; background: var(--fondo); border: 1px solid color-mix(in srgb, var(--naranja) 45%, var(--borde)); display: grid; gap: 12px; }
+.resultado-p__regla { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.resultado-p__regla b { font-size: 16px; font-weight: 800; display: block; }
+.resultado-p__regla small { font-size: 12px; color: var(--apagado); }
+.pasos-p { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pasos-p li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: start; position: relative; }
+.pasos-p li:not(:last-child)::after { content: ""; position: absolute; left: 11px; top: 26px; bottom: -6px; width: 2px; background: var(--borde); }
+.pasos-p__n { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 600 11px var(--mono); border: 2px solid var(--borde-fuerte); color: var(--texto-2); background: var(--fondo); position: relative; z-index: 1; }
+.pasos-p__aps { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; min-height: 24px; }
+.pasos-p__par { font: 600 9px var(--mono); letter-spacing: .06em; color: var(--curso); width: 100%; }
+.descartes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 12px; color: var(--apagado); }
+.descartes li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; }
+.descartes .num { color: var(--tenue); font-size: 11px; }
+.descartes b { color: var(--texto-2); font-weight: 600; }
+.borrador { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--aviso); border: 1px dashed var(--aviso); border-radius: 3px; padding: 2px 6px; }
+.automatica { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 6px; border: 1px dashed color-mix(in srgb, var(--exito) 50%, transparent); color: var(--texto-2); font-size: 13px; }
+.automatica svg { width: 18px; height: 18px; fill: none; stroke: var(--exito); stroke-width: 2; flex: none; }
+
+/* Editor */
+.migas { font-size: 13px; color: var(--apagado); display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.migas button { border: 0; background: none; padding: 0; color: var(--apagado); font: inherit; cursor: pointer; }
+.migas button:hover { color: var(--texto); }
+.editor { display: grid; gap: 16px; }
+.bloque { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.bloque__cab { padding: 14px 18px; border-bottom: 1px solid var(--borde); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.bloque__cab h2 { font-size: 16px; font-weight: 800; display: flex; gap: 10px; align-items: center; }
+.bloque__cab p { font-size: 13px; color: var(--apagado); margin-top: 1px; }
+.bloque__cuerpo { padding: 16px 18px; display: grid; gap: 14px; }
+.n { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font: 700 11px var(--mono); background: var(--superficie-2); border: 1px solid var(--borde-fuerte); color: var(--texto-2); }
+.input { width: 100%; height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); }
+.input::placeholder { color: var(--tenue); }
+.input:hover { border-color: var(--borde-fuerte); }
+.input:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input[aria-invalid="true"] { border-color: var(--peligro); }
+.input--num { font-family: var(--mono); text-align: right; }
+.fila-nombre { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: end; }
+.frase { font-size: 14px; color: var(--texto-2); padding: 10px 12px; border-radius: 6px; background: var(--fondo); border-left: 2px solid var(--naranja); }
+.frase b { color: var(--texto); font-family: var(--mono); font-size: 13px; }
+.cond { display: grid; grid-template-columns: 110px 150px minmax(0, 1fr) 84px 36px; gap: 8px; align-items: center; }
+.cond__tipo { font-size: 14px; font-weight: 600; color: var(--texto-2); padding-left: 4px; }
+.cond .select, .cond .input { height: 40px; }
+.cond__y { font: 600 10px var(--mono); letter-spacing: .08em; color: var(--apagado); padding-left: 4px; }
+.quitar { width: 36px; height: 36px; border-radius: 3px; border: 0; background: transparent; color: var(--apagado); cursor: pointer; font-size: 18px; }
+.quitar:hover { color: var(--peligro); background: rgba(240,138,126,.08); }
+.agregar-cond { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pronto { font: 600 9px var(--mono); letter-spacing: .05em; color: var(--tenue); border: 1px solid var(--borde); padding: 1px 4px; border-radius: 2px; margin-left: 4px; }
+
+/* Pasos ordenables */
+.pasos-ed { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.paso-ed { display: grid; grid-template-columns: 28px 32px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 12px; border: 1px solid var(--borde); border-radius: 8px; background: var(--fondo); position: relative; }
+.paso-ed.is-sobre { border-color: var(--naranja); background: rgba(224,138,60,.05); }
+.paso-ed.is-arrastrando { opacity: .35; }
+.paso-ed.is-mal { border-color: color-mix(in srgb, var(--peligro) 50%, var(--borde)); }
+.entre { display: grid; grid-template-columns: 28px 32px 1fr; gap: 10px; height: 26px; align-items: center; }
+.entre span:nth-child(2) { justify-self: center; width: 2px; height: 100%; background: var(--borde-fuerte); }
+.entre small { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--tenue); }
+.entre.is-sobre { height: 44px; }
+.entre.is-sobre small { color: var(--naranja); }
+.paso-ed.is-destino-arriba { box-shadow: 0 -3px 0 var(--naranja); } .paso-ed.is-destino-abajo { box-shadow: 0 3px 0 var(--naranja); }
+.toast--error { --c: var(--peligro); }
+.paso-ed__n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 13px var(--mono); border: 2px solid var(--borde-fuerte); color: var(--texto); background: var(--superficie); }
+.paso-ed__cuerpo { display: grid; gap: 8px; min-width: 0; }
+.paso-ed__tit { font-size: 13px; color: var(--apagado); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-height: 32px; }
+.paso-ed__tit b { color: var(--texto); font-weight: 600; }
+.aps { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ap-ed { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 4px 0 10px; border-radius: 6px; font-size: 13px; font-weight: 600; color: var(--texto); background: var(--superficie-2); border: 1px solid color-mix(in srgb, var(--c) 45%, var(--borde)); cursor: grab; }
+.ap-ed:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.ap-ed.is-arrastrando { opacity: .35; }
+.ap-ed .ap__tipo { color: var(--c); }
+.ap-ed--ROL { --c: var(--curso); } .ap-ed--SECTOR { --c: var(--info); }
+.ap-ed.is-mal { border-color: var(--peligro); --c: var(--peligro); }
+.ap-ed button { width: 24px; height: 24px; border: 0; border-radius: 3px; background: transparent; color: var(--apagado); cursor: pointer; font-size: 15px; line-height: 1; }
+.ap-ed button:hover { color: var(--texto); background: var(--borde); }
+.ap-ed__usu { font: 500 11px var(--mono); color: var(--apagado); }
+.agregar-ap { display: inline-flex; gap: 6px; align-items: center; }
+.agregar-ap .select { height: 34px; width: auto; font-size: 13px; padding-right: 28px; }
+.paso-ed__ord { display: flex; flex-direction: column; gap: 2px; }
+.nuevo-paso { margin-top: 10px; border: 2px dashed var(--borde-fuerte); border-radius: 8px; padding: 14px; display: flex; gap: 10px; align-items: center; justify-content: center; color: var(--apagado); font-size: 13px; flex-wrap: wrap; }
+.nuevo-paso.is-sobre { border-color: var(--naranja); color: var(--naranja); background: rgba(224,138,60,.05); }
+.teclado { font-size: 12px; color: var(--tenue); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.kbd { font: 600 10px var(--mono); color: var(--apagado); border: 1px solid var(--borde-fuerte); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; }
+.err-linea { display: flex; gap: 6px; align-items: flex-start; font-size: 12px; color: var(--peligro); }
+.err-linea svg { width: 14px; height: 14px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2; }
+.err-linea--aviso { color: var(--aviso); }
+.barra-guardar { position: sticky; bottom: 0; z-index: 10; margin-top: 8px; display: flex; gap: 12px; align-items: center; padding: 14px 18px; background: rgba(36,34,30,.96); backdrop-filter: blur(8px); border: 1px solid var(--borde); border-radius: var(--radio-card); box-shadow: 0 -10px 30px rgba(0,0,0,.3); }
+.barra-guardar .btn--primario { margin-left: auto; }
+.sin-guardar { font-size: 12px; color: var(--aviso); display: inline-flex; gap: 6px; align-items: center; }
+.sin-guardar::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--aviso); }
+
+@media (max-width: 1100px) {
+  .reglas { grid-template-columns: minmax(0, 1fr); }
+  .lateral { position: static; }
+}
+@media (max-width: 860px) {
+  .regla { grid-template-columns: 34px minmax(0, 1fr); }
+  .regla .asa { display: none; }
+  .regla__der { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; }
+  .prio { width: 34px; height: 34px; font-size: 13px; }
+  .cond { grid-template-columns: 1fr 1fr; }
+  .cond__tipo { grid-column: 1 / -1; }
+  .cond .quitar { justify-self: end; }
+  .paso-ed { grid-template-columns: 32px minmax(0, 1fr); }
+  .paso-ed > .asa { display: none; }
+  .paso-ed__ord { grid-column: 1 / -1; flex-direction: row; justify-content: flex-end; }
+  .entre { grid-template-columns: 32px 1fr; } .entre .asa-hueco { display: none; }
+  .fila-nombre { grid-template-columns: 1fr; }
+  .barra-guardar .campo__ayuda { display: none; }
+}
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<!-- Solo para la maqueta -->
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · estado:</span>
+  <button type="button" data-modo="datos" aria-pressed="true">Con datos</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-modo="error" aria-pressed="false">Error</button>
+  <span class="maqueta__sep" aria-hidden="true"></span>
+  <span>simular:</span>
+  <button type="button" id="m-version" aria-pressed="false">Otro Admin la editó (409)</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#">Usuarios</a>
+      <a href="#">Sectores</a>
+      <a href="#" aria-current="page">Reglas</a>
+      <a href="#">Reportes</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre">Pablo Ferreyra</div><div class="usuario__rol">ADMIN · SISTEMAS</div></div>
+      <span class="avatar" aria-hidden="true">PF</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina" id="pagina"></main>
+
+<!-- Descartar cambios -->
+<dialog class="modal" id="modal-descartar" aria-labelledby="md-titulo">
+  <div class="modal__cab"><h2 id="md-titulo">¿Descartar los cambios?</h2></div>
+  <div class="modal__cuerpo"><p>Cambiaste la regla y no la guardaste. Si salís, se pierde.</p></div>
+  <div class="modal__pie">
+    <button type="button" class="btn btn--fantasma" id="md-no">Seguir editando</button>
+    <button type="button" class="btn btn--primario" id="md-si">Descartar</button>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- Datos (forma de ReglaResponse; usuarios por sector para "sin aprobadores") ---------- */
+const SECTORES = [
+  { id: 1, nombre: 'Administración', usuarios: 6 }, { id: 2, nombre: 'Compras', usuarios: 4 }, { id: 3, nombre: 'Depósito', usuarios: 5 },
+  { id: 4, nombre: 'Finanzas', usuarios: 3 }, { id: 5, nombre: 'Gerencia General', usuarios: 2 }, { id: 10, nombre: 'Mantenimiento', usuarios: 0 },
+  { id: 6, nombre: 'Marketing', usuarios: 4 }, { id: 7, nombre: 'Recursos Humanos', usuarios: 3 }, { id: 8, nombre: 'Sistemas', usuarios: 5 }, { id: 9, nombre: 'Ventas', usuarios: 11 }
+];
+const ROLES = { SUPERVISOR: { nombre: 'Supervisor', usuarios: 3 }, ENCARGADO: { nombre: 'Encargado', usuarios: 3 } };
+const sector = id => SECTORES.find(s => s.id === id);
+const OPS = { MAYOR: ['más de', '>'], MAYOR_IGUAL: ['desde', '≥'], MENOR: ['menos de', '<'], MENOR_IGUAL: ['hasta', '≤'] };
+const R = (rol) => ({ tipo: 'ROL', rol }), S = (sectorId) => ({ tipo: 'SECTOR', sectorId });
+let REGLAS = [
+  { id: 1, nombre: 'Más de 2.000.000 ARS', prioridad: 10, activa: true, porDefecto: false, version: 3, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: 2000000, moneda: 'ARS' }], pasos: [[R('SUPERVISOR')], [S(5), S(4)], [S(8)]] },
+  { id: 2, nombre: 'Más de 500.000 ARS', prioridad: 20, activa: true, porDefecto: false, version: 5, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: 500000, moneda: 'ARS' }], pasos: [[R('SUPERVISOR')], [S(5), S(4)]] },
+  { id: 3, nombre: 'Más de 1.000 USD', prioridad: 30, activa: true, porDefecto: false, version: 2, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: 1000, moneda: 'USD' }], pasos: [[R('SUPERVISOR')], [S(4)]] },
+  { id: 4, nombre: 'Compras chicas', prioridad: 40, activa: true, porDefecto: false, version: 1, condiciones: [{ tipo: 'MONTO', operador: 'MENOR', valor: 50000, moneda: 'ARS' }], pasos: [] },
+  { id: 5, nombre: 'Mantenimiento grande', prioridad: 50, activa: false, porDefecto: false, version: 1, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: 800000, moneda: 'ARS' }], pasos: [[S(10)]] },
+  { id: 6, nombre: 'Más de 500.000 (copia)', prioridad: 60, activa: true, porDefecto: false, version: 1, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: 500000, moneda: 'ARS' }], pasos: [[R('ENCARGADO')]] },
+  { id: 99, nombre: 'Regla por defecto', prioridad: 1000, activa: true, porDefecto: true, version: 4, condiciones: [], pasos: [[R('SUPERVISOR')]] }
+];
+let proxId = 100;
+
+/* ---------- Utilidades ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NF = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 2 });
+const parseNum = s => { const t = String(s).trim().replace(/\./g, '').replace(',', '.'); return t === '' ? NaN : Number(t); };
+const norm = s => String(s).trim().toLocaleLowerCase('es').normalize('NFD').replace(/[̀-ͯ]/g, '');
+const clon = x => JSON.parse(JSON.stringify(x));
+const ICONOS = {
+  aviso: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>', error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  candado: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>', rayo: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  frasco: '<path d="M9 3h6M10 3v6l-5 9a2 2 0 002 3h10a2 2 0 002-3l-5-9V3"/>'
+};
+const ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k]}</svg>`;
+const ASA = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+
+const apNombre = a => a.tipo === 'ROL' ? ROLES[a.rol].nombre : sector(a.sectorId).nombre;
+const apUsuarios = a => a.tipo === 'ROL' ? ROLES[a.rol].usuarios : sector(a.sectorId).usuarios;
+const apClave = a => a.tipo === 'ROL' ? 'R' + a.rol : 'S' + a.sectorId;
+const apChip = a => `<span class="ap ap--${a.tipo} ${apUsuarios(a) ? '' : 'ap--mal'}" title="${a.tipo === 'ROL' ? 'Rol' : 'Sector'}${apUsuarios(a) ? '' : ' · nadie puede aprobar'}"><span class="ap__tipo">${a.tipo === 'ROL' ? 'ROL' : 'SECTOR'}</span>${esc(apNombre(a))}</span>`;
+const condTexto = c => `<b>${OPS[c.operador][1]} ${NF.format(c.valor)} ${c.moneda}</b>`;
+const condFrase = cs => cs.length ? cs.map(c => `${OPS[c.operador][0]} <b>${NF.format(c.valor)} ${c.moneda}</b>`).join(' y ') : '';
+function cadenaMini(pasos) {
+  if (!pasos.length) return `<span class="auto">${ico('rayo').replace('<svg', '<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2"')}Se aprueba solo</span>`;
+  return pasos.map(g => `<span class="cadena-mini__paso">${g.map(apChip).join('<span class="mas">+</span>')}</span>`).join('<span class="cadena-mini__flecha" aria-hidden="true">→</span>');
+}
+const ordenadas = () => [...REGLAS].sort((a, b) => a.prioridad - b.prioridad || a.id - b.id);
+const sinAprobadores = r => r.pasos.flat().filter(a => !apUsuarios(a));
+const mismaCondicion = (a, b) => JSON.stringify(a.condiciones.map(c => [c.operador, c.valor, c.moneda]).sort()) === JSON.stringify(b.condiciones.map(c => [c.operador, c.valor, c.moneda]).sort());
+// "Nunca se aplica": otra regla activa con las mismas condiciones va antes
+const tapadaPor = (r, lista) => r.activa && !r.porDefecto && lista.find(o => o.id !== r.id && o.activa && !o.porDefecto && o.prioridad < r.prioridad && mismaCondicion(o, r));
+
+/* ---------- Motor (mismo criterio que MotorDeReglas + EvaluadorMonto) ---------- */
+function cumple(c, monto, moneda) {
+  if (c.moneda !== moneda) return { ok: false, por: `es en ${c.moneda} y el ítem en ${moneda}` };
+  const ok = { MAYOR: monto > c.valor, MAYOR_IGUAL: monto >= c.valor, MENOR: monto < c.valor, MENOR_IGUAL: monto <= c.valor }[c.operador];
+  return { ok, por: ok ? '' : `${NF.format(monto)} no es ${OPS[c.operador][0]} ${NF.format(c.valor)}` };
+}
+function evaluar(lista, monto, moneda) {
+  const descartes = [];
+  for (const r of [...lista].sort((a, b) => a.prioridad - b.prioridad || a.id - b.id)) {
+    if (!r.activa) { descartes.push({ r, por: 'está desactivada' }); continue; }
+    const fallo = r.condiciones.map(c => cumple(c, monto, moneda)).find(x => !x.ok);
+    if (fallo) { descartes.push({ r, por: fallo.por }); continue; }
+    return { elegida: r, descartes };
+  }
+  return { elegida: null, descartes };
+}
+
+/* ---------- Estado ---------- */
+const P = new URLSearchParams(location.search);
+const V = { modo: 'datos', vista: 'lista', prueba: { monto: '600.000', moneda: 'ARS' }, flash: null, arrastre: null, conflicto: false };
+let D = null, BASE_D = '';           // borrador de la regla que se edita
+const foto = d => { const { intento, guardando, ...x } = d; return JSON.stringify(x); };
+const sucio = () => !!D && foto(D) !== BASE_D;
+
+/* =========================================================
+   Vista LISTA
+   ========================================================= */
+function render() { V.vista === 'lista' ? renderLista() : renderEditor(); }
+function renderLista() {
+  const p = $('pagina');
+  if (V.modo !== 'datos') {
+    p.innerHTML = cabeceraLista() + (V.modo === 'cargando'
+      ? `<div class="reglas"><ul class="lista-reglas">${Array.from({ length: 5 }, () => `<li class="regla" style="cursor:default"><span></span><span class="esq" style="width:40px;height:40px;border-radius:8px"></span><span><span class="esq" style="width:200px"></span><span class="esq" style="width:280px;margin-top:10px;height:20px"></span></span><span></span></li>`).join('')}</ul><div></div></div>`
+      : `<div class="panel"><div class="estado"><div class="estado__icono estado__icono--error">${ico('error')}</div><h3>No pudimos cargar las reglas</h3><p>Revisá tu conexión e intentá de nuevo. <span class="codigo">ERROR_RED</span></p><div class="acciones"><button class="btn btn--primario" type="button" data-modo-ir="datos">Reintentar</button></div></div></div>`);
+    return;
+  }
+  const lista = ordenadas();
+  const prueba = probar(REGLAS);
+  const normales = lista.filter(r => !r.porDefecto);
+  p.innerHTML = cabeceraLista() + `
+    <div class="reglas">
+      <section aria-label="Reglas por prioridad">
+        <div class="explica">${ico('info')}<span>Para cada ítem se recorren <b>de arriba hacia abajo</b> y <b>gana la primera</b> que se cumple. Arrastrá para cambiar el orden. La regla por defecto va siempre última y atrapa todo lo demás.</span></div>
+        <ol class="lista-reglas" id="lista-reglas">${lista.map((r, i) => filaRegla(r, i, normales, prueba, lista)).join('')}</ol>
+      </section>
+      <aside class="lateral">${probadorHTML(prueba, false)}</aside>
+    </div>`;
+}
+function cabeceraLista() {
+  return `<div class="encabezado"><div><h1 class="titulo">Reglas de aprobación</h1>
+    <p class="bajada">Quién tiene que aprobar cada compra según su monto. Cuando se fija el precio de un ítem, se elige una regla y se arma su cadena de pasos.</p></div>
+    <button class="btn btn--primario" type="button" data-nueva ${V.modo !== 'datos' ? 'disabled' : ''}>+ Nueva regla</button></div>`;
+}
+function filaRegla(r, i, normales, prueba, lista) {
+  const elegida = prueba.res && prueba.res.elegida && prueba.res.elegida.id === r.id;
+  const descartada = prueba.res && prueba.res.descartes.some(d => d.r.id === r.id);
+  const sinAp = sinAprobadores(r);
+  const tapa = tapadaPor(r, lista);
+  const idxN = normales.findIndex(x => x.id === r.id);
+  const alertas = [];
+  if (sinAp.length && r.activa) alertas.push(`<span class="alerta alerta--error">${ico('error')}${esc(apNombre(sinAp[0]))}: nadie puede aprobar</span>`);
+  else if (sinAp.length) alertas.push(`<span class="alerta">${ico('aviso')}${esc(apNombre(sinAp[0]))} no tiene usuarios</span>`);
+  if (tapa) alertas.push(`<span class="alerta">${ico('aviso')}Nunca se aplica: "${esc(tapa.nombre)}" va antes con lo mismo</span>`);
+  return `<li class="regla ${r.porDefecto ? 'regla--defecto' : ''} ${r.activa ? '' : 'is-inactiva'} ${elegida ? 'is-elegida' : ''} ${descartada && !elegida ? 'is-descartada' : ''} ${V.flash === r.id ? 'is-flash' : ''}"
+      data-regla="${r.id}" tabindex="0" ${r.porDefecto ? '' : 'draggable="true"'} aria-label="${i + 1}. ${esc(r.nombre)}${r.activa ? '' : ', desactivada'}. Editar">
+    ${r.porDefecto ? `<span class="asa asa--fija" title="Siempre última">${ico('candado')}</span>` : `<span class="asa" title="Arrastrar para cambiar el orden" aria-hidden="true">${ASA}</span>`}
+    <span class="prio" aria-hidden="true">${r.porDefecto ? '∞' : i + 1}</span>
+    <div style="min-width:0">
+      <div class="regla__nombre">${esc(r.nombre)} ${r.porDefecto ? '<span class="etq etq--defecto">POR DEFECTO</span>' : ''} ${r.activa ? '' : '<span class="etq etq--off">DESACTIVADA</span>'} ${elegida ? '<span class="etq etq--elegida">LA ELIGE EL PROBADOR</span>' : ''}</div>
+      <div class="regla__cond">${r.porDefecto ? 'Todo lo que no cumplió ninguna regla de arriba' : r.condiciones.map(condTexto).join(' y ')}</div>
+      <div class="cadena-mini">${cadenaMini(r.pasos)}</div>
+      ${alertas.length ? `<div style="display:grid;gap:4px;margin-top:8px">${alertas.join('')}</div>` : ''}
+    </div>
+    <div class="regla__der">
+      ${r.porDefecto ? '<span class="alerta" style="--c:var(--tenue)" title="La regla por defecto no se puede desactivar">Siempre activa</span>'
+        : `<label class="interruptor" aria-label="${r.activa ? 'Desactivar' : 'Activar'} ${esc(r.nombre)}" title="${r.activa ? 'Activa' : 'Desactivada'}"><input type="checkbox" data-activar="${r.id}" ${r.activa ? 'checked' : ''}><span class="interruptor__pista" aria-hidden="true"></span></label>`}
+      ${r.porDefecto ? '' : `<span class="ord"><button type="button" data-subir="${r.id}" ${idxN === 0 ? 'disabled' : ''} aria-label="Subir ${esc(r.nombre)}">▲</button><button type="button" data-bajar="${r.id}" ${idxN === normales.length - 1 ? 'disabled' : ''} aria-label="Bajar ${esc(r.nombre)}">▼</button></span>`}
+    </div>
+  </li>`;
+}
+
+/* ---------- Probador ---------- */
+function probar(lista) {
+  const monto = parseNum(V.prueba.monto);
+  if (!(monto >= 0)) return { res: null };
+  return { res: evaluar(lista, monto, V.prueba.moneda), monto };
+}
+function probadorHTML(prueba, conBorrador) {
+  const res = prueba.res;
+  let cuerpo = '';
+  if (!res) cuerpo = `<p style="font-size:13px;color:var(--apagado)">Escribí un monto para ver qué regla se aplica y quién tendría que aprobar.</p>`;
+  else if (!res.elegida) cuerpo = `<div class="aviso aviso--error">${ico('error')}<div class="aviso__cuerpo"><strong>Ninguna regla se cumple</strong>Falta una regla por defecto activa.</div></div>`;
+  else {
+    const r = res.elegida;
+    const pasos = r.pasos;
+    cuerpo = `<div class="resultado-p" aria-live="polite">
+        <div class="resultado-p__regla"><span><small>Se aplica</small><b>${esc(r.nombre)}</b><small>${r.porDefecto ? 'No se cumplió ninguna otra' : r.condiciones.map(c => `${OPS[c.operador][0]} ${NF.format(c.valor)} ${c.moneda}`).join(' y ')}</small></span>
+          ${conBorrador && D && r.id === D.id ? '<span class="borrador">TU BORRADOR</span>' : ''}</div>
+        ${pasos.length ? `<ol class="pasos-p">${pasos.map((g, i) => `<li><span class="pasos-p__n">${i + 1}</span><span class="pasos-p__aps">${g.length > 1 ? '<span class="pasos-p__par">EN PARALELO · TODOS</span>' : ''}${g.map(apChip).join('')}</span></li>`).join('')}</ol>`
+          : `<div class="automatica">${ico('rayo')}<span><b style="color:var(--texto)">Aprobación automática.</b> El ítem queda listo para comprar sin que nadie apruebe.</span></div>`}
+        ${sinAprobadores(r).length ? `<span class="err-linea">${ico('error')}<span>${esc(apNombre(sinAprobadores(r)[0]))} no tiene usuarios: el ítem quedaría trabado.</span></span>` : ''}
+      </div>
+      ${res.descartes.length ? `<div><div class="sub" style="margin-bottom:6px">Antes se probaron</div><ul class="descartes">${res.descartes.map(d => `<li><span class="num">${d.r.porDefecto ? '∞' : ordenadasDe(conBorrador).findIndex(x => x.id === d.r.id) + 1}.</span><span><b>${esc(d.r.nombre)}</b> · no: ${esc(d.por)}</span></li>`).join('')}</ul></div>` : ''}`;
+  }
+  return `<section class="card probador" aria-labelledby="prob-t">
+    <div class="card__cab"><h2 id="prob-t">Probador</h2>${conBorrador && sucio() ? '<span class="borrador">CON TUS CAMBIOS</span>' : '<span class="sub">no guarda nada</span>'}</div>
+    <div class="probador__cuerpo">
+      <div class="campo"><label for="p-monto">Si un ítem cuesta…</label>
+        <div class="monto-campo"><select class="select" id="p-moneda" aria-label="Moneda"><option ${V.prueba.moneda === 'ARS' ? 'selected' : ''}>ARS</option><option ${V.prueba.moneda === 'USD' ? 'selected' : ''}>USD</option></select>
+        <input class="input" id="p-monto" inputmode="decimal" value="${esc(V.prueba.monto)}" autocomplete="off"></div></div>
+      <div class="rapidos" aria-label="Montos de ejemplo">${[['30.000', 'ARS'], ['600.000', 'ARS'], ['2.500.000', 'ARS'], ['800', 'USD'], ['1.500', 'USD']].map(([m, mo]) => `<button type="button" data-rapido="${m}|${mo}">${mo} ${m}</button>`).join('')}</div>
+      ${cuerpo}
+    </div></section>`;
+}
+const ordenadasDe = conBorrador => [...listaConBorrador(conBorrador)].sort((a, b) => a.prioridad - b.prioridad || a.id - b.id);
+function listaConBorrador(conBorrador) {
+  if (!conBorrador || !D) return REGLAS;
+  const otras = REGLAS.filter(r => r.id !== D.id);
+  return [...otras, aRegla(D)];
+}
+function refrescarProbador() {
+  const conB = V.vista === 'editor';
+  const lat = document.querySelector('.lateral'); if (!lat) return;
+  const foco = document.activeElement && document.activeElement.id, pos = document.activeElement && document.activeElement.selectionStart;
+  lat.innerHTML = probadorHTML(probar(listaConBorrador(conB)), conB);
+  if (!conB) { // marca la elegida en la lista sin redibujar todo
+    const res = probar(REGLAS).res;
+    document.querySelectorAll('.regla').forEach(li => {
+      const id = Number(li.dataset.regla);
+      const eleg = res && res.elegida && res.elegida.id === id;
+      li.classList.toggle('is-elegida', !!eleg);
+      li.classList.toggle('is-descartada', !!(res && !eleg && res.descartes.some(d => d.r.id === id)));
+      const nom = li.querySelector('.regla__nombre');
+      const etq = nom.querySelector('.etq--elegida');
+      if (eleg && !etq) nom.insertAdjacentHTML('beforeend', ' <span class="etq etq--elegida">LA ELIGE EL PROBADOR</span>');
+      if (!eleg && etq) etq.remove();
+    });
+  }
+  if (foco && $(foco)) { $(foco).focus(); if (pos != null && $(foco).setSelectionRange) try { $(foco).setSelectionRange(pos, pos); } catch (_) {} }
+}
+
+/* ---------- Orden y activación desde la lista ---------- */
+function mover(id, delta) {
+  const normales = ordenadas().filter(r => !r.porDefecto);
+  const i = normales.findIndex(r => r.id === id), j = i + delta;
+  if (j < 0 || j >= normales.length) return;
+  [normales[i], normales[j]] = [normales[j], normales[i]];
+  aplicarOrden(normales, id);
+}
+function aplicarOrden(normales, id) {
+  const antes = REGLAS.map(r => [r.id, r.prioridad]);
+  normales.forEach((r, k) => { r.prioridad = (k + 1) * 10; });
+  V.flash = id; renderLista();
+  const nueva = normales.findIndex(r => r.id === id) + 1;
+  toast('exito', 'Orden guardado', `"${REGLAS.find(r => r.id === id).nombre}" ahora se prueba en el lugar ${nueva}.`, () => { antes.forEach(([rid, p]) => REGLAS.find(r => r.id === rid).prioridad = p); renderLista(); });
+  setTimeout(() => { V.flash = null; }, 2500);
+  const b = document.querySelector(`[data-regla="${id}"] [data-${'subir'}]`); if (b && !b.disabled) b.focus();
+}
+function activar(id, valor) {
+  const r = REGLAS.find(x => x.id === id);
+  if (valor && sinAprobadores(r).length) {
+    renderLista();
+    toast('error', 'No se puede activar', `${apNombre(sinAprobadores(r)[0])} no tiene usuarios activos: nadie podría aprobar. Cambiá ese paso o sumá usuarios. (SIN_APROBADORES)`);
+    return;
+  }
+  r.activa = valor; r.version++; V.flash = id; renderLista();
+  toast('exito', valor ? `"${r.nombre}" activada` : `"${r.nombre}" desactivada`, 'Vale para las cadenas que se armen desde ahora.');
+  setTimeout(() => { V.flash = null; }, 2500);
+}
+
+/* Arrastrar reglas */
+document.addEventListener('dragstart', e => {
+  const li = e.target.closest && e.target.closest('.regla[draggable="true"]');
+  if (li) { V.arrastre = { tipo: 'regla', id: Number(li.dataset.regla) }; li.classList.add('is-arrastrando'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', li.dataset.regla); return; }
+  const ap = e.target.closest && e.target.closest('.ap-ed');
+  if (ap) { V.arrastre = { tipo: 'ap', paso: Number(ap.dataset.paso), idx: Number(ap.dataset.idx) }; ap.classList.add('is-arrastrando'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'ap'); return; }
+  const pe = e.target.closest && e.target.closest('.paso-ed[draggable="true"]');
+  if (pe) { V.arrastre = { tipo: 'paso', paso: Number(pe.dataset.pasoEd) }; pe.classList.add('is-arrastrando'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'paso'); }
+});
+document.addEventListener('dragend', () => { V.arrastre = null; document.querySelectorAll('.is-arrastrando, .is-sobre, .is-destino-arriba, .is-destino-abajo').forEach(x => x.classList.remove('is-arrastrando', 'is-sobre', 'is-destino-arriba', 'is-destino-abajo')); });
+document.addEventListener('dragover', e => {
+  const A = V.arrastre; if (!A) return;
+  document.querySelectorAll('.is-sobre, .is-destino-arriba, .is-destino-abajo').forEach(x => x.classList.remove('is-sobre', 'is-destino-arriba', 'is-destino-abajo'));
+  if (A.tipo === 'regla') {
+    const li = e.target.closest('.regla[data-regla]'); if (!li || li.classList.contains('regla--defecto') || Number(li.dataset.regla) === A.id) return;
+    e.preventDefault(); const r = li.getBoundingClientRect();
+    li.classList.add(e.clientY < r.top + r.height / 2 ? 'is-destino-arriba' : 'is-destino-abajo');
+  } else if (A.tipo === 'ap') {
+    const z = e.target.closest('.paso-ed, .nuevo-paso, .entre'); if (!z) return;
+    e.preventDefault(); z.classList.add('is-sobre');
+  } else if (A.tipo === 'paso') {
+    const pe = e.target.closest('.paso-ed'); if (!pe || Number(pe.dataset.pasoEd) === A.paso) return;
+    e.preventDefault(); const r = pe.getBoundingClientRect();
+    pe.classList.add(e.clientY < r.top + r.height / 2 ? 'is-destino-arriba' : 'is-destino-abajo');
+  }
+});
+document.addEventListener('drop', e => {
+  const A = V.arrastre; if (!A) return; e.preventDefault();
+  if (A.tipo === 'regla') {
+    const li = e.target.closest('.regla[data-regla]'); if (!li || li.classList.contains('regla--defecto')) return;
+    const r = li.getBoundingClientRect(), arriba = e.clientY < r.top + r.height / 2;
+    const normales = ordenadas().filter(x => !x.porDefecto);
+    const mov = normales.splice(normales.findIndex(x => x.id === A.id), 1)[0];
+    let j = normales.findIndex(x => x.id === Number(li.dataset.regla)); if (!arriba) j++;
+    normales.splice(j, 0, mov); aplicarOrden(normales, A.id);
+  } else if (A.tipo === 'ap') {
+    const pe = e.target.closest('.paso-ed'), np = e.target.closest('.nuevo-paso'), en = e.target.closest('.entre');
+    if (pe) moverAp(A.paso, A.idx, { a: Number(pe.dataset.pasoEd) });
+    else if (np) moverAp(A.paso, A.idx, { nuevo: D.pasos.length });
+    else if (en) moverAp(A.paso, A.idx, { nuevo: Number(en.dataset.entre) });
+  } else if (A.tipo === 'paso') {
+    const pe = e.target.closest('.paso-ed'); if (!pe) return;
+    const r = pe.getBoundingClientRect(), arriba = e.clientY < r.top + r.height / 2;
+    const g = D.pasos.splice(A.paso, 1)[0];
+    let j = Number(pe.dataset.pasoEd); if (j > A.paso) j--; if (!arriba) j++;
+    D.pasos.splice(j, 0, g); renderEditor(); focoPaso(j);
+  }
+  V.arrastre = null;
+});
+
+/* =========================================================
+   Vista EDITOR
+   ========================================================= */
+const aRegla = d => ({ ...d, nombre: d.nombre.trim() || 'Regla nueva', condiciones: d.condiciones.map(c => ({ ...c, valor: parseNum(c.valor) || 0 })), pasos: d.pasos.filter(g => g.length) });
+function abrirEditor(id) {
+  const r = id ? REGLAS.find(x => x.id === id) : null;
+  D = r ? { ...clon(r), condiciones: r.condiciones.map(c => ({ ...c, valor: NF.format(c.valor) })) }
+    : { id: proxId, nombre: '', prioridad: (Math.max(...REGLAS.filter(x => !x.porDefecto).map(x => x.prioridad), 0)) + 10, activa: true, porDefecto: false, version: 0, condiciones: [{ tipo: 'MONTO', operador: 'MAYOR', valor: '', moneda: 'ARS' }], pasos: [[R('SUPERVISOR')]], nueva: true };
+  BASE_D = foto(D);
+  V.vista = 'editor'; V.conflictoMsg = '';
+  renderEditor(); window.scrollTo({ top: 0 });
+  const n = $('e-nombre'); if (n && !r) n.focus();
+}
+function validarD() {
+  const e = { pasos: {}, conds: {} };
+  const nombre = D.nombre.trim();
+  if (!nombre) e.nombre = 'Poné un nombre que explique cuándo se aplica. Ej: "Más de 500.000 ARS".';
+  else if (nombre.length > 120) e.nombre = 'Máximo 120 caracteres.';
+  else if (REGLAS.some(r => r.id !== D.id && norm(r.nombre) === norm(nombre))) e.nombre = 'Ya hay una regla con ese nombre.';
+  D.condiciones.forEach((c, i) => { const v = parseNum(c.valor); if (!(v > 0)) e.conds[i] = 'El monto tiene que ser mayor a 0.'; });
+  if (!D.porDefecto && !D.condiciones.length) e.condGeneral = 'Sin condiciones se cumpliría siempre y taparía a las de abajo. Solo la regla por defecto va sin condiciones.';
+  const vistos = {};
+  D.pasos.forEach((g, i) => g.forEach((a, k) => {
+    const c = apClave(a);
+    if (vistos[c] != null) e.pasos[i] = `${apNombre(a)} ya está en el paso ${vistos[c] + 1}: no se puede repetir.`;
+    vistos[c] = i;
+    if (!apUsuarios(a) && D.activa) e.pasos[i] = e.pasos[i] || `${apNombre(a)} no tiene usuarios activos: nadie podría aprobar este paso.`;
+  }));
+  if (D.porDefecto && !D.pasos.length) e.pasosGeneral = 'La regla por defecto necesita al menos un paso.';
+  e.hay = !!(e.nombre || Object.keys(e.conds).length || e.condGeneral || Object.keys(e.pasos).length || e.pasosGeneral);
+  return e;
+}
+function renderEditor() {
+  const E = validarD();
+  const r = aRegla(D);
+  const posicion = ordenadasDe(true).findIndex(x => x.id === D.id) + 1;
+  const total = REGLAS.length + (D.nueva ? 1 : 0);
+  const mostrar = D.intento || !D.nueva;
+  $('pagina').innerHTML = `
+    <nav class="migas" aria-label="Migas"><button type="button" data-volver>Reglas de aprobación</button><span aria-hidden="true">›</span><span>${D.nueva ? 'Nueva regla' : esc(D.nombre || 'Sin nombre')}</span></nav>
+    <div class="encabezado" style="margin-bottom:20px"><div><h1 class="titulo" style="font-size:34px">${D.nueva ? 'Nueva regla' : esc(BASE_NOMBRE())}</h1>
+      <p class="bajada">${D.porDefecto ? 'Atrapa todo lo que no cumplió ninguna otra regla. Siempre activa, sin condiciones, va última.' : `Se prueba en el lugar <b class="num" style="color:var(--texto)">${posicion}</b> de ${total}. El orden se cambia desde la lista.`}</p></div></div>
+    ${V.conflictoMsg || ''}
+    <div class="reglas">
+      <div class="editor">
+        <section class="bloque" aria-labelledby="b1">
+          <div class="bloque__cab"><div><h2 id="b1"><span class="n">1</span>Nombre</h2></div></div>
+          <div class="bloque__cuerpo">
+            <div class="fila-nombre">
+              <div class="campo"><label for="e-nombre">Nombre de la regla</label>
+                <input class="input" id="e-nombre" maxlength="140" placeholder="Ej: Más de 500.000 ARS" value="${esc(D.nombre)}" ${mostrar && E.nombre ? 'aria-invalid="true" aria-describedby="e-nombre-err"' : ''}>
+                ${mostrar && E.nombre ? `<span class="err-linea" id="e-nombre-err">${ico('error')}${esc(E.nombre)}</span>` : ''}</div>
+              ${D.porDefecto ? `<span class="alerta" style="--c:var(--apagado)">${ico('candado')}Siempre activa</span>`
+                : `<label class="interruptor"><input type="checkbox" id="e-activa" ${D.activa ? 'checked' : ''}><span class="interruptor__pista" aria-hidden="true"></span>${D.activa ? 'Activa' : 'Desactivada'}</label>`}
+            </div>
+          </div>
+        </section>
+
+        <section class="bloque" aria-labelledby="b2">
+          <div class="bloque__cab"><div><h2 id="b2"><span class="n">2</span>Cuándo se aplica</h2><p>Se tienen que cumplir <b>todas</b> las condiciones.</p></div></div>
+          <div class="bloque__cuerpo">
+            ${D.porDefecto ? `<div class="frase">Sin condiciones: se aplica a <b>cualquier ítem</b> que no haya cumplido una regla de arriba.</div>` : `
+            ${D.condiciones.map((c, i) => `
+              ${i ? '<span class="cond__y">Y ADEMÁS</span>' : ''}
+              <div class="cond" data-cond="${i}">
+                <span class="cond__tipo">Monto del ítem</span>
+                <select class="select" data-c="operador" aria-label="Operador">${Object.entries(OPS).map(([k, [t, s]]) => `<option value="${k}" ${c.operador === k ? 'selected' : ''}>${t} (${s})</option>`).join('')}</select>
+                <input class="input input--num" data-c="valor" inputmode="decimal" placeholder="500.000" value="${esc(c.valor)}" aria-label="Monto" ${mostrar && E.conds[i] ? 'aria-invalid="true"' : ''}>
+                <select class="select" data-c="moneda" aria-label="Moneda" style="font-family:var(--mono)"><option ${c.moneda === 'ARS' ? 'selected' : ''}>ARS</option><option ${c.moneda === 'USD' ? 'selected' : ''}>USD</option></select>
+                <button class="quitar" type="button" data-quitar-cond="${i}" aria-label="Quitar condición">×</button>
+              </div>
+              ${mostrar && E.conds[i] ? `<span class="err-linea">${ico('error')}${E.conds[i]}</span>` : ''}`).join('')}
+            ${E.condGeneral ? `<span class="err-linea ${mostrar ? '' : 'err-linea--aviso'}">${ico(mostrar ? 'error' : 'aviso')}${E.condGeneral}</span>` : ''}
+            <div class="agregar-cond">
+              <button class="btn btn--secundario btn--chico" type="button" data-agregar-cond>+ Condición de monto</button>
+              <span class="campo__ayuda">Próximamente: categoría<span class="pronto">PRONTO</span> proveedor<span class="pronto">PRONTO</span> centro de costo<span class="pronto">PRONTO</span></span>
+            </div>
+            ${r.condiciones.length ? `<div class="frase">Se aplica a ítems de ${condFrase(r.condiciones)}.${new Set(r.condiciones.map(c => c.moneda)).size === 1 ? ` <span style="color:var(--apagado)">Un ítem en ${r.condiciones[0].moneda === 'ARS' ? 'USD' : 'ARS'} no la cumple: no hay conversión.</span>` : ' <span style="color:var(--aviso)">Mezcla ARS y USD: un ítem tiene una sola moneda, así que nunca se cumple.</span>'}</div>` : ''}`}
+          </div>
+        </section>
+
+        <section class="bloque" aria-labelledby="b3">
+          <div class="bloque__cab"><div><h2 id="b3"><span class="n">3</span>Quién aprueba</h2><p>Los pasos van en orden. Varios aprobadores en el mismo paso deciden <b>en paralelo</b> y tienen que aprobar todos.</p></div>
+            <span class="teclado"><span class="kbd">Alt</span>+<span class="kbd">↑</span><span class="kbd">↓</span> mueve un aprobador de paso</span></div>
+          <div class="bloque__cuerpo">
+            ${D.pasos.length ? `<ol class="pasos-ed" aria-label="Pasos">${D.pasos.map((g, i) => `
+              ${i ? `<li class="entre" data-entre="${i}" aria-hidden="true"><span class="asa-hueco"></span><span></span><small>DESPUÉS</small></li>` : ''}
+              <li class="paso-ed ${E.pasos[i] ? 'is-mal' : ''}" data-paso-ed="${i}" draggable="true">
+                <span class="asa" title="Arrastrar el paso" aria-hidden="true">${ASA}</span>
+                <span class="paso-ed__n" aria-label="Paso ${i + 1}">${i + 1}</span>
+                <div class="paso-ed__cuerpo">
+                  <div class="paso-ed__tit">${g.length > 1 ? '<span class="pasos-p__par" style="width:auto">EN PARALELO · TIENEN QUE APROBAR TODOS</span>' : g.length ? `<b>Paso ${i + 1}</b>` : '<b>Paso vacío</b> · se quita al guardar'}</div>
+                  <div class="aps">${g.map((a, k) => `<span class="ap-ed ap-ed--${a.tipo} ${apUsuarios(a) ? '' : 'is-mal'}" draggable="true" tabindex="0" data-paso="${i}" data-idx="${k}" aria-label="${a.tipo === 'ROL' ? 'Rol' : 'Sector'} ${esc(apNombre(a))}, paso ${i + 1}. Alt más flechas para mover de paso">
+                      <span class="ap__tipo">${a.tipo}</span>${esc(apNombre(a))}<span class="ap-ed__usu">${apUsuarios(a)} ${apUsuarios(a) === 1 ? 'usuario' : 'usuarios'}</span>
+                      <button type="button" data-quitar-ap="${i}|${k}" aria-label="Quitar ${esc(apNombre(a))}">×</button></span>`).join('')}
+                    <span class="agregar-ap"><select class="select" data-agregar-ap="${i}" aria-label="Agregar aprobador al paso ${i + 1}">${opcionesAp('+ En paralelo…')}</select></span>
+                  </div>
+                  ${E.pasos[i] ? `<span class="err-linea">${ico('error')}${esc(E.pasos[i])} ${E.pasos[i].includes('usuarios') ? '<span class="codigo">SIN_APROBADORES</span>' : '<span class="codigo">APROBADOR_REPETIDO</span>'}</span>` : ''}
+                </div>
+                <span class="paso-ed__ord ord"><button type="button" data-paso-subir="${i}" ${i === 0 ? 'disabled' : ''} aria-label="Subir paso ${i + 1}">▲</button><button type="button" data-paso-bajar="${i}" ${i === D.pasos.length - 1 ? 'disabled' : ''} aria-label="Bajar paso ${i + 1}">▼</button><button type="button" data-paso-quitar="${i}" aria-label="Quitar paso ${i + 1}" title="Quitar paso">×</button></span>
+              </li>`).join('')}</ol>` : `<div class="automatica">${ico('rayo')}<span><b style="color:var(--texto)">Sin pasos: aprobación automática.</b> Los ítems que cumplan esta regla quedan listos para comprar sin que nadie apruebe.</span></div>`}
+            ${E.pasosGeneral ? `<span class="err-linea">${ico('error')}${E.pasosGeneral} <span class="codigo">REGLA_POR_DEFECTO_SIN_PASOS</span></span>` : ''}
+            <div class="nuevo-paso" data-nuevo-paso>
+              <span>Soltá un aprobador acá para crear un paso nuevo, o</span>
+              <select class="select" data-agregar-paso aria-label="Agregar un paso al final" style="width:auto;height:34px;font-size:13px">${opcionesAp('+ Agregar paso…')}</select>
+            </div>
+          </div>
+        </section>
+
+        <div class="barra-guardar">
+          <button class="btn btn--fantasma" type="button" data-volver>${sucio() ? 'Cancelar' : 'Volver'}</button>
+          ${sucio() ? '<span class="sin-guardar">Sin guardar</span>' : ''}
+          <span class="campo__ayuda" style="margin-left:8px">Vale para las cadenas que se armen desde ahora; las que están en curso no cambian.</span>
+          <button class="btn btn--primario" type="button" data-guardar ${D.guardando ? 'aria-busy="true" disabled' : ''}>${D.guardando ? '<span class="girador"></span>Guardando…' : D.nueva ? 'Crear regla' : 'Guardar cambios'}</button>
+        </div>
+      </div>
+      <aside class="lateral">${probadorHTML(probar(listaConBorrador(true)), true)}</aside>
+    </div>`;
+}
+const BASE_NOMBRE = () => JSON.parse(BASE_D).nombre || 'Regla';
+function opcionesAp(rotulo) {
+  return `<option value="">${rotulo}</option><optgroup label="Por rol">${Object.entries(ROLES).map(([k, v]) => `<option value="R${k}">${v.nombre} · ${v.usuarios} usuarios</option>`).join('')}</optgroup>
+    <optgroup label="Por sector (cualquiera del sector)">${SECTORES.map(s => `<option value="S${s.id}">${s.nombre} · ${s.usuarios ? `${s.usuarios} usuarios` : 'sin usuarios'}</option>`).join('')}</optgroup>`;
+}
+const desdeClave = v => v[0] === 'R' ? R(v.slice(1)) : S(Number(v.slice(1)));
+function moverAp(de, idx, { a, nuevo }) {
+  const ap = D.pasos[de].splice(idx, 1)[0];
+  if (nuevo != null) { D.pasos.splice(nuevo, 0, [ap]); }
+  else D.pasos[a].push(ap);
+  // Pasos vacíos se quitan para que el orden siga siendo 1, 2, 3 sin saltos
+  const destino = nuevo != null ? nuevo : a;
+  const vacio = D.pasos[de].length === 0;
+  let fin = destino;
+  if (vacio) { D.pasos.splice(de, 1); if (de < fin) fin--; }
+  renderEditor();
+  const chip = document.querySelectorAll(`.ap-ed[data-paso="${fin}"]`); if (chip.length) chip[chip.length - 1].focus();
+}
+function focoPaso(i) { const b = document.querySelector(`.paso-ed[data-paso-ed="${i}"] [data-paso-subir]`); if (b) b.focus(); }
+function salirEditor() {
+  const hacer = () => { D = null; V.vista = 'lista'; renderLista(); window.scrollTo({ top: 0 }); };
+  if (sucio()) { pendiente = hacer; $('modal-descartar').showModal(); } else hacer();
+}
+let pendiente = null;
+$('md-no').onclick = () => $('modal-descartar').close();
+$('md-si').onclick = () => { $('modal-descartar').close(); const a = pendiente; pendiente = null; if (a) a(); };
+function guardar() {
+  D.intento = true;
+  const E = validarD();
+  if (E.hay) { renderEditor(); const x = document.querySelector('[aria-invalid="true"], .paso-ed.is-mal, .err-linea'); if (x) { x.scrollIntoView({ block: 'center', behavior: 'smooth' }); if (x.focus) x.focus(); } toast('error', 'Revisá lo marcado en rojo'); return; }
+  if (!D.nueva && !sucio()) { toast('info', 'No hay cambios para guardar'); return; }
+  D.guardando = true; renderEditor();
+  setTimeout(() => {
+    D.guardando = false;
+    if (V.conflicto && !D.nueva) {
+      V.conflicto = false; $('m-version').setAttribute('aria-pressed', 'false');
+      V.conflictoMsg = `<div class="aviso" style="margin-bottom:16px" role="alert">${ico('aviso')}<div class="aviso__cuerpo"><strong>Otro Admin cambió esta regla mientras la editabas</strong>Para no pisar sus cambios, recargala. Tus cambios se pierden: anotalos si los necesitás. <span class="codigo">CONFLICTO_VERSION · 409</span><div class="aviso__acciones" style="margin-top:10px"><button class="btn btn--primario btn--chico" type="button" data-recargar>Recargar la regla</button></div></div></div>`;
+      renderEditor(); window.scrollTo({ top: 0, behavior: 'smooth' }); return;
+    }
+    const r = aRegla(D); delete r.nueva; delete r.intento; delete r.guardando; r.version = (r.version || 0) + 1;
+    const i = REGLAS.findIndex(x => x.id === r.id);
+    if (i >= 0) REGLAS[i] = r; else { REGLAS.push(r); proxId++; }
+    const nueva = D.nueva;
+    D = null; V.vista = 'lista'; V.flash = r.id; V.conflictoMsg = '';
+    renderLista(); window.scrollTo({ top: 0 });
+    toast('exito', nueva ? `Regla "${r.nombre}" creada` : `"${r.nombre}" guardada`, 'Vale para las cadenas que se armen desde ahora.');
+    setTimeout(() => { V.flash = null; }, 2500);
+  }, 800);
+}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'p-monto') { V.prueba.monto = t.value; refrescarProbador(); return; }
+  if (!D) return;
+  if (t.id === 'e-nombre') { D.nombre = t.value; const pos = t.selectionStart; renderEditor(); const n = $('e-nombre'); n.focus(); n.setSelectionRange(pos, pos); return; }
+  const c = t.closest('[data-cond]');
+  if (c && t.dataset.c === 'valor') { D.condiciones[Number(c.dataset.cond)].valor = t.value; const pos = t.selectionStart, idx = c.dataset.cond; renderEditor(); const i = document.querySelector(`[data-cond="${idx}"] [data-c="valor"]`); i.focus(); i.setSelectionRange(pos, pos); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'p-moneda') { V.prueba.moneda = t.value; refrescarProbador(); return; }
+  if (t.dataset.activar) { activar(Number(t.dataset.activar), t.checked); return; }
+  if (!D) return;
+  if (t.id === 'e-activa') { D.activa = t.checked; renderEditor(); $('e-activa').focus(); return; }
+  const c = t.closest('[data-cond]');
+  if (c && t.dataset.c) { D.condiciones[Number(c.dataset.cond)][t.dataset.c] = t.value; const idx = c.dataset.cond, k = t.dataset.c; renderEditor(); document.querySelector(`[data-cond="${idx}"] [data-c="${k}"]`).focus(); return; }
+  if (t.dataset.agregarAp != null && t.value) { const i = Number(t.dataset.agregarAp); D.pasos[i].push(desdeClave(t.value)); renderEditor(); document.querySelector(`[data-agregar-ap="${i}"]`).focus(); return; }
+  if (t.dataset.agregarPaso != null && t.value) { D.pasos.push([desdeClave(t.value)]); renderEditor(); document.querySelector('[data-agregar-paso]').focus(); }
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  const regla = t.closest && t.closest('.regla[data-regla]');
+  if (regla && t === regla && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrirEditor(Number(regla.dataset.regla)); return; }
+  const ap = t.closest && t.closest('.ap-ed');
+  if (ap && t === ap && e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+    e.preventDefault();
+    const de = Number(ap.dataset.paso), idx = Number(ap.dataset.idx);
+    if (e.key === 'ArrowUp') { if (de > 0) moverAp(de, idx, { a: de - 1 }); else if (D.pasos[de].length > 1) moverAp(de, idx, { nuevo: 0 }); }
+    else { if (de < D.pasos.length - 1) moverAp(de, idx, { a: de + 1 }); else if (D.pasos[de].length > 1) moverAp(de, idx, { nuevo: D.pasos.length }); }
+    return;
+  }
+  if (ap && t === ap && (e.key === 'Delete' || e.key === 'Backspace')) { e.preventDefault(); const de = Number(ap.dataset.paso); D.pasos[de].splice(Number(ap.dataset.idx), 1); renderEditor(); }
+});
+document.addEventListener('click', e => {
+  const t = e.target;
+  const rap = t.closest('[data-rapido]'); if (rap) { const [m, mo] = rap.dataset.rapido.split('|'); V.prueba = { monto: m, moneda: mo }; refrescarProbador(); $('p-monto').focus(); return; }
+  if (t.closest('[data-nueva]')) { abrirEditor(null); return; }
+  const mi = t.closest('[data-modo-ir]'); if (mi) { ponerModo(mi.dataset.modoIr); return; }
+  const sb = t.closest('[data-subir]'); if (sb) { mover(Number(sb.dataset.subir), -1); return; }
+  const bj = t.closest('[data-bajar]'); if (bj) { mover(Number(bj.dataset.bajar), 1); return; }
+  if (t.closest('.interruptor')) return;
+  if (t.closest('[data-volver]')) { salirEditor(); return; }
+  if (t.closest('[data-guardar]')) { guardar(); return; }
+  if (t.closest('[data-recargar]')) { const id = D.id; const r = REGLAS.find(x => x.id === id); r.version++; D = null; abrirEditor(id); toast('info', 'Regla recargada', 'Ya ves la última versión.'); return; }
+  if (t.closest('[data-agregar-cond]')) { D.condiciones.push({ tipo: 'MONTO', operador: 'MAYOR', valor: '', moneda: D.condiciones[0]?.moneda || 'ARS' }); renderEditor(); const v = document.querySelectorAll('[data-c="valor"]'); v[v.length - 1].focus(); return; }
+  const qc = t.closest('[data-quitar-cond]'); if (qc) { D.condiciones.splice(Number(qc.dataset.quitarCond), 1); renderEditor(); return; }
+  const qa = t.closest('[data-quitar-ap]'); if (qa) { const [i, k] = qa.dataset.quitarAp.split('|').map(Number); D.pasos[i].splice(k, 1); if (!D.pasos[i].length) D.pasos.splice(i, 1); renderEditor(); return; }
+  const ps = t.closest('[data-paso-subir]'); if (ps) { const i = Number(ps.dataset.pasoSubir); [D.pasos[i - 1], D.pasos[i]] = [D.pasos[i], D.pasos[i - 1]]; renderEditor(); focoPaso(i - 1); return; }
+  const pb = t.closest('[data-paso-bajar]'); if (pb) { const i = Number(pb.dataset.pasoBajar); [D.pasos[i + 1], D.pasos[i]] = [D.pasos[i], D.pasos[i + 1]]; renderEditor(); focoPaso(i + 1); return; }
+  const pq = t.closest('[data-paso-quitar]'); if (pq) { D.pasos.splice(Number(pq.dataset.pasoQuitar), 1); renderEditor(); return; }
+  const regla = t.closest('.regla[data-regla]');
+  if (regla && !t.closest('button, input, label')) abrirEditor(Number(regla.dataset.regla));
+});
+window.addEventListener('beforeunload', e => { if (sucio()) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- Toasts ---------- */
+function toast(tipo, titulo, texto, deshacer) {
+  const t = document.createElement('div');
+  t.className = 'toast toast--' + tipo;
+  t.innerHTML = `${ico(tipo === 'exito' ? 'check' : tipo === 'error' ? 'error' : 'info')}<div><b>${esc(titulo)}</b>${texto ? `<span>${esc(texto)}</span>` : ''}${deshacer ? '<button type="button" class="btn btn--secundario btn--chico" style="margin-top:8px" data-deshacer>Deshacer</button>' : ''}</div><button class="toast__cerrar" aria-label="Cerrar">×</button>`;
+  t.querySelector('.toast__cerrar').onclick = () => t.remove();
+  if (deshacer) t.querySelector('[data-deshacer]').onclick = () => { deshacer(); t.remove(); toast('info', 'Orden anterior restaurado'); };
+  $('toasts').append(t);
+  setTimeout(() => t.remove(), deshacer ? 8000 : 6000);
+}
+
+/* ---------- Maqueta ---------- */
+function ponerModo(m) {
+  V.modo = m; V.vista = 'lista'; D = null;
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  renderLista();
+  if (m === 'cargando') setTimeout(() => { if (V.modo === 'cargando') ponerModo('datos'); }, 1400);
+}
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => ponerModo(b.dataset.modo)));
+$('m-version').onclick = e => { V.conflicto = !V.conflicto; e.currentTarget.setAttribute('aria-pressed', V.conflicto); if (V.conflicto) toast('info', 'Simulación activada', 'Abrí una regla, cambiala y guardá: otro Admin la habrá editado antes.'); };
+$('btn-menu').onclick = () => { const t = $('topbar'); const a = t.classList.toggle('is-abierto'); $('btn-menu').setAttribute('aria-expanded', a); };
+
+// ?editar=2 abre el editor · ?nueva=1 abre una regla nueva · ?monto=800&moneda=USD carga el probador
+if (P.get('monto')) V.prueba = { monto: P.get('monto'), moneda: P.get('moneda') || 'ARS' };
+if (Number(P.get('editar'))) abrirEditor(Number(P.get('editar')));
+else if (P.get('nueva')) abrirEditor(null);
+else renderLista();
+</script>
+</body>
+</html>

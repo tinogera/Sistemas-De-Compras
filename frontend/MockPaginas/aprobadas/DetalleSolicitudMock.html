@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Solicitud #1047 · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones y campos */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--peligro { background: #b8463a; color: #fff; }
+.btn--peligro-borde { background: transparent; color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 45%, transparent); }
+.btn--peligro-borde:hover { background: rgba(240,138,126,.08); }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo > label, .campo__label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.campo__ayuda { font-size: 12px; color: var(--apagado); }
+.input, .textarea { width: 100%; height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); }
+.textarea { height: auto; min-height: 72px; padding: 10px 12px; resize: vertical; }
+.input:focus, .textarea:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input--num { font-family: var(--mono); text-align: right; }
+.monto { display: flex; height: 40px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--fondo); }
+.monto:focus-within { border-color: var(--foco); box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.monto__monedas { display: flex; padding: 3px; gap: 2px; border-right: 1px solid var(--borde); }
+.monto__monedas button { border: 0; border-radius: 2px; padding: 0 10px; background: transparent; color: var(--apagado); font: 600 12px var(--mono); cursor: pointer; }
+.monto__monedas button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); }
+.monto input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--texto); padding: 0 12px; font: 500 14px var(--mono); text-align: right; }
+.monto input:focus { outline: none; }
+
+/* Badges */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.badge--pendiente { --c: var(--neutro); } .badge--gestion, .badge--revision { --c: var(--info); }
+.badge--comprado, .badge--aprobado, .badge--aprobada, .badge--lista { --c: var(--exito); }
+.badge--rechazado, .badge--rechazada { --c: var(--peligro); }
+.badge--cancelado, .badge--cancelada, .badge--omitido { --c: var(--inactivo); }
+.badge--cancelado, .badge--cancelada { text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge--omitido { border-style: dashed; }
+.badge--curso { --c: var(--curso); } .badge--activo { --c: var(--naranja); }
+.badge--espera { --c: var(--tenue); border-style: dashed; }
+.badge--cerrada { --c: var(--texto-2); }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+
+/* Avisos, estados, toasts, modales */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 80px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--naranja { color: var(--naranja); border-color: color-mix(in srgb, var(--naranja) 40%, transparent); }
+.estado h3 { font-size: 20px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 420px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; }
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); } .toast--error { --c: var(--peligro); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+dialog.modal { width: min(520px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 12px 24px 20px; color: var(--texto-2); font-size: 14px; display: grid; gap: 16px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen-modal { padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; margin: 0; }
+.resumen-modal dt { color: var(--apagado); } .resumen-modal dd { margin: 0; color: var(--texto); }
+
+/* Pasos de aprobación (de LayoutMock) */
+.pasos { list-style: none; margin: 0; padding: 0; }
+.paso { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding-bottom: 16px; }
+.paso:last-child { padding-bottom: 0; }
+.paso::before { content: ""; position: absolute; left: 13px; top: 28px; bottom: 0; width: 2px; background: var(--borde); }
+.paso:last-child::before { display: none; }
+.paso--hecho::before { background: color-mix(in srgb, var(--exito) 50%, transparent); }
+.paso__nodo { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1; background: var(--fondo); border: 2px solid var(--borde-fuerte); font: 600 11px var(--mono); color: var(--apagado); }
+.paso__nodo svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.paso--hecho .paso__nodo { border-color: var(--exito); background: var(--exito); color: #1b1916; }
+.paso--rechazado .paso__nodo { border-color: var(--peligro); background: var(--peligro); color: #1b1916; }
+.paso--activo .paso__nodo { border-color: var(--naranja); color: var(--naranja); box-shadow: 0 0 0 5px rgba(224,138,60,.15); }
+.paso--omitido .paso__nodo { border-style: dashed; }
+.paso__grupo { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.paso__caja { padding: 10px 12px; border-radius: 6px; border: 1px solid var(--borde); background: var(--fondo); }
+.paso__caja--activa { border-color: color-mix(in srgb, var(--naranja) 45%, transparent); }
+.paso__fila { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.paso__quien { font-weight: 700; font-size: 14px; }
+.paso__det { margin-top: 4px; font-size: 13px; color: var(--apagado); }
+.paso__motivo { margin-top: 8px; padding: 8px 10px; border-left: 2px solid var(--peligro); background: rgba(240,138,126,.06); font-size: 13px; color: var(--texto-2); }
+.paralelo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--curso); margin-bottom: 6px; }
+
+/* Historial (de LayoutMock) */
+.historial { list-style: none; margin: 0; padding: 0; }
+.historial li { display: grid; grid-template-columns: 54px 14px 1fr; gap: 10px; padding-bottom: 16px; position: relative; }
+.historial li::after { content: ""; position: absolute; left: 70px; top: 16px; bottom: 0; width: 1px; background: var(--borde); }
+.historial li:last-child::after { display: none; }
+.historial__fecha { font: 500 11px var(--mono); color: var(--apagado); text-align: right; line-height: 1.4; }
+.historial__punto { width: 9px; height: 9px; margin-top: 5px; border-radius: 50%; background: var(--borde-fuerte); justify-self: center; position: relative; z-index: 1; }
+.historial__punto--naranja { background: var(--naranja); } .historial__punto--verde { background: var(--exito); } .historial__punto--rojo { background: var(--peligro); }
+.historial__texto { font-size: 13px; color: var(--texto-2); line-height: 1.45; }
+.historial__texto b { color: var(--texto); font-weight: 600; }
+.historial__item { font: 500 11px var(--mono); color: var(--tenue); display: block; margin-top: 2px; }
+.historial__cambio { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; font: 500 11px var(--mono); margin-top: 4px; color: var(--apagado); }
+.historial__cambio del { color: var(--tenue); } .historial__cambio ins { text-decoration: none; color: var(--texto); }
+.historial__nota { margin-top: 4px; padding-left: 8px; border-left: 2px solid var(--borde-fuerte); font-style: italic; }
+
+/* Adjuntos */
+.adjuntos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.adjunto { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.adjunto__tipo { width: 32px; height: 32px; border-radius: 4px; display: grid; place-items: center; font: 700 9px var(--mono); background: var(--superficie-2); flex: none; }
+.adjunto__tipo--pdf { color: var(--peligro); } .adjunto__tipo--img { color: var(--info); }
+.adjunto__info { flex: 1; min-width: 0; font-size: 13px; }
+.adjunto__info strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adjunto__info span { font: 500 11px var(--mono); color: var(--apagado); }
+
+/* =========================================================
+   Pantalla: Detalle de solicitud
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 28px 24px 96px; }
+.migas { font-size: 13px; color: var(--apagado); display: flex; gap: 8px; align-items: center; }
+.migas a { color: var(--apagado); text-decoration: none; } .migas a:hover { color: var(--texto); }
+
+.cabecera { margin: 10px 0 24px; display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+.cabecera__titulo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.titulo .num { font-weight: 700; }
+.meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 14px; color: var(--texto-2); }
+.meta dt { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; margin-bottom: 2px; }
+.meta dd { margin: 0; }
+.meta div { min-width: 0; }
+.fecha__hint { font-size: 12px; margin-left: 6px; }
+.fecha__hint--vencida { color: var(--peligro); }
+.cabecera__acciones { display: flex; gap: 8px; }
+
+.obs { margin-bottom: 24px; padding: 12px 16px; border-left: 2px solid var(--borde-fuerte); background: var(--superficie); border-radius: 0 6px 6px 0; font-size: 14px; color: var(--texto-2); }
+.obs strong { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); display: block; margin-bottom: 2px; }
+
+.grilla { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 28px; align-items: start; }
+.columna { display: grid; gap: 16px; min-width: 0; }
+.lateral { display: grid; gap: 16px; position: sticky; top: 88px; max-height: calc(100vh - 104px); overflow: auto; scrollbar-width: thin; }
+
+.card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.card__cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--borde); }
+.card__cab h2 { font-size: 16px; font-weight: 800; }
+.card__cuerpo { padding: 16px 18px; }
+.sub { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; margin-bottom: 10px; }
+
+/* Resumen de montos */
+.resumen { display: grid; gap: 14px; }
+.progreso { display: grid; gap: 8px; }
+.progreso__barra { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--superficie-2); gap: 2px; }
+.progreso__barra i { display: block; height: 100%; }
+.progreso__ley { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--apagado); }
+.progreso__ley span { display: inline-flex; align-items: center; gap: 6px; }
+.progreso__ley i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.montos { width: 100%; border-collapse: collapse; font-size: 13px; }
+.montos th { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); text-align: right; padding: 0 0 6px; }
+.montos th:first-child { text-align: left; }
+.montos td { padding: 6px 0; border-top: 1px solid var(--linea); text-align: right; font: 500 13px var(--mono); }
+.montos td:first-child { text-align: left; color: var(--apagado); }
+.montos .vacio { color: var(--tenue); }
+.montos__nota { font-size: 12px; color: var(--tenue); margin-top: 6px; }
+
+/* Ítems */
+.item { overflow: hidden; }
+.item > summary { list-style: none; cursor: pointer; padding: 16px 18px; display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.item > summary::-webkit-details-marker { display: none; }
+.item > summary:hover { background: rgba(251,250,248,.02); }
+.item__num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 600 12px var(--mono); color: var(--apagado); border: 1px solid var(--borde-fuerte); }
+.item__titulo strong { display: block; font-weight: 700; font-size: 15px; }
+.item__titulo span { font-size: 13px; color: var(--apagado); }
+.item__der { display: flex; align-items: center; gap: 16px; }
+.precios { display: grid; grid-template-columns: auto auto; gap: 2px 10px; justify-content: end; }
+.precios__lbl { font: 500 10px var(--mono); letter-spacing: .04em; color: var(--tenue); text-align: right; align-self: center; }
+.precio { font: 500 13px var(--mono); white-space: nowrap; text-align: right; }
+.precio__mon { color: var(--apagado); margin-right: 4px; }
+.precio--vacio { color: var(--tenue); }
+.precio--sube { color: var(--aviso); } .precio--baja { color: var(--exito); }
+.chevron { width: 18px; height: 18px; fill: none; stroke: var(--apagado); stroke-width: 2; transition: transform .2s; flex: none; }
+.item[open] .chevron { transform: rotate(180deg); }
+.item__cuerpo { border-top: 1px solid var(--borde); padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 24px; }
+.item__datos { display: grid; gap: 16px; align-content: start; }
+.datos { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 14px; margin: 0; }
+.datos dt { color: var(--apagado); } .datos dd { margin: 0; }
+.resultado { padding: 12px 14px; border-radius: 6px; font-size: 14px; border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); background: color-mix(in srgb, var(--c) 8%, transparent); }
+.resultado strong { display: block; font-size: 13px; color: var(--c); margin-bottom: 2px; }
+.resultado--ok { --c: var(--exito); } .resultado--no { --c: var(--peligro); } .resultado--info { --c: var(--info); } .resultado--neutro { --c: var(--inactivo); }
+.resultado span { color: var(--texto-2); }
+.item__acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.cadena__cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.cadena__regla { font-size: 13px; color: var(--apagado); }
+.cadena__regla b { color: var(--texto-2); }
+.cadena__vacia { padding: 14px; border: 1px dashed var(--borde-fuerte); border-radius: 6px; font-size: 13px; color: var(--apagado); }
+.item.is-flash { animation: flash 2.4s ease-out; }
+@keyframes flash { 0%, 30% { box-shadow: 0 0 0 2px var(--naranja); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.item.is-cancelado .item__titulo strong { text-decoration: line-through; color: var(--apagado); }
+
+/* Historial: filtro */
+.hist-filtro { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.hist-filtro button { height: 26px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 600 12px var(--sans); cursor: pointer; }
+.hist-filtro button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+
+.envivo { display: inline-flex; align-items: center; gap: 6px; font: 500 11px var(--mono); color: var(--apagado); }
+.envivo i { width: 7px; height: 7px; border-radius: 50%; background: var(--exito); box-shadow: 0 0 0 3px rgba(127,207,151,.2); }
+
+@media (max-width: 1100px) {
+  .grilla { grid-template-columns: 1fr; }
+  .lateral { position: static; max-height: none; overflow: visible; }
+  .item__cuerpo { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 30px; }
+  .item > summary { grid-template-columns: 28px minmax(0, 1fr); }
+  .item__der { grid-column: 2; justify-content: space-between; }
+  .cabecera__acciones, .cabecera__acciones .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · solicitud:</span>
+  <button type="button" data-modo="revision" aria-pressed="true">En revisión</button>
+  <button type="button" data-modo="lista" aria-pressed="false">Lista</button>
+  <button type="button" data-modo="cancelada" aria-pressed="false">Cancelada</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-modo="404" aria-pressed="false">No encontrada</button>
+  <button type="button" data-modo="403" aria-pressed="false">Sin permiso</button>
+  <span class="maqueta__sep"></span>
+  <span>eventos:</span>
+  <button type="button" id="sim-vivo">Cambio en vivo</button>
+  <button type="button" id="sim-conflicto">Conflicto al editar</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#" aria-current="page">Mis solicitudes</a>
+      <a href="#">Nueva solicitud</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre">Sofía Álvarez</div><div class="usuario__rol">SOLICITANTE · VENTAS</div></div>
+      <span class="avatar" aria-hidden="true">SÁ</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina" id="pagina"></main>
+
+<!-- Modal: editar ítem -->
+<dialog class="modal" id="m-editar" aria-labelledby="m-editar-t">
+  <form id="f-editar" novalidate>
+    <div class="modal__cab"><h2 id="m-editar-t">Editar ítem</h2></div>
+    <div class="modal__cuerpo">
+      <div id="editar-aviso" hidden></div>
+      <div class="campo"><label for="e-detalle">Detalle</label><textarea class="textarea" id="e-detalle" rows="2"></textarea></div>
+      <div style="display:grid;grid-template-columns:120px 1fr;gap:14px">
+        <div class="campo"><label for="e-cant">Cantidad</label><input class="input input--num" id="e-cant" inputmode="decimal"></div>
+        <div class="campo"><label for="e-cat">Categoría</label><input class="input" id="e-cat"></div>
+      </div>
+      <div class="campo">
+        <span class="campo__label" id="e-precio-l">Precio estimado total del ítem</span>
+        <div class="monto" role="group" aria-labelledby="e-precio-l">
+          <div class="monto__monedas"><button type="button" data-moneda="ARS" aria-pressed="false">ARS</button><button type="button" data-moneda="USD" aria-pressed="true">USD</button></div>
+          <input id="e-precio" inputmode="decimal" aria-labelledby="e-precio-l">
+        </div>
+        <span class="campo__ayuda">Solo se puede editar mientras el ítem está Pendiente (Compras todavía no lo tomó).</span>
+      </div>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" type="button" data-cerrar>Cancelar</button>
+      <button class="btn btn--primario" type="submit" id="e-guardar">Guardar cambios</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Modal: quitar ítem -->
+<dialog class="modal" id="m-quitar" aria-labelledby="m-quitar-t">
+  <form method="dialog">
+    <div class="modal__cab"><h2 id="m-quitar-t">¿Quitar este ítem?</h2></div>
+    <div class="modal__cuerpo">
+      <p>El ítem queda <b>Cancelado</b> y Compras no lo va a gestionar. El resto de la solicitud sigue igual.</p>
+      <dl class="resumen-modal" id="quitar-resumen"></dl>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" value="no">Volver</button>
+      <button class="btn btn--peligro" value="si">Quitar ítem</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Modal: cancelar solicitud -->
+<dialog class="modal" id="m-cancelar" aria-labelledby="m-cancelar-t">
+  <form method="dialog">
+    <div class="modal__cab"><h2 id="m-cancelar-t">¿Cancelar la solicitud #1047?</h2></div>
+    <div class="modal__cuerpo">
+      <p>Se cancelan los ítems que todavía no se resolvieron. Lo que ya se compró o se rechazó no cambia. No se puede deshacer.</p>
+      <dl class="resumen-modal" id="cancelar-resumen"></dl>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" value="no">Volver</button>
+      <button class="btn btn--peligro" value="si">Sí, cancelar solicitud</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- Íconos y badges (de LayoutMock) ---------- */
+const IC = {
+  circulo: '<circle cx="12" cy="12" r="7"/>', reloj: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', checks: '<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+  cruz: '<path d="M6 6l12 12M18 6L6 18"/>', barra: '<circle cx="12" cy="12" r="8"/><path d="M7 17L17 7"/>',
+  flecha: '<path d="M5 12h12M13 7l5 5-5 5"/>', punto: '<circle cx="12" cy="12" r="4" fill="currentColor"/>',
+  saltar: '<path d="M5 7l5 5-5 5M12 7l5 5-5 5"/>', espera: '<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>',
+  candado: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
+};
+const B = {
+  // Estado del ítem (EstadoItem)
+  PENDIENTE: ['pendiente', 'Pendiente', 'circulo'], EN_COTIZACION: ['gestion', 'En gestión', 'reloj'], COMPRADO: ['comprado', 'Comprado', 'check'],
+  RECHAZADO: ['rechazado', 'Rechazado', 'cruz'], CANCELADO: ['cancelado', 'Cancelado', 'barra'],
+  // Estado de la solicitud (EstadoSolicitud)
+  EN_REVISION: ['revision', 'En revisión', 'reloj'], LISTA: ['lista', 'Lista', 'checks'], CERRADA: ['cerrada', 'Cerrada', 'candado'], CANCELADA: ['cancelada', 'Cancelada', 'barra'],
+  // Aprobación del ítem
+  CADENA_EN_CURSO: ['curso', 'En curso', 'flecha'], CADENA_APROBADA: ['aprobada', 'Aprobada', 'check'], CADENA_RECHAZADA: ['rechazada', 'Rechazada', 'cruz'], CADENA_CANCELADA: ['cancelada', 'Cancelada', 'barra'],
+  // Paso (EstadoPaso + activo)
+  P_ACTIVO: ['activo', 'Le toca', 'punto'], P_ESPERA: ['espera', 'Aún no le toca', 'espera'], P_APROBADO: ['aprobado', 'Aprobado', 'check'],
+  P_RECHAZADO: ['rechazado', 'Rechazado', 'cruz'], P_OMITIDO: ['omitido', 'Omitido', 'saltar'], P_CANCELADO: ['cancelado', 'Cancelado', 'barra']
+};
+const badge = k => { const [c, t, i] = B[k]; return `<span class="badge badge--${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[i]}</svg>${t}</span>`; };
+const URG = { ALTA: 'alta', MEDIA: 'media', BAJA: 'baja' };
+const urg = u => `<span class="urg urg--${URG[u]}"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>${u[0] + u.slice(1).toLowerCase()}</span>`;
+const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const precio = (m, mon, cls = '') => m == null ? '<span class="precio precio--vacio">—</span>' : `<span class="precio ${cls}"><span class="precio__mon">${mon}</span>${nf.format(m)}</span>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- Datos de ejemplo (forma de SolicitudDetalleResponse + Detalle de aprobación + Historial) ---------- */
+function datos(modo) {
+  const s = {
+    id: 1047, solicitante: 'Sofía Álvarez', sector: 'Ventas', urgencia: 'ALTA', fechaNecesaria: '24/11/26', vencida: 1,
+    creadaEn: '21/11/26 10:47', observaciones: 'Entregar en el depósito de planta baja. Coordinar con Juan (int. 214).',
+    estado: 'EN_REVISION', version: 7,
+    items: [
+      { id: 301, tipo: 'Producto', detalle: 'Silla ergonómica con apoyabrazos', categoria: 'Mobiliario', cantidad: '4', est: 720000, monEst: 'ARS', tot: 698500, monTot: 'ARS', estado: 'COMPRADO',
+        proveedor: 'Muebles Oficina SRL', adjuntos: [['foto-silla-referencia.jpg', '0,8 MB']],
+        cadena: { estado: 'CADENA_APROBADA', regla: 'Más de 500.000 ARS', pasos: [[1, [{ quien: 'Supervisor', tipo: 'ROL', est: 'P_APROBADO', por: 'Laura Méndez', cuando: '22/11 15:20' }]]] } },
+      { id: 302, tipo: 'Producto', detalle: 'Monitor 27" 4K', categoria: 'Informática y hardware', cantidad: '2', est: 550000, monEst: 'ARS', tot: 600000, monTot: 'ARS', estado: 'EN_COTIZACION',
+        encargado: 'Martín Ruiz', adjuntos: [['especificacion-monitor.pdf', '1,1 MB']],
+        cadena: { estado: 'CADENA_EN_CURSO', regla: 'Más de 500.000 ARS', pasos: [
+          [1, [{ quien: 'Supervisor', tipo: 'ROL', est: 'P_APROBADO', por: 'Laura Méndez', cuando: '24/11 10:32' }]],
+          [2, [{ quien: 'Gerencia General', tipo: 'SECTOR', est: 'P_ACTIVO', nota: 'Le toca ahora · desde hace 3 h' }, { quien: 'Finanzas', tipo: 'SECTOR', est: 'P_APROBADO', por: 'Diego Paz', cuando: '25/11 09:05' }]]] } },
+      { id: 303, tipo: 'Producto', detalle: 'Licencias anuales de Adobe Acrobat Pro', categoria: 'Software y licencias', cantidad: '3', est: 720, monEst: 'USD', tot: null, monTot: null, estado: 'PENDIENTE', adjuntos: [], cadena: null },
+      { id: 304, tipo: 'Producto', detalle: 'Auriculares con micrófono', categoria: 'Informática y hardware', cantidad: '6', est: 540000, monEst: 'ARS', tot: 612000, monTot: 'ARS', estado: 'RECHAZADO',
+        motivo: 'Ya tenemos 8 auriculares nuevos en depósito. Pedí reasignación a Sistemas.', rechazadoPor: 'Ana Torres (Gerencia General)', adjuntos: [],
+        cadena: { estado: 'CADENA_RECHAZADA', regla: 'Más de 500.000 ARS', pasos: [
+          [1, [{ quien: 'Supervisor', tipo: 'ROL', est: 'P_APROBADO', por: 'Laura Méndez', cuando: '23/11 11:02' }]],
+          [2, [{ quien: 'Gerencia General', tipo: 'SECTOR', est: 'P_RECHAZADO', por: 'Ana Torres', cuando: '24/11 12:40', motivo: 'Ya tenemos 8 auriculares nuevos en depósito. Pedí reasignación a Sistemas.' }]],
+          [3, [{ quien: 'Dirección', tipo: 'SECTOR', est: 'P_OMITIDO', nota: 'No hizo falta: el ítem ya fue rechazado' }]]] } }
+    ],
+    historial: [
+      ['25/11', '09:05', 'naranja', '<b>Finanzas</b> (Diego Paz) aprobó el paso 2.', 302],
+      ['24/11', '16:18', '', '<b>Martín Ruiz</b> fijó el precio total.', 302, ['ARS 550.000,00', 'ARS 600.000,00']],
+      ['24/11', '12:40', 'rojo', '<b>Gerencia General</b> (Ana Torres) rechazó el ítem.', 304, null, 'Ya tenemos 8 auriculares nuevos en depósito.'],
+      ['24/11', '10:32', 'naranja', '<b>Supervisor</b> (Laura Méndez) aprobó el paso 1.', 302],
+      ['23/11', '17:45', 'verde', '<b>Martín Ruiz</b> registró la compra a Muebles Oficina SRL.', 301],
+      ['23/11', '09:12', '', '<b>Martín Ruiz</b> tomó el ítem.', 302],
+      ['22/11', '15:20', 'naranja', '<b>Supervisor</b> (Laura Méndez) aprobó el paso 1.', 301],
+      ['21/11', '11:02', '', '<b>Sofía Álvarez</b> editó el ítem.', 303, ['cantidad 2', '3']],
+      ['21/11', '10:47', 'verde', '<b>Sofía Álvarez</b> creó la solicitud con 4 ítems.', null]
+    ]
+  };
+  if (modo === 'lista') {
+    s.estado = 'LISTA'; s.vencida = 0;
+    Object.assign(s.items[1], { estado: 'COMPRADO', proveedor: 'Tecno Insumos SA', cadena: { ...s.items[1].cadena, estado: 'CADENA_APROBADA', pasos: [s.items[1].cadena.pasos[0], [2, [{ quien: 'Gerencia General', tipo: 'SECTOR', est: 'P_APROBADO', por: 'Ana Torres', cuando: '25/11 13:10' }, { quien: 'Finanzas', tipo: 'SECTOR', est: 'P_APROBADO', por: 'Diego Paz', cuando: '25/11 09:05' }]]] } });
+    Object.assign(s.items[2], { estado: 'COMPRADO', tot: 690, monTot: 'USD', proveedor: 'Licencias Digitales SRL', cadena: { estado: 'CADENA_APROBADA', regla: 'Por defecto', pasos: [] } });
+    s.historial.unshift(['25/11', '16:02', 'verde', 'La solicitud quedó <b>Lista</b>: todos los ítems se resolvieron.', null], ['25/11', '15:40', 'verde', '<b>Martín Ruiz</b> registró la compra a Tecno Insumos SA.', 302]);
+  }
+  if (modo === 'cancelada') {
+    s.estado = 'CANCELADA'; s.vencida = 0;
+    Object.assign(s.items[1], { estado: 'CANCELADO', cadena: { ...s.items[1].cadena, estado: 'CADENA_CANCELADA', pasos: [s.items[1].cadena.pasos[0], [2, [{ quien: 'Gerencia General', tipo: 'SECTOR', est: 'P_CANCELADO' }, { quien: 'Finanzas', tipo: 'SECTOR', est: 'P_APROBADO', por: 'Diego Paz', cuando: '25/11 09:05' }]]] } });
+    Object.assign(s.items[2], { estado: 'CANCELADO' });
+    s.historial.unshift(['25/11', '11:30', 'rojo', '<b>Sofía Álvarez</b> canceló la solicitud. Se cancelaron 2 ítems sin resolver.', null]);
+  }
+  return s;
+}
+
+/* ---------- Render ---------- */
+let modo = 'revision', S = datos('revision'), filtroHist = 'todo';
+const $ = id => document.getElementById(id);
+const nItem = id => S.items.findIndex(i => i.id === id) + 1;
+
+function renderPasos(c) {
+  if (!c) return '<div class="cadena__vacia">Todavía no hay cadena. Se arma cuando Compras fije el precio total del ítem, según el monto.</div>';
+  if (!c.pasos.length) return '<div class="cadena__vacia">Este monto no necesita aprobación: Compras puede comprarlo directamente.</div>';
+  const nodo = { P_APROBADO: ['paso--hecho', IC.check], P_RECHAZADO: ['paso--rechazado', IC.cruz], P_ACTIVO: ['paso--activo', null], P_OMITIDO: ['paso--omitido', null], P_CANCELADO: ['paso--omitido', null], P_ESPERA: ['', null] };
+  return `<ol class="pasos">${c.pasos.map(([orden, grupo]) => {
+    const est = grupo.some(p => p.est === 'P_RECHAZADO') ? 'P_RECHAZADO' : grupo.some(p => p.est === 'P_ACTIVO') ? 'P_ACTIVO' : grupo.every(p => p.est === 'P_APROBADO') ? 'P_APROBADO' : grupo[0].est;
+    const [cls, svg] = nodo[est];
+    const cajas = grupo.map(p => `<div class="paso__caja ${p.est === 'P_ACTIVO' ? 'paso__caja--activa' : ''}">
+        <div class="paso__fila"><span class="paso__quien">${p.quien} <span class="codigo">${p.tipo}</span></span>${badge(p.est)}</div>
+        <div class="paso__det">${p.por ? `${p.por} · ${p.cuando}` : (p.nota || (p.est === 'P_CANCELADO' ? 'Se canceló con la solicitud' : ''))}</div>
+        ${p.motivo ? `<div class="paso__motivo">“${esc(p.motivo)}”</div>` : ''}</div>`).join('');
+    return `<li class="paso ${cls}"><span class="paso__nodo" aria-hidden="true">${svg ? `<svg viewBox="0 0 24 24">${svg}</svg>` : orden}</span>
+      <div>${grupo.length > 1 ? '<div class="paralelo">EN PARALELO</div>' : ''}<div class="paso__grupo">${cajas}</div></div></li>`;
+  }).join('')}</ol>`;
+}
+
+function resultado(it) {
+  if (it.estado === 'COMPRADO') return `<div class="resultado resultado--ok"><strong>Comprado</strong><span>Proveedor: <b style="color:var(--texto)">${it.proveedor}</b></span></div>`;
+  if (it.estado === 'RECHAZADO') return `<div class="resultado resultado--no"><strong>Rechazado por ${it.rechazadoPor}</strong><span>“${esc(it.motivo)}”</span></div>`;
+  if (it.estado === 'EN_COTIZACION') return `<div class="resultado resultado--info"><strong>En gestión</strong><span>Lo está gestionando <b style="color:var(--texto)">${it.encargado}</b>. ${it.cadena && it.cadena.estado === 'CADENA_EN_CURSO' ? 'Espera aprobación para comprarse.' : ''}</span></div>`;
+  if (it.estado === 'CANCELADO') return '<div class="resultado resultado--neutro"><strong>Cancelado</strong><span>No se va a gestionar.</span></div>';
+  return '<div class="resultado resultado--neutro" style="--c:var(--neutro)"><strong>Pendiente</strong><span>Compras todavía no lo tomó. Mientras tanto lo podés editar o quitar.</span></div>';
+}
+
+function renderItem(it, i) {
+  const editable = it.estado === 'PENDIENTE' && S.estado === 'EN_REVISION';
+  const cls = it.tot == null ? '' : it.monTot === it.monEst && it.tot > it.est ? 'precio--sube' : it.monTot === it.monEst && it.tot < it.est ? 'precio--baja' : '';
+  const abierto = it.estado === 'EN_COTIZACION' || it.estado === 'RECHAZADO' || (S.estado !== 'EN_REVISION' && i === 0);
+  return `<details class="card item ${it.estado === 'CANCELADO' ? 'is-cancelado' : ''}" id="item-${it.id}" ${abierto ? 'open' : ''}>
+    <summary>
+      <span class="item__num" aria-hidden="true">${i + 1}</span>
+      <span class="item__titulo"><strong>${esc(it.detalle)}</strong><span>${it.tipo} · ${it.categoria} · cantidad <span class="num">${it.cantidad}</span></span></span>
+      <span class="item__der">
+        <span class="precios"><span class="precios__lbl">EST.</span>${precio(it.est, it.monEst)}<span class="precios__lbl">TOTAL</span>${precio(it.tot, it.monTot, cls)}</span>
+        ${badge(it.estado)}
+        <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="item__cuerpo">
+      <div class="item__datos">
+        ${resultado(it)}
+        <dl class="datos">
+          <dt>Tipo</dt><dd>${it.tipo}</dd><dt>Categoría</dt><dd>${it.categoria}</dd><dt>Cantidad</dt><dd class="num">${it.cantidad}</dd>
+          <dt>Precio estimado</dt><dd>${precio(it.est, it.monEst)}</dd>
+          <dt>Precio total</dt><dd>${precio(it.tot, it.monTot, cls)}${cls === 'precio--sube' ? ' <span style="font-size:12px;color:var(--aviso)">más que lo estimado</span>' : cls === 'precio--baja' ? ' <span style="font-size:12px;color:var(--exito)">menos que lo estimado</span>' : it.tot == null ? ' <span style="font-size:12px;color:var(--tenue)">lo fija Compras</span>' : ''}</dd>
+        </dl>
+        <div><p class="sub">Adjuntos</p>${it.adjuntos.length ? `<ul class="adjuntos">${it.adjuntos.map(a => { const ext = a[0].split('.').pop(); return `<li class="adjunto"><span class="adjunto__tipo adjunto__tipo--${ext === 'pdf' ? 'pdf' : 'img'}">${ext.toUpperCase()}</span><div class="adjunto__info"><strong>${a[0]}</strong><span>${a[1]}</span></div><a class="btn btn--fantasma btn--chico" href="#">Ver</a></li>`; }).join('')}</ul>` : '<span style="font-size:13px;color:var(--tenue)">Sin adjuntos</span>'}</div>
+        ${editable ? `<div class="item__acciones"><button class="btn btn--secundario btn--chico" type="button" data-editar="${it.id}">Editar</button><button class="btn btn--peligro-borde btn--chico" type="button" data-quitar="${it.id}">Quitar ítem</button></div>` : ''}
+      </div>
+      <div>
+        <div class="cadena__cab"><div><p class="sub" style="margin-bottom:2px">Cadena de aprobación</p>${it.cadena && it.cadena.pasos.length ? `<span class="cadena__regla">Regla: <b>${it.cadena.regla}</b></span>` : ''}</div>${it.cadena && it.cadena.pasos.length ? badge(it.cadena.estado) : ''}</div>
+        ${renderPasos(it.cadena)}
+      </div>
+    </div>
+  </details>`;
+}
+
+function renderResumen() {
+  const cuenta = k => S.items.filter(i => i.estado === k).length;
+  const total = S.items.length, resueltos = S.items.filter(i => ['COMPRADO', 'RECHAZADO', 'CANCELADO'].includes(i.estado)).length;
+  const seg = [['COMPRADO', 'var(--exito)', 'comprado', 'comprados'], ['RECHAZADO', 'var(--peligro)', 'rechazado', 'rechazados'], ['CANCELADO', 'var(--inactivo)', 'cancelado', 'cancelados'], ['EN_COTIZACION', 'var(--info)', 'en gestión', 'en gestión'], ['PENDIENTE', 'var(--borde-fuerte)', 'pendiente', 'pendientes']]
+    .map(s => [s[0], s[1], cuenta(s[0]) === 1 ? s[2] : s[3]]);
+  const sum = (campo, mon, filtro = () => true) => S.items.filter(i => i[campo] != null && i[campo === 'est' ? 'monEst' : 'monTot'] === mon && filtro(i)).reduce((a, i) => a + i[campo], 0);
+  const vivos = i => i.estado !== 'CANCELADO' && i.estado !== 'RECHAZADO';
+  const fila = mon => { const e = sum('est', mon, vivos), t = sum('tot', mon, vivos); return `<tr><td>${mon}</td><td>${e ? nf.format(e) : '<span class="vacio">—</span>'}</td><td>${t ? nf.format(t) : '<span class="vacio">—</span>'}</td></tr>`; };
+  return `<section class="card" aria-labelledby="t-res"><div class="card__cab"><h2 id="t-res">Resumen</h2><span class="num" style="font-size:13px;color:var(--apagado)">${resueltos} de ${total} resueltos</span></div>
+    <div class="card__cuerpo resumen">
+      <div class="progreso"><div class="progreso__barra" role="img" aria-label="${seg.map(s => `${cuenta(s[0])} ${s[2].toLowerCase()}`).join(', ')}">${seg.map(s => cuenta(s[0]) ? `<i style="flex:${cuenta(s[0])};background:${s[1]}"></i>` : '').join('')}</div>
+        <div class="progreso__ley">${seg.filter(s => cuenta(s[0])).map(s => `<span><i style="background:${s[1]}"></i>${cuenta(s[0])} ${s[2].toLowerCase()}</span>`).join('')}</div></div>
+      <div><table class="montos"><thead><tr><th>MONEDA</th><th>ESTIMADO</th><th>TOTAL</th></tr></thead><tbody>${fila('ARS')}${fila('USD')}</tbody></table>
+      <p class="montos__nota">Sin ítems rechazados ni cancelados. ARS y USD no se suman.</p></div>
+    </div></section>`;
+}
+
+function renderHistorial() {
+  const filtros = [['todo', 'Todo'], ['sol', 'Solicitud'], ...S.items.map((it, i) => [String(it.id), `Ítem ${i + 1}`])];
+  const lista = S.historial.filter(h => filtroHist === 'todo' || (filtroHist === 'sol' ? h[4] == null : String(h[4]) === filtroHist));
+  return `<section class="card" aria-labelledby="t-hist"><div class="card__cab"><h2 id="t-hist">Historial</h2><span class="envivo" title="Se actualiza solo"><i aria-hidden="true"></i>EN VIVO</span></div>
+    <div class="card__cuerpo">
+      <div class="hist-filtro" role="group" aria-label="Filtrar historial">${filtros.map(f => `<button type="button" data-hist="${f[0]}" aria-pressed="${filtroHist === f[0]}">${f[1]}</button>`).join('')}</div>
+      ${lista.length ? `<ol class="historial" id="historial">${lista.map(h => `<li><span class="historial__fecha">${h[0]}<br>${h[1]}</span><span class="historial__punto ${h[2] ? 'historial__punto--' + h[2] : ''}"></span>
+        <div class="historial__texto">${h[3]}${h[4] ? `<span class="historial__item">ÍTEM ${nItem(h[4])} · ${esc(S.items[nItem(h[4]) - 1].detalle)}</span>` : ''}
+        ${h[5] ? `<div class="historial__cambio"><del>${h[5][0]}</del> → <ins>${h[5][1]}</ins></div>` : ''}${h[6] ? `<div class="historial__nota">“${esc(h[6])}”</div>` : ''}</div></li>`).join('')}</ol>` : '<p style="font-size:13px;color:var(--tenue)">Sin movimientos para este filtro.</p>'}
+    </div></section>`;
+}
+
+function render() {
+  const p = $('pagina');
+  document.title = `Solicitud #${S.id} · Compras`;
+  if (modo === 'cargando') {
+    p.innerHTML = `<span class="sr" role="status">Cargando solicitud…</span><span class="esq" style="width:180px;margin-bottom:18px"></span><span class="esq" style="width:340px;height:36px;margin-bottom:18px"></span><span class="esq" style="width:520px;margin-bottom:36px"></span>
+      <div class="grilla"><div class="columna">${'<div class="card" style="padding:18px"><span class="esq" style="width:60%;margin-bottom:10px"></span><span class="esq" style="width:35%"></span></div>'.repeat(4)}</div><div class="card" style="padding:18px;height:300px"><span class="esq" style="width:40%"></span></div></div>`;
+    return;
+  }
+  if (modo === '404' || modo === '403') {
+    const e404 = modo === '404';
+    p.innerHTML = `<div class="estado"><div class="estado__icono ${e404 ? '' : 'estado__icono--naranja'}"><svg viewBox="0 0 24 24">${e404 ? '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>' : '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'}</svg></div>
+      <h3>${e404 ? 'No encontramos la solicitud #9999' : 'Esta solicitud no es tuya'}</h3><p>${e404 ? 'Puede que el número esté mal o que se haya eliminado.' : 'Solo la persona que la creó, Compras y los aprobadores pueden verla.'}</p>
+      <div class="acciones"><a class="btn btn--secundario" href="#">Volver a Mis solicitudes</a></div><span class="codigo">${e404 ? '404 · NO_ENCONTRADO' : '403 · SIN_PERMISO'}</span></div>`;
+    return;
+  }
+  const puedeCancelar = S.estado === 'EN_REVISION';
+  p.innerHTML = `
+    <nav class="migas" aria-label="Ubicación"><a href="#">Mis solicitudes</a><span aria-hidden="true">/</span><span class="num">#${S.id}</span></nav>
+    <div class="cabecera">
+      <div>
+        <div class="cabecera__titulo"><h1 class="titulo">Solicitud <span class="num">#${S.id}</span></h1>${badge(S.estado)}</div>
+        <dl class="meta">
+          <div><dt>Pedida por</dt><dd>${S.solicitante} · ${S.sector}</dd></div>
+          <div><dt>Creada</dt><dd class="num">${S.creadaEn}</dd></div>
+          <div><dt>Urgencia</dt><dd>${urg(S.urgencia)}</dd></div>
+          <div><dt>Necesaria</dt><dd><span class="num">${S.fechaNecesaria}</span>${S.vencida ? `<span class="fecha__hint fecha__hint--vencida">vencida hace ${S.vencida} día</span>` : ''}</dd></div>
+        </dl>
+      </div>
+      ${puedeCancelar ? '<div class="cabecera__acciones"><button class="btn btn--peligro-borde" type="button" id="btn-cancelar">Cancelar solicitud</button></div>' : ''}
+    </div>
+    <div id="aviso-vivo"></div>
+    ${S.observaciones ? `<div class="obs"><strong>OBSERVACIONES</strong>${esc(S.observaciones)}</div>` : ''}
+    <div class="grilla">
+      <div class="columna">
+        <h2 class="sr">Ítems</h2>
+        ${S.items.map(renderItem).join('')}
+      </div>
+      <aside class="lateral">${renderResumen()}${renderHistorial()}</aside>
+    </div>`;
+}
+
+/* ---------- Interacción ---------- */
+let editando = null;
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.hist) { filtroHist = t.dataset.hist; render(); return; }
+  if (t.dataset.editar) { abrirEditar(+t.dataset.editar); return; }
+  if (t.dataset.quitar) {
+    editando = S.items.find(i => i.id === +t.dataset.quitar);
+    $('quitar-resumen').innerHTML = `<dt>Ítem</dt><dd>${esc(editando.detalle)} × ${editando.cantidad}</dd><dt>Estimado</dt><dd class="num">${editando.monEst} ${nf.format(editando.est)}</dd>`;
+    $('m-quitar').showModal(); return;
+  }
+  if (t.id === 'btn-cancelar') {
+    const sin = S.items.filter(i => i.estado === 'PENDIENTE' || i.estado === 'EN_COTIZACION');
+    $('cancelar-resumen').innerHTML = `<dt>Se cancelan</dt><dd>${sin.map(i => esc(i.detalle)).join(' · ')}</dd><dt>No cambian</dt><dd>${S.items.filter(i => !sin.includes(i)).map(i => esc(i.detalle)).join(' · ')}</dd>`;
+    $('m-cancelar').showModal(); return;
+  }
+  if ('cerrar' in t.dataset) t.closest('dialog').close();
+});
+function abrirEditar(id, conflicto) {
+  editando = S.items.find(i => i.id === id);
+  $('e-detalle').value = editando.detalle; $('e-cant').value = editando.cantidad; $('e-cat').value = editando.categoria;
+  $('e-precio').value = nf.format(editando.est);
+  document.querySelectorAll('#m-editar [data-moneda]').forEach(b => b.setAttribute('aria-pressed', b.dataset.moneda === editando.monEst));
+  const av = $('editar-aviso');
+  av.hidden = !conflicto;
+  if (conflicto) {
+    av.className = 'aviso';
+    av.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><div class="aviso__cuerpo"><strong>El ítem cambió mientras lo editabas</strong>Compras lo tomó hace un momento y ya no se puede editar. Recargá para ver cómo quedó. <span class="codigo">CONFLICTO_VERSION · 409</span></div>';
+    $('e-guardar').textContent = 'Recargar'; $('e-guardar').dataset.recargar = '1';
+  } else { $('e-guardar').textContent = 'Guardar cambios'; delete $('e-guardar').dataset.recargar; }
+  $('m-editar').showModal();
+}
+$('m-editar').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); });
+$('f-editar').addEventListener('submit', e => {
+  e.preventDefault();
+  const g = $('e-guardar');
+  if (g.dataset.recargar) { $('m-editar').close(); editando.estado = 'EN_COTIZACION'; editando.encargado = 'Martín Ruiz'; render(); toast('info', 'Actualizado', 'El ítem ahora está En gestión: ya no se puede editar.'); return; }
+  g.disabled = true; g.innerHTML = '<span class="spinner" aria-hidden="true"></span>Guardando…';
+  setTimeout(() => {
+    g.disabled = false;
+    const antes = editando.cantidad;
+    editando.detalle = $('e-detalle').value; editando.cantidad = $('e-cant').value; editando.categoria = $('e-cat').value;
+    editando.monEst = document.querySelector('#m-editar [data-moneda][aria-pressed="true"]').dataset.moneda;
+    editando.est = +$('e-precio').value.replace(/\./g, '').replace(',', '.') || editando.est;
+    S.historial.unshift(['hoy', 'ahora', '', '<b>Sofía Álvarez</b> editó el ítem.', editando.id, antes !== editando.cantidad ? [`cantidad ${antes}`, editando.cantidad] : null]);
+    $('m-editar').close(); render(); toast('exito', 'Cambios guardados', esc(editando.detalle));
+  }, 700);
+});
+$('m-quitar').addEventListener('close', e => {
+  if (e.target.returnValue !== 'si') return;
+  editando.estado = 'CANCELADO';
+  S.historial.unshift(['hoy', 'ahora', 'rojo', '<b>Sofía Álvarez</b> quitó el ítem.', editando.id]);
+  render(); toast('exito', 'Ítem quitado', `${esc(editando.detalle)} quedó cancelado.`);
+});
+$('m-cancelar').addEventListener('close', e => { if (e.target.returnValue === 'si') { setModo('cancelada'); toast('exito', 'Solicitud cancelada', 'Se avisó a Compras.'); } });
+
+/* ---------- Tiempo real y conflicto (simulados) ---------- */
+$('sim-vivo').addEventListener('click', () => {
+  if (modo !== 'revision') setModo('revision');
+  const it = S.items[1];
+  const antes = it.tot; it.tot = 640000;
+  S.historial.unshift(['hoy', 'ahora', 'naranja', '<b>Martín Ruiz</b> corrigió el precio total.', it.id, [`ARS ${nf.format(antes)}`, `ARS ${nf.format(it.tot)}`]]);
+  render();
+  const el = $('item-' + it.id); el.open = true; el.classList.add('is-flash'); el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  toast('info', 'El precio total cambió', `Ítem 2 · Monitor 27" 4K ahora es ARS ${nf.format(it.tot)}. La aprobación se recalcula.`);
+});
+$('sim-conflicto').addEventListener('click', () => { if (modo !== 'revision') setModo('revision'); abrirEditar(303, true); });
+
+/* ---------- Toasts ---------- */
+const ICT = { exito: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>', error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>' };
+function toast(tipo, titulo, texto) {
+  const el = document.createElement('div'); el.className = `toast toast--${tipo}`; el.setAttribute('role', 'status');
+  el.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICT[tipo]}</svg><div><strong>${titulo}</strong><span>${texto}</span></div><button class="toast__cerrar" type="button" aria-label="Cerrar">×</button>`;
+  el.querySelector('button').onclick = () => el.remove();
+  $('toasts').append(el); setTimeout(() => el.remove(), 6000);
+}
+
+function setModo(m) {
+  modo = m; filtroHist = 'todo';
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  if (['revision', 'lista', 'cancelada'].includes(m)) S = datos(m);
+  render(); window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => setModo(b.dataset.modo)));
+$('btn-menu').addEventListener('click', e => { const a = $('topbar').classList.toggle('is-abierto'); e.currentTarget.setAttribute('aria-expanded', a); });
+setModo('revision');
+</script>
+</body>
+</html>
