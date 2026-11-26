@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Aprobaciones · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   y aprobadas/MisSolicitudesMock.html (patrón de lista)
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button, .maqueta select { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta select { background: var(--fondo); color: var(--texto); }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center; }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.select { height: 32px; width: 76px; padding: 0 28px 0 10px; border-radius: var(--radio); background: var(--fondo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center; border: 1px solid var(--borde); color: var(--texto); font: 400 13px var(--sans); appearance: none; }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.badge--aprobado, .badge--aprobada { --c: var(--exito); }
+.badge--rechazado, .badge--rechazada { --c: var(--peligro); }
+.badge--cancelada { --c: var(--inactivo); text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge--curso { --c: var(--curso); } .badge--activo { --c: var(--naranja); }
+.badge--nuevo { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+.vos { font: 700 10px var(--mono); letter-spacing: .06em; color: #1b1916; background: var(--naranja); padding: 2px 6px; border-radius: 3px; }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+
+/* Panel, tabla, paginación (patrón de MisSolicitudesMock) */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.panel__cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.panel__cab b { color: var(--texto-2); font-weight: 600; }
+.orden { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--mono); }
+.orden svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla th { text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde); font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap; }
+.tabla th.der, .tabla td.der { text-align: right; }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla tbody tr:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tr.is-nueva td { background: rgba(224,138,60,.06); }
+.tabla tr.is-nueva td:first-child { box-shadow: inset 3px 0 0 var(--naranja); }
+.celda-item strong { display: block; font-weight: 600; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.celda-item span, .celda-sol span { font-size: 13px; color: var(--apagado); }
+.celda-sol strong { display: block; font-weight: 500; }
+.celda-sol a { font: 500 12px var(--mono); color: var(--apagado); text-decoration: none; }
+.celda-sol a:hover { color: var(--texto); }
+.precios { display: grid; grid-template-columns: auto auto; gap: 2px 10px; justify-content: end; }
+.precios__lbl { font: 500 10px var(--mono); letter-spacing: .04em; color: var(--tenue); text-align: right; align-self: center; }
+.precio { font: 500 13px var(--mono); white-space: nowrap; text-align: right; }
+.precio__mon { color: var(--apagado); margin-right: 4px; }
+.precio--sube { color: var(--aviso); }
+.precio--vacio { color: var(--tenue); }
+.regla { font-size: 13px; color: var(--texto-2); }
+.activo strong { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
+.activo > span { font-size: 12px; color: var(--apagado); }
+.activo > span.espera-larga { color: var(--aviso); }
+.decision-fila { display: grid; gap: 3px; }
+.decision-fila time { font: 500 12px var(--mono); color: var(--apagado); }
+.celda-accion { width: 1%; white-space: nowrap; text-align: right; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent; background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer; }
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 64px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--exito { color: var(--exito); border-color: color-mix(in srgb, var(--exito) 40%, transparent); }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 420px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--naranja); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+
+/* =========================================================
+   Pantalla: Aprobaciones
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+.encabezado { margin-bottom: 24px; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 8px; color: var(--texto-2); }
+
+.pestanias { display: flex; gap: 4px; border-bottom: 1px solid var(--borde); margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.pestanias button { position: relative; flex: none; height: 44px; padding: 0 14px; border: 0; background: transparent; color: var(--texto-2); font: 500 14px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.pestanias button:hover { color: var(--texto); }
+.pestanias button[aria-selected="true"] { color: var(--texto); font-weight: 600; }
+.pestanias button[aria-selected="true"]::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--naranja); }
+.pestanias__admin { font: 600 9px var(--mono); letter-spacing: .06em; color: var(--tenue); border: 1px solid var(--borde); border-radius: 3px; padding: 1px 4px; }
+.pestania-desc { font-size: 13px; color: var(--apagado); margin: -4px 0 16px; }
+
+@media (max-width: 860px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 30px; }
+  .tabla thead { display: none; }
+  .tabla, .tabla tbody { display: block; }
+  .tabla tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px 16px; border-bottom: 1px solid var(--linea); }
+  .tabla tbody tr:last-child { border-bottom: 0; }
+  .tabla td { display: block; padding: 0; border: 0; }
+  .tabla td[data-c="item"] { grid-column: 1; }
+  .tabla td[data-c="urg"] { grid-column: 2; grid-row: 1; justify-self: end; }
+  .tabla td[data-c="sol"] { grid-column: 1 / -1; }
+  .tabla td[data-c="precio"] { grid-column: 2; grid-row: 3; text-align: right; }
+  .tabla td[data-c="activo"], .tabla td[data-c="decision"], .tabla td[data-c="estado"] { grid-column: 1; grid-row: 3; }
+  .tabla td[data-c="regla"] { display: none; }
+  .tabla td.celda-accion { grid-column: 1 / -1; text-align: left; width: auto; }
+  .tabla td.celda-accion .btn { width: 100%; }
+  .celda-item strong { max-width: none; white-space: normal; }
+  .tabla tr.is-nueva td:first-child { box-shadow: none; }
+  .tabla tr.is-nueva { box-shadow: inset 3px 0 0 var(--naranja); }
+  .paginacion { justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · ver como</span>
+  <select id="rol"><option value="supervisor">Supervisor</option><option value="admin">Admin</option></select>
+  <span class="maqueta__sep"></span>
+  <span>estado:</span>
+  <button type="button" data-modo="datos" aria-pressed="true">Con datos</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-modo="vacio" aria-pressed="false">Vacío</button>
+  <button type="button" data-modo="error" aria-pressed="false">Error</button>
+  <span class="maqueta__sep"></span>
+  <button type="button" id="sim-nuevo">Llega uno nuevo en vivo</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal"></nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre" id="u-nombre"></div><div class="usuario__rol" id="u-rol"></div></div>
+      <span class="avatar" aria-hidden="true" id="u-avatar"></span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina">
+  <div class="encabezado">
+    <h1 class="titulo">Aprobaciones</h1>
+    <p class="bajada">Ítems que necesitan un visto bueno antes de que Compras los pueda comprar.</p>
+  </div>
+
+  <div class="pestanias" role="tablist" aria-label="Vista" id="pestanias"></div>
+  <p class="pestania-desc" id="pestania-desc"></p>
+
+  <div class="panel" id="panel" role="tabpanel">
+    <div class="panel__cab" id="panel-cab"></div>
+    <div id="cuerpo"></div>
+  </div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+const INICIO_MENU = '<a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>';
+/* ---------- Íconos y badges ---------- */
+const IC = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', cruz: '<path d="M6 6l12 12M18 6L6 18"/>', barra: '<circle cx="12" cy="12" r="8"/><path d="M7 17L17 7"/>',
+  flecha: '<path d="M5 12h12M13 7l5 5-5 5"/>', punto: '<circle cx="12" cy="12" r="4" fill="currentColor"/>'
+};
+const B = {
+  EN_CURSO: ['curso', 'En curso', 'flecha'], APROBADA: ['aprobada', 'Aprobada', 'check'], RECHAZADA: ['rechazada', 'Rechazada', 'cruz'], CANCELADA: ['cancelada', 'Cancelada', 'barra'],
+  APROBADO: ['aprobado', 'Aprobaste', 'check'], RECHAZADO: ['rechazado', 'Rechazaste', 'cruz'], ACTIVO: ['activo', 'Le toca', 'punto']
+};
+const badge = k => { const [c, t, i] = B[k]; return `<span class="badge badge--${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[i]}</svg>${t}</span>`; };
+const URG = { ALTA: ['alta', 'Alta'], MEDIA: ['media', 'Media'], BAJA: ['baja', 'Baja'] };
+const urgencia = u => `<span class="urg urg--${URG[u][0]}"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>${URG[u][1]}</span>`;
+const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const precio = (m, mon, cls = '') => m == null ? '<span class="precio precio--vacio">—</span>' : `<span class="precio ${cls}"><span class="precio__mon">${mon}</span>${nf.format(m)}</span>`;
+const $ = id => document.getElementById(id);
+
+/* ---------- Datos (forma de AprobacionResponses.Fila + extras propuestos) ---------- */
+// [itemId, solicitudId, solicitante, sector, categoria, detalle, cant, urg, est, monEst, tot, monTot, regla, estadoCadena, pasoActivo, puedoDecidir, esperandoHace, miDecision, decididoEn]
+const R = {
+  'para-decidir': [
+    [302, 1047, 'Sofía Álvarez', 'Ventas', 'Informática y hardware', 'Monitor 27" 4K', 2, 'ALTA', 550000, 'ARS', 600000, 'ARS', 'Más de 500.000 ARS', 'EN_CURSO', 'Supervisor', true, 'hace 3 h'],
+    [318, 1050, 'Lucas Gómez', 'Sistemas', 'Informática y hardware', 'Servidor NAS 4 bahías', 1, 'ALTA', 1450, 'USD', 1520, 'USD', 'Más de 1.000 USD', 'EN_CURSO', 'Supervisor', true, 'hace 1 día'],
+    [311, 1048, 'Julieta Ramos', 'RR. HH.', 'Catering y eventos', 'Catering evento fin de año (80 personas)', 1, 'MEDIA', 1850000, 'ARS', 1780000, 'ARS', 'Más de 500.000 ARS', 'EN_CURSO', 'Supervisor', true, 'hace 2 días'],
+    [309, 1046, 'Tomás Vera', 'Marketing', 'Software y licencias', 'Licencias Adobe Creative Cloud', 4, 'MEDIA', 2600, 'USD', 2880, 'USD', 'Más de 1.000 USD', 'EN_CURSO', 'Supervisor', true, 'hace 5 h'],
+    [297, 1041, 'Nicolás Díaz', 'Atención al cliente', 'Mobiliario', 'Escritorios regulables en altura', 6, 'BAJA', 2100000, 'ARS', 2340000, 'ARS', 'Más de 500.000 ARS', 'EN_CURSO', 'Supervisor', true, 'hace 3 días']
+  ],
+  'en-curso': [
+    [305, 1045, 'Carla Sosa', 'Administración', 'Mantenimiento edilicio', 'Pintura de oficinas planta alta', 1, 'MEDIA', 3200000, 'ARS', 3050000, 'ARS', 'Más de 2.000.000 ARS', 'EN_CURSO', 'Gerencia General', false, 'hace 6 h'],
+    [299, 1042, 'Lucas Gómez', 'Sistemas', 'Informática y hardware', 'Notebooks para desarrollo', 5, 'ALTA', 9800, 'USD', 10250, 'USD', 'Más de 1.000 USD', 'EN_CURSO', 'Dirección', false, 'hace 1 día'],
+    [293, 1039, 'Julieta Ramos', 'RR. HH.', 'Capacitaciones', 'Curso de liderazgo (12 personas)', 1, 'BAJA', 1200000, 'ARS', 1150000, 'ARS', 'Más de 500.000 ARS', 'EN_CURSO', 'Finanzas', false, 'hace 4 días']
+  ],
+  'decididas': [
+    [301, 1047, 'Sofía Álvarez', 'Ventas', 'Mobiliario', 'Silla ergonómica con apoyabrazos', 4, 'ALTA', 720000, 'ARS', 698500, 'ARS', 'Más de 500.000 ARS', 'APROBADA', null, false, null, 'APROBADO', '22/11 15:20'],
+    [304, 1047, 'Sofía Álvarez', 'Ventas', 'Informática y hardware', 'Auriculares con micrófono', 6, 'ALTA', 540000, 'ARS', 612000, 'ARS', 'Más de 500.000 ARS', 'RECHAZADA', null, false, null, 'APROBADO', '23/11 11:02'],
+    [288, 1036, 'Laura Méndez', 'Operaciones', 'Mantenimiento edilicio', 'Mantenimiento aire acondicionado', 1, 'ALTA', 420000, 'ARS', 455000, 'ARS', 'Por defecto', 'APROBADA', null, false, null, 'APROBADO', '18/11 09:40'],
+    [284, 1033, 'Nicolás Díaz', 'Atención al cliente', 'Informática y hardware', 'Auriculares con micrófono', 10, 'BAJA', 450000, 'ARS', 1200000, 'ARS', 'Más de 500.000 ARS', 'RECHAZADA', null, false, null, 'RECHAZADO', '15/11 17:12'],
+    [279, 1030, 'Tomás Vera', 'Marketing', 'Software y licencias', 'Suscripción Figma (3 asientos)', 3, 'MEDIA', 540, 'USD', 600, 'USD', 'Más de 1.000 USD', 'CANCELADA', null, false, null, 'APROBADO', '12/11 10:05']
+  ]
+};
+R.todas = [...R['para-decidir'].map(r => { const x = [...r]; x[15] = false; return x; }), ...R['en-curso'], ...R.decididas.map(r => { const x = [...r]; x[17] = null; return x; })]
+  .sort((a, b) => ({ ALTA: 0, MEDIA: 1, BAJA: 2 }[a[7]] - { ALTA: 0, MEDIA: 1, BAJA: 2 }[b[7]]));
+const fila = r => ({ itemId: r[0], solicitudId: r[1], solicitante: r[2], sector: r[3], categoria: r[4], detalle: r[5], cantidad: r[6], urgencia: r[7], est: r[8], monEst: r[9], tot: r[10], monTot: r[11], regla: r[12], estado: r[13], activo: r[14], puedoDecidir: r[15], esperando: r[16], miDecision: r[17], decididoEn: r[18], nueva: r[19] });
+
+const ROLES = {
+  supervisor: { nombre: 'Laura Méndez', rol: 'SUPERVISOR · OPERACIONES', ini: 'LM', admin: false },
+  admin: { nombre: 'Pablo Ferreyra', rol: 'ADMIN', ini: 'PF', admin: true }
+};
+const VISTAS = [
+  ['para-decidir', 'Para decidir', 'Te toca a vos: decidí cada ítem. Los más urgentes y los que esperan hace más tiempo van primero.'],
+  ['en-curso', 'En curso', 'Ítems donde participás pero que hoy le tocan a otro paso. Solo lectura.'],
+  ['decididas', 'Decididas', 'Lo que ya aprobaste o rechazaste, y cómo terminó cada cadena.'],
+  ['todas', 'Todas', 'Todas las aprobaciones del sistema, de cualquier aprobador.']
+];
+
+/* ---------- Estado de la vista ---------- */
+let rol = 'supervisor', vista = 'para-decidir', modo = 'datos', pagina = 1, porPagina = 20, extra = [];
+const lista = () => [...extra.filter(() => vista === 'para-decidir'), ...(R[vista] || [])].map(fila);
+const paraDecidir = () => extra.length + R['para-decidir'].length;
+
+function pintarTopbar() {
+  const r = ROLES[rol], n = paraDecidir();
+  const menu = r.admin
+    ? [['Usuarios'], ['Sectores'], ['Reglas'], ['Reportes'], ['Aprobaciones', true]]
+    : [['Aprobaciones', true, n], '|', ['Mis solicitudes'], ['Nueva solicitud']];
+  $('menu').innerHTML = INICIO_MENU + menu.map(m => m === '|' ? '<span class="menu__sep" aria-hidden="true"></span>'
+    : `<a href="#"${m[1] ? ' aria-current="page"' : ''}>${m[0]}${m[2] ? `<span class="contador" aria-label="${m[2]} para decidir">${m[2]}</span>` : ''}</a>`).join('');
+  $('u-nombre').textContent = r.nombre; $('u-rol').textContent = r.rol; $('u-avatar').textContent = r.ini;
+}
+function pintarPestanias() {
+  const visibles = VISTAS.filter(v => v[0] !== 'todas' || ROLES[rol].admin);
+  if (!visibles.find(v => v[0] === vista)) vista = 'para-decidir';
+  $('pestanias').innerHTML = visibles.map(v => `<button type="button" role="tab" aria-selected="${v[0] === vista}" aria-controls="panel" data-vista="${v[0]}">${v[1]}${v[0] === 'para-decidir' && paraDecidir() && modo !== 'vacio' ? `<span class="contador">${paraDecidir()}</span>` : ''}${v[0] === 'todas' ? '<span class="pestanias__admin">ADMIN</span>' : ''}</button>`).join('');
+  $('pestania-desc').textContent = VISTAS.find(v => v[0] === vista)[2];
+}
+
+/* ---------- Columnas según la pestaña ---------- */
+const celdaItem = f => `<td data-c="item" class="celda-item"><strong>${f.detalle} <span class="num">× ${f.cantidad}</span></strong><span>${f.categoria}</span>${f.nueva ? ' <span class="badge badge--nuevo">Nuevo</span>' : ''}</td>`;
+const celdaSol = f => `<td data-c="sol" class="celda-sol"><strong>${f.solicitante}</strong><span>${f.sector} · </span><a href="#" data-sol="${f.solicitudId}">#${f.solicitudId}</a></td>`;
+const celdaPrecio = f => { const sube = f.monTot === f.monEst && f.tot > f.est; return `<td data-c="precio" class="der"><div class="precios"><span class="precios__lbl">EST.</span>${precio(f.est, f.monEst)}<span class="precios__lbl">TOTAL</span>${precio(f.tot, f.monTot, sube ? 'precio--sube' : '')}</div></td>`; };
+const largo = s => /d[ií]as?/.test(s || '') && !/^hace 1 d/.test(s);
+const celdaActivo = f => `<td data-c="activo" class="activo"><strong>${f.activo}${f.puedoDecidir ? '<span class="vos">VOS</span>' : ''}</strong><span class="${largo(f.esperando) ? 'espera-larga' : ''}">esperando ${f.esperando}</span></td>`;
+const COLS = {
+  'para-decidir': {
+    cab: ['Ítem', 'Solicitante', 'Urgencia', ['Estimado / Total', 'der'], 'Regla', 'Paso', ''],
+    fila: f => `${celdaItem(f)}${celdaSol(f)}<td data-c="urg">${urgencia(f.urgencia)}</td>${celdaPrecio(f)}<td data-c="regla" class="regla">${f.regla}</td>${celdaActivo(f)}<td class="celda-accion"><button class="btn btn--secundario btn--chico" type="button" data-decidir="${f.itemId}">Decidir →</button></td>`
+  },
+  'en-curso': {
+    cab: ['Ítem', 'Solicitante', 'Urgencia', ['Estimado / Total', 'der'], 'Regla', 'Le toca a'],
+    fila: f => `${celdaItem(f)}${celdaSol(f)}<td data-c="urg">${urgencia(f.urgencia)}</td>${celdaPrecio(f)}<td data-c="regla" class="regla">${f.regla}</td>${celdaActivo(f)}`
+  },
+  'decididas': {
+    cab: ['Ítem', 'Solicitante', 'Urgencia', ['Total', 'der'], 'Tu decisión', 'Cómo terminó'],
+    fila: f => `${celdaItem(f)}${celdaSol(f)}<td data-c="urg">${urgencia(f.urgencia)}</td><td data-c="precio" class="der">${precio(f.tot, f.monTot)}</td>
+      <td data-c="decision"><div class="decision-fila">${badge(f.miDecision)}<time>${f.decididoEn}</time></div></td><td data-c="estado">${badge(f.estado)}</td>`
+  },
+  'todas': {
+    cab: ['Ítem', 'Solicitante', 'Urgencia', ['Estimado / Total', 'der'], 'Regla', 'Estado', 'Le toca a'],
+    fila: f => `${celdaItem(f)}${celdaSol(f)}<td data-c="urg">${urgencia(f.urgencia)}</td>${celdaPrecio(f)}<td data-c="regla" class="regla">${f.regla}</td><td data-c="estado">${badge(f.estado)}</td>
+      <td data-c="activo" class="activo">${f.activo ? `<strong>${f.activo}</strong><span>esperando ${f.esperando}</span>` : '<span>—</span>'}</td>`
+  }
+};
+
+const VACIOS = {
+  'para-decidir': ['estado__icono--exito', '<path d="M5 12.5l4.5 4.5L19 7.5"/>', 'Estás al día', 'No tenés nada para decidir. Te avisamos cuando llegue un ítem nuevo.', ''],
+  'en-curso': ['', '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>', 'Nada en curso', 'No hay ítems tuyos esperando a otros pasos.', ''],
+  'decididas': ['', '<path d="M4 7h16M4 12h10M4 17h7"/>', 'Todavía no decidiste nada', 'Cuando apruebes o rechaces un ítem, lo vas a ver acá.', ''],
+  'todas': ['', '<path d="M4 7h16M4 12h10M4 17h7"/>', 'No hay aprobaciones', 'Ningún ítem pasó todavía por una cadena de aprobación.', '']
+};
+
+function render() {
+  pintarTopbar(); pintarPestanias();
+  const c = $('cuerpo'), cols = COLS[vista];
+  const ord = '<span class="orden"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Ordenado por urgencia y antigüedad</span>';
+  $('panel-cab').hidden = modo === 'error';
+  if (modo === 'cargando') {
+    $('panel-cab').innerHTML = `<span><span class="esq" style="width:120px;display:inline-block"></span></span>${ord}`;
+    const f = `<tr>${cols.cab.map(() => '<td><span class="esq" style="width:80%"></span></td>').join('')}</tr>`;
+    c.innerHTML = `<table class="tabla" aria-busy="true"><thead><tr>${cols.cab.map(h => `<th>${Array.isArray(h) ? h[0] : h}</th>`).join('')}</tr></thead><tbody>${f.repeat(5)}</tbody></table><span class="sr" role="status">Cargando…</span>`;
+    return;
+  }
+  if (modo === 'error') {
+    c.innerHTML = '<div class="estado"><div class="estado__icono estado__icono--error"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg></div><h3>No pudimos cargar las aprobaciones</h3><p>Puede ser un problema de conexión. Si sigue pasando, avisá a Sistemas.</p><div class="acciones"><button class="btn btn--secundario" type="button" data-reintentar>Reintentar</button></div><span class="codigo">ERROR_RED · 503</span></div>';
+    return;
+  }
+  const l = modo === 'vacio' ? [] : lista();
+  $('panel-cab').innerHTML = `<span><b class="num">${l.length}</b> ${l.length === 1 ? 'ítem' : 'ítems'}</span>${ord}`;
+  if (!l.length) {
+    const v = VACIOS[vista];
+    c.innerHTML = `<div class="estado"><div class="estado__icono ${v[0]}"><svg viewBox="0 0 24 24">${v[1]}</svg></div><h3>${v[2]}</h3><p>${v[3]}</p></div>`;
+    return;
+  }
+  const paginas = Math.ceil(l.length / porPagina); pagina = Math.min(pagina, paginas);
+  const desde = (pagina - 1) * porPagina;
+  c.innerHTML = `<table class="tabla">
+    <thead><tr>${cols.cab.map(h => `<th scope="col"${Array.isArray(h) ? ` class="${h[1]}"` : ''}>${Array.isArray(h) ? h[0] : (h || '<span class="sr">Acción</span>')}</th>`).join('')}</tr></thead>
+    <tbody>${l.slice(desde, desde + porPagina).map(f => `<tr tabindex="0" data-item="${f.itemId}" class="${f.nueva ? 'is-nueva' : ''}" aria-label="${f.detalle}, ${f.solicitante}, urgencia ${URG[f.urgencia][1]}">${cols.fila(f)}</tr>`).join('')}</tbody>
+  </table>
+  <nav class="paginacion" aria-label="Paginación"><span>Mostrando <b class="num" style="color:var(--texto-2)">${desde + 1}–${Math.min(desde + porPagina, l.length)}</b> de <b class="num" style="color:var(--texto-2)">${l.length}</b></span>
+    <div class="paginas"><button type="button" disabled aria-label="Página anterior">←</button><button type="button" aria-current="page">1</button><button type="button" disabled aria-label="Página siguiente">→</button></div></nav>`;
+}
+
+/* ---------- Eventos ---------- */
+$('pestanias').addEventListener('click', e => { const t = e.target.closest('[role="tab"]'); if (!t) return; vista = t.dataset.vista; pagina = 1; render(); });
+$('pestanias').addEventListener('keydown', e => {
+  if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  const tabs = [...document.querySelectorAll('#pestanias [role="tab"]')], i = tabs.indexOf(document.activeElement);
+  const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]; vista = n.dataset.vista; render(); document.querySelector(`[data-vista="${vista}"]`).focus();
+});
+$('cuerpo').addEventListener('click', e => {
+  if (e.target.closest('[data-reintentar]')) { setModo('cargando'); setTimeout(() => setModo('datos'), 900); return; }
+  const s = e.target.closest('[data-sol]'); if (s) { e.preventDefault(); toast('Abrir solicitud #' + s.dataset.sol, 'En la app real va al Detalle de solicitud.'); return; }
+  const tr = e.target.closest('tbody tr[data-item]'); if (tr) toast('Abrir ítem #' + tr.dataset.item, 'En la app real va a /aprobaciones/items/' + tr.dataset.item + ' (Detalle de aprobación).');
+});
+$('cuerpo').addEventListener('keydown', e => { const tr = e.target.closest('tbody tr[data-item]'); if (tr && e.target === tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tr.click(); } });
+$('rol').addEventListener('change', e => { rol = e.target.value; render(); });
+function setModo(m) { modo = m; document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m)); render(); }
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => setModo(b.dataset.modo)));
+$('sim-nuevo').addEventListener('click', () => {
+  if (modo !== 'datos') setModo('datos');
+  extra.unshift([325, 1053, 'Martín Ruiz', 'Compras', 'Telefonía y conectividad', 'Router Wi-Fi 6 para planta baja', 2, 'ALTA', 380000, 'ARS', 520000, 'ARS', 'Más de 500.000 ARS', 'EN_CURSO', 'Supervisor', true, 'recién', null, null, true]);
+  render();
+  toast('Nuevo para decidir', 'Router Wi-Fi 6 para planta baja · Martín Ruiz · ARS 520.000,00');
+});
+$('btn-menu').addEventListener('click', e => { const a = $('topbar').classList.toggle('is-abierto'); e.currentTarget.setAttribute('aria-expanded', a); });
+
+function toast(titulo, texto) {
+  const el = document.createElement('div'); el.className = 'toast toast--info'; el.setAttribute('role', 'status');
+  el.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg><div><strong>${titulo}</strong><span>${texto}</span></div><button class="toast__cerrar" type="button" aria-label="Cerrar">×</button>`;
+  el.querySelector('button').onclick = () => el.remove();
+  $('toasts').append(el); setTimeout(() => el.remove(), 5000);
+}
+render();
+</script>
+</body>
+</html>

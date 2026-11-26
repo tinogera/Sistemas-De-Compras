@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Aprobar ítem #302 · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center; }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones y campos */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--grande { height: 52px; padding: 0 24px; font-size: 16px; font-weight: 700; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--peligro { background: #b8463a; color: #fff; }
+.btn--peligro:hover { background: #c95245; }
+.btn--peligro-borde { background: transparent; color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 45%, transparent); }
+.btn--peligro-borde:hover { background: rgba(240,138,126,.08); }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.btn--ancho { width: 100%; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo > label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.campo__ayuda { font-size: 12px; color: var(--apagado); display: flex; justify-content: space-between; gap: 8px; }
+.campo__error { font-size: 12px; color: var(--peligro); }
+.textarea { width: 100%; min-height: 110px; padding: 10px 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px/1.5 var(--sans); resize: vertical; }
+.textarea:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.textarea[aria-invalid="true"] { border-color: var(--peligro); }
+.chips-motivo { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips-motivo button { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--borde); background: transparent; color: var(--texto-2); font: 500 12px var(--sans); cursor: pointer; }
+.chips-motivo button:hover { border-color: var(--borde-fuerte); color: var(--texto); }
+
+/* Badges */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.badge--aprobado, .badge--aprobada, .badge--comprado { --c: var(--exito); }
+.badge--rechazado, .badge--rechazada { --c: var(--peligro); }
+.badge--cancelado, .badge--cancelada, .badge--omitido { --c: var(--inactivo); }
+.badge--cancelado, .badge--cancelada { text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge--omitido { border-style: dashed; }
+.badge--curso { --c: var(--curso); } .badge--activo { --c: var(--naranja); }
+.badge--espera { --c: var(--tenue); border-style: dashed; }
+.badge--gestion { --c: var(--info); }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+
+/* Avisos, estados, toasts, modales */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); } .aviso--exito { --c: var(--exito); }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); } .toast--error { --c: var(--peligro); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+dialog.modal { width: min(520px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 12px 24px 20px; color: var(--texto-2); font-size: 14px; display: grid; gap: 16px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen-modal { padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; margin: 0; }
+.resumen-modal dt { color: var(--apagado); } .resumen-modal dd { margin: 0; color: var(--texto); }
+
+/* Adjuntos */
+.adjuntos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.adjunto { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); }
+.adjunto__tipo { width: 32px; height: 32px; border-radius: 4px; display: grid; place-items: center; font: 700 9px var(--mono); background: var(--superficie-2); color: var(--peligro); flex: none; }
+.adjunto__info { flex: 1; min-width: 0; font-size: 13px; }
+.adjunto__info strong { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adjunto__info span { font: 500 11px var(--mono); color: var(--apagado); }
+
+/* =========================================================
+   COMPONENTE: Pasos de aprobación (versión completa)
+   Variantes: completa (esta pantalla) · compacta (04, 08) · editable (13)
+   ========================================================= */
+.cadena { display: grid; gap: 18px; }
+.cadena__cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.cadena__regla { display: grid; gap: 4px; }
+.cadena__regla-nombre { font-size: 14px; color: var(--texto-2); }
+.cadena__regla-nombre b { color: var(--texto); }
+.cadena__condicion { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--mono); color: var(--apagado); }
+.cadena__condicion code { padding: 1px 6px; border-radius: 3px; background: var(--fondo); border: 1px solid var(--borde); color: var(--texto-2); font: inherit; }
+
+/* Progreso por paso: un segmento por orden */
+.cadena__progreso { display: grid; gap: 6px; }
+.cadena__segmentos { display: flex; gap: 4px; }
+.cadena__segmentos i { flex: 1; height: 6px; border-radius: 3px; background: var(--superficie-2); position: relative; overflow: hidden; }
+.cadena__segmentos i.hecho { background: var(--exito); }
+.cadena__segmentos i.rechazado { background: var(--peligro); }
+.cadena__segmentos i.omitido { background: repeating-linear-gradient(90deg, var(--borde-fuerte) 0 4px, transparent 4px 8px); }
+.cadena__segmentos i.activo { background: var(--superficie-2); }
+.cadena__segmentos i.activo::after { content: ""; position: absolute; inset: 0; width: var(--p, 50%); background: var(--naranja); }
+.cadena__progreso-txt { font: 500 12px var(--mono); color: var(--apagado); }
+
+.pasos { list-style: none; margin: 0; padding: 0; }
+.paso { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; padding-bottom: 22px; }
+.paso::before { content: ""; position: absolute; left: 17px; top: 36px; bottom: 0; width: 2px; background: var(--borde); }
+.paso--hecho::before { background: color-mix(in srgb, var(--exito) 55%, transparent); }
+.paso--rechazado::before { background: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.paso--fin::before { display: none; }
+.paso__nodo { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; position: relative; z-index: 1; background: var(--fondo); border: 2px solid var(--borde-fuerte); font: 600 13px var(--mono); color: var(--apagado); }
+.paso__nodo svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.paso--hecho .paso__nodo { border-color: var(--exito); background: var(--exito); color: #1b1916; }
+.paso--rechazado .paso__nodo { border-color: var(--peligro); background: var(--peligro); color: #1b1916; }
+.paso--activo .paso__nodo { border-color: var(--naranja); color: var(--naranja); box-shadow: 0 0 0 6px rgba(224,138,60,.14); }
+.paso--omitido .paso__nodo, .paso--cancelado .paso__nodo { border-style: dashed; }
+.paso--fin .paso__nodo { border-style: dashed; color: var(--tenue); }
+.paso--fin.paso--hecho .paso__nodo { border-style: solid; }
+
+.paso__cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 36px; margin-bottom: 8px; }
+.paso__titulo { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.paso__paralelo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--curso); padding: 2px 8px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--curso) 40%, transparent); }
+.paso__cuenta { font: 500 12px var(--mono); color: var(--apagado); }
+.paso__grupo { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+.aprobador { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 12px 14px; border-radius: 6px; border: 1px solid var(--borde); background: var(--fondo); }
+.aprobador--activo { border-color: color-mix(in srgb, var(--naranja) 50%, transparent); }
+.aprobador--vos { border-color: var(--naranja); background: color-mix(in srgb, var(--naranja) 7%, var(--fondo)); }
+.aprobador--espera { border-style: dashed; }
+.aprobador__icono { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.aprobador__icono svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.aprobador__fila { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+.aprobador__nombre { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.aprobador__tipo { font: 500 10px var(--mono); letter-spacing: .06em; color: var(--tenue); }
+.vos { font: 700 10px var(--mono); letter-spacing: .06em; color: #1b1916; background: var(--naranja); padding: 2px 6px; border-radius: 3px; }
+.aprobador__det { margin-top: 4px; font-size: 13px; color: var(--apagado); }
+.aprobador__det b { color: var(--texto-2); font-weight: 600; }
+.aprobador__det time { font-family: var(--mono); font-size: 12px; }
+.pulso { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--naranja); margin-right: 6px; vertical-align: 1px; animation: pulso 1.6s ease-in-out infinite; }
+@keyframes pulso { 0%, 100% { box-shadow: 0 0 0 0 rgba(224,138,60,.5); } 50% { box-shadow: 0 0 0 5px rgba(224,138,60,0); } }
+.aprobador__motivo { margin-top: 10px; padding: 8px 10px; border-left: 2px solid var(--peligro); background: rgba(240,138,126,.06); font-size: 13px; color: var(--texto-2); }
+.paso__fin { font-size: 14px; color: var(--apagado); padding-top: 7px; }
+.paso__fin b { color: var(--texto-2); }
+
+/* =========================================================
+   Pantalla: Detalle de aprobación
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 28px 24px 96px; }
+.migas { font-size: 13px; color: var(--apagado); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.migas a { color: var(--apagado); text-decoration: none; } .migas a:hover { color: var(--texto); }
+.cabecera { margin: 10px 0 24px; }
+.cabecera__titulo { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.titulo { font-size: 36px; line-height: 1.1; font-weight: 800; letter-spacing: -0.03em; }
+.titulo small { font-size: 22px; color: var(--apagado); font-weight: 600; }
+.meta { margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 14px; color: var(--texto-2); }
+.meta dt { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; margin-bottom: 2px; }
+.meta dd { margin: 0; }
+.vencida { font-size: 12px; color: var(--peligro); margin-left: 6px; }
+
+.grilla { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; }
+.columna { display: grid; gap: 20px; min-width: 0; }
+.lateral { display: grid; gap: 16px; position: sticky; top: 88px; }
+.card { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); }
+.card__cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.card__cab h2 { font-size: 16px; font-weight: 800; }
+.card__cuerpo { padding: 18px; }
+.sub { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; margin-bottom: 10px; }
+.datos { display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; font-size: 14px; margin: 0; }
+.datos dt { color: var(--apagado); } .datos dd { margin: 0; }
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+/* Tarjeta de decisión */
+.decision { border-color: var(--naranja); box-shadow: 0 0 0 4px rgba(224,138,60,.08); }
+.decision--hecha { border-color: color-mix(in srgb, var(--exito) 55%, transparent); box-shadow: none; }
+.decision--rechazada { border-color: color-mix(in srgb, var(--peligro) 55%, transparent); box-shadow: none; }
+.decision--neutra { border-color: var(--borde); box-shadow: none; }
+.decision__eyebrow { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--naranja); display: flex; align-items: center; gap: 6px; }
+.decision--hecha .decision__eyebrow { color: var(--exito); } .decision--rechazada .decision__eyebrow { color: var(--peligro); } .decision--neutra .decision__eyebrow { color: var(--apagado); }
+.decision__titulo { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; margin-top: 6px; }
+.decision__texto { font-size: 14px; color: var(--texto-2); margin-top: 6px; }
+.decision__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.decision__nota { margin-top: 12px; font-size: 12px; color: var(--apagado); }
+
+/* Comparación de precio */
+.precio-cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--borde); border: 1px solid var(--borde); border-radius: 6px; overflow: hidden; }
+.precio-cmp > div { background: var(--fondo); padding: 12px 14px; }
+.precio-cmp__lbl { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); display: flex; align-items: center; gap: 6px; }
+.precio-cmp__valor { margin-top: 4px; font: 600 20px var(--mono); white-space: nowrap; }
+.precio-cmp__valor small { font-size: 12px; color: var(--apagado); font-weight: 500; margin-right: 4px; }
+.precio-cmp__dif { grid-column: 1 / -1; font-size: 13px; color: var(--aviso); display: flex; align-items: center; gap: 6px; padding: 8px 14px !important; }
+.precio-cmp__dif--baja { color: var(--exito); }
+.precio-cmp.is-cambio .precio-cmp__total { animation: flash 2.4s ease-out; }
+@keyframes flash { 0%, 30% { background: rgba(224,138,60,.18); } 100% { background: var(--fondo); } }
+.envivo { display: inline-flex; align-items: center; gap: 5px; font: 500 10px var(--mono); color: var(--apagado); }
+.envivo i { width: 6px; height: 6px; border-radius: 50%; background: var(--exito); box-shadow: 0 0 0 3px rgba(127,207,151,.2); }
+
+.cotizaciones { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cotizaciones th { text-align: left; font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); padding: 0 0 8px; }
+.cotizaciones th.der, .cotizaciones td.der { text-align: right; }
+.cotizaciones td { padding: 9px 0; border-top: 1px solid var(--linea); }
+.cotizaciones tr.elegida td { color: var(--texto); }
+.cotizaciones tr:not(.elegida) td { color: var(--apagado); }
+.elegida-tag { font: 600 10px var(--mono); color: var(--exito); margin-left: 6px; }
+
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 80px 24px; }
+
+@media (max-width: 1100px) {
+  .grilla { grid-template-columns: 1fr; }
+  .lateral { position: static; order: -1; }
+}
+@media (max-width: 640px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 28px; } .titulo small { font-size: 18px; }
+  .dos { grid-template-columns: 1fr; }
+  .paso { grid-template-columns: 30px minmax(0, 1fr); gap: 10px; }
+  .paso__nodo { width: 30px; height: 30px; font-size: 12px; }
+  .paso::before { left: 14px; top: 30px; }
+  .aprobador { grid-template-columns: 1fr; }
+  .aprobador__icono { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · situación:</span>
+  <button type="button" data-modo="decidir" aria-pressed="true">Te toca decidir</button>
+  <button type="button" data-modo="espera" aria-pressed="false">Aún no te toca</button>
+  <button type="button" data-modo="aprobada" aria-pressed="false">Cadena aprobada</button>
+  <button type="button" data-modo="rechazada" aria-pressed="false">Cadena rechazada</button>
+  <button type="button" data-modo="propio" aria-pressed="false">Pedido propio</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <span class="maqueta__sep"></span>
+  <span>eventos:</span>
+  <button type="button" id="sim-precio">Precio cambia en vivo</button>
+  <button type="button" id="sim-conflicto">Otro decidió primero</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#" aria-current="page">Aprobaciones <span class="contador" id="contador" aria-label="5 para decidir">5</span></a>
+      <span class="menu__sep" aria-hidden="true"></span>
+      <a href="#">Mis solicitudes</a>
+      <a href="#">Nueva solicitud</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre" id="u-nombre">Ana Torres</div><div class="usuario__rol" id="u-rol">GERENCIA GENERAL</div></div>
+      <span class="avatar" aria-hidden="true" id="u-avatar">AT</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina" id="pagina"></main>
+
+<!-- Modal: aprobar -->
+<dialog class="modal" id="m-aprobar" aria-labelledby="m-aprobar-t">
+  <form id="f-aprobar">
+    <div class="modal__cab"><h2 id="m-aprobar-t">¿Aprobar el paso 2?</h2></div>
+    <div class="modal__cuerpo">
+      <p>Aprobás como <b style="color:var(--texto)">Gerencia General</b>. Como el paso es en paralelo, la cadena avanza cuando todos los del paso hayan aprobado.</p>
+      <dl class="resumen-modal" id="aprobar-resumen"></dl>
+      <div id="aprobar-error" hidden></div>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" type="button" data-cerrar>Volver</button>
+      <button class="btn btn--acento" type="submit" id="btn-confirmar-aprobar">Sí, aprobar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Modal: rechazar -->
+<dialog class="modal" id="m-rechazar" aria-labelledby="m-rechazar-t">
+  <form id="f-rechazar" novalidate>
+    <div class="modal__cab"><h2 id="m-rechazar-t">Rechazar el ítem</h2></div>
+    <div class="modal__cuerpo">
+      <p>Si rechazás, el ítem queda <b style="color:var(--peligro)">Rechazado</b> y la cadena termina: los pasos que faltan quedan Omitidos. El solicitante ve tu motivo.</p>
+      <div class="campo">
+        <label for="motivo">Motivo <span style="color:var(--naranja)">*</span></label>
+        <div class="chips-motivo" aria-label="Motivos frecuentes">
+          <button type="button" data-chip="El precio es muy alto para lo que se pide.">Precio muy alto</button>
+          <button type="button" data-chip="Ya tenemos stock disponible en depósito.">Hay stock</button>
+          <button type="button" data-chip="No está en el presupuesto de este trimestre.">Fuera de presupuesto</button>
+        </div>
+        <textarea class="textarea" id="motivo" maxlength="1000" placeholder="Explicá por qué. El solicitante y Compras lo van a leer." aria-describedby="motivo-ayuda"></textarea>
+        <span class="campo__error" id="motivo-err" hidden>Escribí el motivo para poder rechazar.</span>
+        <span class="campo__ayuda" id="motivo-ayuda"><span>Obligatorio.</span><span class="num" id="motivo-cuenta">0 / 1000</span></span>
+      </div>
+    </div>
+    <div class="modal__pie">
+      <button class="btn btn--secundario" type="button" data-cerrar>Volver</button>
+      <button class="btn btn--peligro" type="submit" id="btn-confirmar-rechazar">Rechazar ítem</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- Íconos y badges ---------- */
+const IC = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', cruz: '<path d="M6 6l12 12M18 6L6 18"/>', barra: '<circle cx="12" cy="12" r="8"/><path d="M7 17L17 7"/>',
+  flecha: '<path d="M5 12h12M13 7l5 5-5 5"/>', punto: '<circle cx="12" cy="12" r="4" fill="currentColor"/>', saltar: '<path d="M5 7l5 5-5 5M12 7l5 5-5 5"/>',
+  espera: '<circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/>', reloj: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  rol: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', sector: '<path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01M15 10h.01"/>',
+  bandera: '<path d="M5 21V4h11l-2 4 2 4H5"/>', carrito: '<circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/><path d="M3 4h2l2.5 11h11L21 8H7"/>'
+};
+const B = {
+  APROBADO: ['aprobado', 'Aprobado', 'check'], RECHAZADO: ['rechazado', 'Rechazado', 'cruz'], OMITIDO: ['omitido', 'Omitido', 'saltar'], CANCELADO: ['cancelado', 'Cancelado', 'barra'],
+  ACTIVO: ['activo', 'Le toca', 'punto'], ESPERA: ['espera', 'Aún no le toca', 'espera'],
+  EN_CURSO: ['curso', 'En curso', 'flecha'], APROBADA: ['aprobada', 'Aprobada', 'check'], RECHAZADA: ['rechazada', 'Rechazada', 'cruz'], CANCELADA: ['cancelada', 'Cancelada', 'barra'],
+  EN_COTIZACION: ['gestion', 'En gestión', 'reloj']
+};
+const badge = k => { const [c, t, i] = B[k]; return `<span class="badge badge--${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[i]}</svg>${t}</span>`; };
+const nf = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const $ = id => document.getElementById(id);
+
+/* ---------- Datos (forma de AprobacionResponses.Detalle) ---------- */
+// paso: { id, orden, aprobadorNombre, tipo, estado, decididoPorNombre, decididoEn, hace, motivo, activo, puedoDecidir, desde }
+function datos(modo) {
+  const d = {
+    itemId: 302, solicitudId: 1047, solicitanteNombre: 'Sofía Álvarez', sector: 'Ventas', categoriaNombre: 'Informática y hardware',
+    detalle: 'Monitor 27" 4K', cantidad: 2, urgencia: 'ALTA', necesaria: '24/11/26', vencida: 1, encargado: 'Martín Ruiz',
+    precioEstimado: 550000, monedaEstimada: 'ARS', precioTotal: 600000, monedaTotal: 'ARS', proveedor: 'Tecno Insumos SA',
+    reglaNombre: 'Más de 500.000 ARS', condicion: 'monto total > 500.000 ARS', estado: 'EN_CURSO',
+    pasos: [
+      { id: 71, orden: 1, aprobadorNombre: 'Supervisor', tipo: 'ROL', estado: 'APROBADO', decididoPorNombre: 'Laura Méndez', decididoEn: '24/11 10:32', hace: 'hace 1 día' },
+      { id: 72, orden: 2, aprobadorNombre: 'Gerencia General', tipo: 'SECTOR', estado: 'PENDIENTE', activo: true, puedoDecidir: true, desde: 'hace 3 h' },
+      { id: 73, orden: 2, aprobadorNombre: 'Finanzas', tipo: 'SECTOR', estado: 'APROBADO', decididoPorNombre: 'Diego Paz', decididoEn: '25/11 09:05', hace: 'hace 5 h' },
+      { id: 74, orden: 3, aprobadorNombre: 'Dirección', tipo: 'SECTOR', estado: 'PENDIENTE' }
+    ],
+    yo: { nombre: 'Ana Torres', rol: 'GERENCIA GENERAL', ini: 'AT' }, decisionPropia: null
+  };
+  if (modo === 'espera') {
+    d.yo = { nombre: 'Carlos Ibáñez', rol: 'DIRECCIÓN', ini: 'CI' };
+    d.pasos[1].puedoDecidir = false; d.pasos[3].puedoDecidir = false; d.pasos[3].mio = true;
+  }
+  if (modo === 'aprobada') {
+    d.estado = 'APROBADA';
+    Object.assign(d.pasos[1], { estado: 'APROBADO', activo: false, puedoDecidir: false, decididoPorNombre: 'Ana Torres', decididoEn: '25/11 14:02', hace: 'hace 10 min' });
+    Object.assign(d.pasos[3], { estado: 'APROBADO', decididoPorNombre: 'Carlos Ibáñez', decididoEn: '25/11 14:09', hace: 'hace 3 min' });
+    d.decisionPropia = 'APROBADO';
+  }
+  if (modo === 'rechazada') {
+    d.estado = 'RECHAZADA';
+    Object.assign(d.pasos[1], { estado: 'RECHAZADO', activo: false, puedoDecidir: false, decididoPorNombre: 'Ana Torres', decididoEn: '25/11 14:02', hace: 'hace 10 min', motivo: 'Ya tenemos dos monitores 4K sin usar en depósito. Pedí reasignación a Sistemas.' });
+    d.pasos[3].estado = 'OMITIDO';
+    d.decisionPropia = 'RECHAZADO';
+  }
+  if (modo === 'propio') {
+    d.yo = { nombre: 'Ana Torres', rol: 'GERENCIA GENERAL', ini: 'AT' };
+    d.solicitanteNombre = 'Ana Torres'; d.sector = 'Gerencia General'; d.propio = true;
+    d.pasos[1].puedoDecidir = false;
+  }
+  return d;
+}
+
+/* ---------- Componente: Pasos de aprobación (completo) ---------- */
+function estadoPaso(p) { return p.estado === 'PENDIENTE' ? (p.activo ? 'ACTIVO' : 'ESPERA') : p.estado; }
+function renderCadena(d) {
+  const grupos = []; d.pasos.forEach(p => { (grupos[p.orden - 1] ||= []).push(p); });
+  const estGrupo = g => g.some(p => p.estado === 'RECHAZADO') ? 'rechazado' : g.every(p => p.estado === 'APROBADO') ? 'hecho'
+    : g.some(p => p.activo) ? 'activo' : g.every(p => p.estado === 'OMITIDO') ? 'omitido' : g.every(p => p.estado === 'CANCELADO') ? 'cancelado' : 'espera';
+  const completos = grupos.filter(g => estGrupo(g) === 'hecho').length;
+  const segs = grupos.map(g => { const e = estGrupo(g); const p = g.filter(x => x.estado === 'APROBADO').length / g.length; return `<i class="${e}" style="--p:${Math.round(p * 100)}%"></i>`; }).join('');
+  const txtProg = d.estado === 'APROBADA' ? 'Todos los pasos aprobados' : d.estado === 'RECHAZADA' ? 'Cadena terminada por rechazo' : `${completos} de ${grupos.length} pasos completos`;
+
+  const aprobador = p => {
+    const e = estadoPaso(p);
+    const cls = p.puedoDecidir ? 'aprobador--vos' : e === 'ACTIVO' ? 'aprobador--activo' : e === 'ESPERA' ? 'aprobador--espera' : '';
+    let det = '';
+    if (p.decididoPorNombre) det = `${p.estado === 'APROBADO' ? 'Aprobó' : 'Rechazó'} <b>${p.decididoPorNombre}</b> · <time title="${p.decididoEn}">${p.decididoEn}</time> <span>(${p.hace})</span>`;
+    else if (e === 'ACTIVO') det = `<span class="pulso" aria-hidden="true"></span>${p.puedoDecidir ? 'Te toca a vos' : 'Le toca ahora'} · desde ${p.desde}`;
+    else if (e === 'ESPERA') det = p.mio ? 'Te va a tocar cuando terminen los pasos anteriores' : 'Se activa cuando terminen los pasos anteriores';
+    else if (e === 'OMITIDO') det = 'No hizo falta: la cadena ya terminó';
+    else if (e === 'CANCELADO') det = 'Se canceló el ítem';
+    return `<div class="aprobador ${cls}">
+      <span class="aprobador__icono" aria-hidden="true"><svg viewBox="0 0 24 24">${IC[p.tipo === 'ROL' ? 'rol' : 'sector']}</svg></span>
+      <div>
+        <div class="aprobador__fila">
+          <span class="aprobador__nombre">${p.aprobadorNombre}${p.puedoDecidir || p.mio ? '<span class="vos">VOS</span>' : ''}<span class="aprobador__tipo">${p.tipo}</span></span>
+          ${badge(e)}
+        </div>
+        <div class="aprobador__det">${det}</div>
+        ${p.motivo ? `<div class="aprobador__motivo">“${esc(p.motivo)}”</div>` : ''}
+      </div></div>`;
+  };
+  const nodo = (g, i) => {
+    const e = estGrupo(g);
+    const ic = e === 'hecho' ? IC.check : e === 'rechazado' ? IC.cruz : null;
+    const aprob = g.filter(p => p.estado === 'APROBADO').length;
+    return `<li class="paso paso--${e}">
+      <span class="paso__nodo" aria-hidden="true">${ic ? `<svg viewBox="0 0 24 24">${ic}</svg>` : i + 1}</span>
+      <div>
+        <div class="paso__cab"><span class="paso__titulo">PASO ${i + 1}</span>
+          ${g.length > 1 ? `<span class="paso__paralelo">EN PARALELO · TIENEN QUE APROBAR TODOS</span><span class="paso__cuenta">${aprob} de ${g.length} aprobaron</span>` : ''}
+        </div>
+        <div class="paso__grupo">${g.map(aprobador).join('')}</div>
+      </div></li>`;
+  };
+  const fin = d.estado === 'APROBADA'
+    ? `<li class="paso paso--fin paso--hecho"><span class="paso__nodo" aria-hidden="true"><svg viewBox="0 0 24 24">${IC.carrito}</svg></span><p class="paso__fin"><b>Aprobado.</b> Compras ya puede registrar la compra.</p></li>`
+    : d.estado === 'RECHAZADA'
+    ? `<li class="paso paso--fin"><span class="paso__nodo" aria-hidden="true"><svg viewBox="0 0 24 24">${IC.bandera}</svg></span><p class="paso__fin">La cadena terminó: el ítem quedó <b style="color:var(--peligro)">Rechazado</b>.</p></li>`
+    : `<li class="paso paso--fin"><span class="paso__nodo" aria-hidden="true"><svg viewBox="0 0 24 24">${IC.carrito}</svg></span><p class="paso__fin">Cuando aprueben todos los pasos, <b>Compras puede comprar</b>.</p></li>`;
+  return `<div class="cadena">
+    <div class="cadena__cab">
+      <div class="cadena__regla"><span class="cadena__regla-nombre">Regla aplicada: <b>${d.reglaNombre}</b></span><span class="cadena__condicion">Condición <code>${d.condicion}</code></span></div>
+      ${badge(d.estado)}
+    </div>
+    <div class="cadena__progreso"><div class="cadena__segmentos" role="img" aria-label="${txtProg}">${segs}</div><span class="cadena__progreso-txt">${txtProg}</span></div>
+    <ol class="pasos" aria-label="Pasos de aprobación">${grupos.map(nodo).join('')}${fin}</ol>
+  </div>`;
+}
+
+/* ---------- Pantalla ---------- */
+let modo = 'decidir', D = datos('decidir'), aviso = null;
+const pasoMio = () => D.pasos.find(p => p.puedoDecidir);
+function precioCmp(cambio) {
+  const dif = D.precioTotal - D.precioEstimado, pct = (dif / D.precioEstimado * 100).toLocaleString('es-AR', { maximumFractionDigits: 1 });
+  return `<div class="precio-cmp ${cambio ? 'is-cambio' : ''}">
+    <div><span class="precio-cmp__lbl">ESTIMADO</span><div class="precio-cmp__valor"><small>${D.monedaEstimada}</small>${nf.format(D.precioEstimado)}</div></div>
+    <div class="precio-cmp__total"><span class="precio-cmp__lbl">TOTAL <span class="envivo" title="Se actualiza solo"><i aria-hidden="true"></i>EN VIVO</span></span><div class="precio-cmp__valor"><small>${D.monedaTotal}</small>${nf.format(D.precioTotal)}</div></div>
+    <div class="precio-cmp__dif ${dif < 0 ? 'precio-cmp__dif--baja' : ''}">${dif >= 0 ? '▲' : '▼'} ${dif >= 0 ? '+' : ''}${pct} % sobre lo estimado (${D.monedaTotal} ${nf.format(Math.abs(dif))})</div>
+  </div>`;
+}
+function decisionHTML() {
+  const mio = pasoMio();
+  const avisoHTML = aviso ? `<div style="margin-top:14px">${aviso}</div>` : '';
+  if (D.propio) return `<section class="card decision decision--neutra"><div class="card__cuerpo">
+      <span class="decision__eyebrow">NO PODÉS DECIDIR</span><h2 class="decision__titulo">Es tu propio pedido</h2>
+      <p class="decision__texto">Nadie decide sobre su propio pedido. El paso queda para otra persona de Gerencia General.</p>
+      <div style="margin-top:12px"><span class="codigo">PEDIDO_PROPIO</span></div></div></section>`;
+  if (D.decisionPropia === 'APROBADO') return `<section class="card decision decision--hecha"><div class="card__cuerpo">
+      <span class="decision__eyebrow"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">${IC.check}</svg>YA DECIDISTE</span>
+      <h2 class="decision__titulo">Aprobaste el paso 2</h2><p class="decision__texto">${D.estado === 'APROBADA' ? 'La cadena terminó: el ítem está aprobado y Compras puede comprarlo.' : 'Falta que decidan los demás pasos. Te avisamos si algo cambia.'}</p>
+      <a class="btn btn--secundario btn--ancho" href="#" style="margin-top:16px">Siguiente para decidir (4) →</a></div></section>`;
+  if (D.decisionPropia === 'RECHAZADO') return `<section class="card decision decision--rechazada"><div class="card__cuerpo">
+      <span class="decision__eyebrow">YA DECIDISTE</span><h2 class="decision__titulo">Rechazaste el ítem</h2>
+      <p class="decision__texto">El solicitante y Compras ven tu motivo. Los pasos que faltaban quedaron Omitidos.</p>
+      <a class="btn btn--secundario btn--ancho" href="#" style="margin-top:16px">Siguiente para decidir (4) →</a></div></section>`;
+  if (!mio) return `<section class="card decision decision--neutra"><div class="card__cuerpo">
+      <span class="decision__eyebrow">AÚN NO TE TOCA</span><h2 class="decision__titulo">Estás en el paso 3</h2>
+      <p class="decision__texto">Se habilita cuando Gerencia General y Finanzas aprueben el paso 2. Mientras tanto lo ves en modo lectura.</p>
+      <div style="margin-top:12px"><span class="codigo">PASO_NO_ACTIVO</span></div></div></section>`;
+  return `<section class="card decision" aria-labelledby="dec-t"><div class="card__cuerpo">
+      <span class="decision__eyebrow"><span class="pulso" aria-hidden="true"></span>TE TOCA DECIDIR</span>
+      <h2 class="decision__titulo" id="dec-t">Paso 2 · ${mio.aprobadorNombre}</h2>
+      <p class="decision__texto">En paralelo con Finanzas (ya aprobó). Si aprobás, pasa al paso 3: Dirección.</p>
+      <div style="margin-top:16px">${precioCmp(false)}</div>
+      ${avisoHTML}
+      <div class="decision__botones">
+        <button class="btn btn--peligro-borde btn--grande" type="button" id="btn-rechazar" ${aviso ? 'disabled' : ''}>Rechazar</button>
+        <button class="btn btn--acento btn--grande" type="button" id="btn-aprobar" ${aviso ? 'disabled' : ''}>Aprobar</button>
+      </div>
+      <p class="decision__nota">Rechazar pide un motivo. Las dos decisiones quedan en el historial.</p>
+    </div></section>`;
+}
+function render(cambio) {
+  $('u-nombre').textContent = D.yo.nombre; $('u-rol').textContent = D.yo.rol; $('u-avatar').textContent = D.yo.ini;
+  if (modo === 'cargando') {
+    $('pagina').innerHTML = `<span class="sr" role="status">Cargando…</span><span class="esq" style="width:220px;margin-bottom:18px"></span><span class="esq" style="width:380px;height:34px;margin-bottom:30px"></span>
+      <div class="grilla"><div class="card" style="padding:20px;height:520px">${'<span class="esq" style="width:70%;margin-bottom:16px"></span>'.repeat(6)}</div><div class="card" style="padding:20px;height:300px"><span class="esq" style="width:50%"></span></div></div>`;
+    return;
+  }
+  const dif = D.precioTotal - D.precioEstimado;
+  $('pagina').innerHTML = `
+    <nav class="migas" aria-label="Ubicación"><a href="#">Aprobaciones</a><span aria-hidden="true">/</span><a href="#">${D.decisionPropia ? 'Decididas' : pasoMio() ? 'Para decidir' : 'En curso'}</a><span aria-hidden="true">/</span><span class="num">Ítem #${D.itemId}</span></nav>
+    <div class="cabecera">
+      <div class="cabecera__titulo"><h1 class="titulo">${esc(D.detalle)} <small class="num">× ${D.cantidad}</small></h1>${badge(D.estado)}</div>
+      <dl class="meta">
+        <div><dt>Solicitud</dt><dd><a href="#" class="num">#${D.solicitudId}</a></dd></div>
+        <div><dt>Pidió</dt><dd>${D.solicitanteNombre} · ${D.sector}</dd></div>
+        <div><dt>Urgencia</dt><dd><span class="urg urg--alta"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>Alta</span></dd></div>
+        <div><dt>Necesaria</dt><dd><span class="num">${D.necesaria}</span>${D.vencida ? `<span class="vencida">vencida hace ${D.vencida} día</span>` : ''}</dd></div>
+        <div><dt>Gestiona</dt><dd>${D.encargado}</dd></div>
+      </dl>
+    </div>
+    <div class="grilla">
+      <div class="columna">
+        <section class="card" aria-labelledby="t-cadena"><div class="card__cab"><h2 id="t-cadena">Pasos de aprobación</h2></div><div class="card__cuerpo">${renderCadena(D)}</div></section>
+        <section class="card" aria-labelledby="t-item"><div class="card__cab"><h2 id="t-item">El ítem</h2></div>
+          <div class="card__cuerpo dos">
+            <div>
+              <p class="sub">Datos</p>
+              <dl class="datos"><dt>Tipo</dt><dd>Producto</dd><dt>Categoría</dt><dd>${D.categoriaNombre}</dd><dt>Cantidad</dt><dd class="num">${D.cantidad}</dd><dt>Proveedor elegido</dt><dd>${D.proveedor}</dd><dt>Estado</dt><dd>${badge(D.estado === 'RECHAZADA' ? 'RECHAZADO' : 'EN_COTIZACION')}</dd></dl>
+              <p class="sub" style="margin-top:18px">Adjuntos del pedido</p>
+              <ul class="adjuntos"><li class="adjunto"><span class="adjunto__tipo">PDF</span><div class="adjunto__info"><strong>especificacion-monitor.pdf</strong><span>1,1 MB</span></div><a class="btn btn--fantasma btn--chico" href="#">Ver</a></li></ul>
+            </div>
+            <div>
+              <p class="sub">Cotizaciones de Compras</p>
+              <table class="cotizaciones"><thead><tr><th>PROVEEDOR</th><th class="der">TOTAL</th></tr></thead><tbody>
+                <tr class="elegida"><td>${D.proveedor}<span class="elegida-tag">ELEGIDA</span></td><td class="der num">ARS ${nf.format(D.precioTotal)}</td></tr>
+                <tr><td>Distribuidora Norte</td><td class="der num">ARS ${nf.format(628000)}</td></tr>
+                <tr><td>PC Mayorista</td><td class="der num">ARS ${nf.format(655500)}</td></tr>
+              </tbody></table>
+              <p style="font-size:12px;color:var(--apagado);margin-top:10px">${dif > 0 ? 'El total supera lo estimado, pero es la cotización más barata de las tres.' : 'El total está por debajo de lo estimado.'}</p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <aside class="lateral">${decisionHTML()}
+        ${!pasoMio() ? `<section class="card"><div class="card__cuerpo"><p class="sub">Precio</p>${precioCmp(cambio)}</div></section>` : ''}
+      </aside>
+    </div>`;
+  if (cambio && pasoMio()) document.querySelector('.precio-cmp').classList.add('is-cambio');
+}
+
+/* ---------- Decidir ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'btn-aprobar') {
+    $('aprobar-resumen').innerHTML = `<dt>Ítem</dt><dd>${esc(D.detalle)} × ${D.cantidad}</dd><dt>Precio total</dt><dd class="num">${D.monedaTotal} ${nf.format(D.precioTotal)}</dd><dt>Proveedor</dt><dd>${D.proveedor}</dd><dt>Solicitud</dt><dd class="num">#${D.solicitudId} · ${D.solicitanteNombre}</dd>`;
+    $('aprobar-error').hidden = true; $('btn-confirmar-aprobar').disabled = false; $('btn-confirmar-aprobar').textContent = 'Sí, aprobar';
+    $('m-aprobar').showModal();
+  }
+  if (t.id === 'btn-rechazar') { $('motivo').value = ''; $('motivo-err').hidden = true; $('motivo').removeAttribute('aria-invalid'); contar(); $('m-rechazar').showModal(); $('motivo').focus(); }
+  if ('cerrar' in t.dataset) t.closest('dialog').close();
+  if (t.dataset.chip) { $('motivo').value = t.dataset.chip; contar(); $('motivo').focus(); }
+  if (t.id === 'btn-recargar') { aviso = null; modo = 'decidir'; D = datos('aprobada'); D.decisionPropia = null; D.pasos[1].decididoPorNombre = 'Mariana Gil'; D.pasos[1].hace = 'hace 1 min'; D.pasos[1].decididoEn = '25/11 14:20'; render(); toast('info', 'Actualizado', 'Mariana Gil (Gerencia General) aprobó el paso 2 antes que vos.'); }
+});
+let simConflicto = false;
+$('f-aprobar').addEventListener('submit', e => {
+  e.preventDefault();
+  const b = $('btn-confirmar-aprobar'); b.disabled = true; b.innerHTML = '<span class="spinner" aria-hidden="true"></span>Aprobando…';
+  setTimeout(() => {
+    if (simConflicto) {
+      simConflicto = false; $('m-aprobar').close();
+      aviso = '<div class="aviso" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg><div class="aviso__cuerpo"><strong>Otra persona decidió este paso</strong>Recargá la página para ver cómo quedó. <span class="codigo">CONFLICTO_VERSION · 409</span></div><button class="btn btn--secundario btn--chico" type="button" id="btn-recargar">Recargar</button></div>';
+      render(); return;
+    }
+    $('m-aprobar').close();
+    Object.assign(D.pasos[1], { estado: 'APROBADO', activo: false, puedoDecidir: false, decididoPorNombre: 'Ana Torres', decididoEn: '25/11 14:02', hace: 'recién' });
+    D.pasos[3].activo = true; D.pasos[3].desde = 'recién';
+    D.decisionPropia = 'APROBADO'; restarContador(); render();
+    toast('exito', 'Aprobaste el paso 2', 'Ahora le toca a Dirección (paso 3).');
+  }, 700);
+});
+function contar() { $('motivo-cuenta').textContent = `${$('motivo').value.length} / 1000`; }
+$('motivo').addEventListener('input', () => { contar(); if ($('motivo').value.trim()) { $('motivo-err').hidden = true; $('motivo').removeAttribute('aria-invalid'); } });
+$('f-rechazar').addEventListener('submit', e => {
+  e.preventDefault();
+  const m = $('motivo');
+  if (!m.value.trim()) { m.setAttribute('aria-invalid', 'true'); m.setAttribute('aria-describedby', 'motivo-err motivo-ayuda'); $('motivo-err').hidden = false; m.focus(); return; }
+  const b = $('btn-confirmar-rechazar'); b.disabled = true; b.innerHTML = '<span class="spinner" aria-hidden="true"></span>Rechazando…';
+  setTimeout(() => {
+    b.disabled = false; b.textContent = 'Rechazar ítem'; $('m-rechazar').close();
+    D.estado = 'RECHAZADA';
+    Object.assign(D.pasos[1], { estado: 'RECHAZADO', activo: false, puedoDecidir: false, decididoPorNombre: 'Ana Torres', decididoEn: '25/11 14:02', hace: 'recién', motivo: m.value.trim() });
+    D.pasos[3].estado = 'OMITIDO'; D.decisionPropia = 'RECHAZADO'; restarContador(); render();
+    toast('exito', 'Rechazaste el ítem', 'El solicitante ya puede ver tu motivo.');
+  }, 700);
+});
+function restarContador() { const c = $('contador'); c.textContent = '4'; c.setAttribute('aria-label', '4 para decidir'); }
+
+/* ---------- Eventos simulados ---------- */
+$('sim-precio').addEventListener('click', () => {
+  if (modo !== 'decidir' || D.decisionPropia) setModo('decidir');
+  D.precioTotal = 640000; aviso = null;
+  render(true);
+  toast('info', 'El precio total cambió', `Martín Ruiz lo corrigió a ARS ${nf.format(D.precioTotal)}. Revisalo antes de decidir.`);
+});
+$('sim-conflicto').addEventListener('click', () => {
+  if (modo !== 'decidir' || D.decisionPropia) setModo('decidir');
+  simConflicto = true; document.getElementById('btn-aprobar').click();
+  setTimeout(() => $('f-aprobar').requestSubmit(), 400);
+});
+
+/* ---------- Toasts ---------- */
+const ICT = { exito: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>', error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>' };
+function toast(tipo, titulo, texto) {
+  const el = document.createElement('div'); el.className = `toast toast--${tipo}`; el.setAttribute('role', 'status');
+  el.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICT[tipo]}</svg><div><strong>${titulo}</strong><span>${texto}</span></div><button class="toast__cerrar" type="button" aria-label="Cerrar">×</button>`;
+  el.querySelector('button').onclick = () => el.remove();
+  $('toasts').append(el); setTimeout(() => el.remove(), 6000);
+}
+
+function setModo(m) {
+  modo = m; aviso = null; simConflicto = false;
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  if (m !== 'cargando') D = datos(m);
+  const c = $('contador'); c.textContent = '5'; c.setAttribute('aria-label', '5 para decidir');
+  render(); window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => setModo(b.dataset.modo)));
+$('btn-menu').addEventListener('click', e => { const a = $('topbar').classList.toggle('is-abierto'); e.currentTarget.setAttribute('aria-expanded', a); });
+setModo('decidir');
+</script>
+</body>
+</html>

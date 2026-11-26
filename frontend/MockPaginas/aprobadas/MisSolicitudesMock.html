@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Mis solicitudes · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Maqueta */
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--grande { height: 48px; padding: 0 24px; font-size: 15px; font-weight: 700; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+
+/* Campos */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.input, .select { height: 40px; padding: 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); width: 100%; }
+.input::placeholder { color: var(--tenue); }
+.input:hover, .select:hover { border-color: var(--borde-fuerte); }
+.input:focus, .select:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+input[type="date"].input { color-scheme: dark; font-family: var(--mono); font-size: 13px; }
+.input--buscar { padding-left: 36px; background: var(--fondo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237d776d' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 12px center; }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* Estados de la solicitud (enum EstadoSolicitud del backend) */
+.badge--revision { --c: var(--info); }
+.badge--lista { --c: var(--exito); }
+.badge--cerrada { --c: var(--texto-2); }
+.badge--cancelada { --c: var(--inactivo); text-decoration: line-through; text-decoration-thickness: 1px; }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+
+/* Panel, filtros, tabla, paginación */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.filtros { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; padding: 16px; border-bottom: 1px solid var(--borde); }
+.filtros .campo { width: 150px; }
+.filtros .campo--buscar { flex: 1; min-width: 200px; width: auto; }
+.filtros .campo--fecha { width: 150px; }
+.filtros__fin { margin-left: auto; }
+.filtros-activos { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 16px; border-bottom: 1px solid var(--borde); font-size: 13px; color: var(--apagado); align-items: center; }
+.filtro-chip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 4px 0 10px; border-radius: 999px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); font-size: 12px; font-weight: 600; }
+.filtro-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: transparent; color: var(--apagado); cursor: pointer; }
+.filtro-chip button:hover { background: var(--borde); color: var(--texto); }
+
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla th { text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde); font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap; }
+.tabla th button { all: unset; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+.tabla th button:hover { color: var(--texto); }
+.tabla th button:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+.tabla th button::after { content: "↕"; color: var(--tenue); }
+.tabla th[aria-sort="descending"] button::after { content: "↓"; color: var(--naranja); }
+.tabla th[aria-sort="ascending"] button::after { content: "↑"; color: var(--naranja); }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla tbody tr:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla .flecha { width: 40px; color: var(--tenue); text-align: right; font-size: 16px; }
+.tabla tbody tr:hover .flecha { color: var(--texto); }
+.tabla tr.is-nueva td { background: rgba(224,138,60,.06); }
+.tabla tr.is-nueva td:first-child { box-shadow: inset 3px 0 0 var(--naranja); }
+
+.celda-id { font: 600 14px var(--mono); }
+.celda-sub { display: block; font: 500 12px var(--mono); color: var(--apagado); margin-top: 2px; }
+.celda-items strong { font-weight: 600; display: block; max-width: 380px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.celda-items span { font-size: 13px; color: var(--apagado); }
+.fecha { font: 500 13px var(--mono); white-space: nowrap; }
+.fecha__hint { display: block; font: 500 12px var(--sans); color: var(--apagado); }
+.fecha__hint--pronto { color: var(--aviso); }
+.fecha__hint--vencida { color: var(--peligro); }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent; background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer; }
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+.tamanio { display: flex; align-items: center; gap: 8px; }
+.tamanio .select { width: 76px; height: 32px; font-size: 13px; }
+
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 64px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado__icono--naranja { color: var(--naranja); border-color: color-mix(in srgb, var(--naranja) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 420px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+
+/* =========================================================
+   Pantalla: Mis solicitudes
+   ========================================================= */
+.pagina { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+.encabezado { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+.titulo { font-size: 40px; line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.bajada { margin-top: 8px; color: var(--texto-2); }
+
+/* Pestañas de estado: mismo subrayado naranja que el menú */
+.pestanias { display: flex; gap: 4px; border-bottom: 1px solid var(--borde); margin-bottom: 16px; overflow-x: auto; scrollbar-width: none; }
+.pestanias button { position: relative; flex: none; height: 44px; padding: 0 14px; border: 0; background: transparent; color: var(--texto-2); font: 500 14px var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.pestanias button:hover { color: var(--texto); }
+.pestanias button[aria-selected="true"] { color: var(--texto); font-weight: 600; }
+.pestanias button[aria-selected="true"]::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--naranja); }
+.pestanias__punto { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+
+.leyenda { margin: -4px 0 16px; font-size: 13px; color: var(--apagado); }
+.leyenda summary { cursor: pointer; width: fit-content; list-style: none; display: inline-flex; gap: 6px; align-items: center; }
+.leyenda summary::-webkit-details-marker { display: none; }
+.leyenda summary::before { content: "?"; width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--borde-fuerte); display: inline-grid; place-items: center; font: 600 10px var(--mono); }
+.leyenda summary:hover { color: var(--texto); }
+.leyenda dl { margin: 10px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; align-items: center; padding: 14px 16px; background: var(--superficie); border: 1px solid var(--borde); border-radius: 6px; max-width: 720px; }
+.leyenda dd { margin: 0; color: var(--texto-2); }
+
+/* Celular: la tabla se convierte en tarjetas */
+@media (max-width: 760px) {
+  .pagina { padding: 20px 16px 72px; }
+  .titulo { font-size: 30px; }
+  .encabezado .btn { width: 100%; }
+  .filtros .campo, .filtros .campo--fecha { width: calc(50% - 6px); }
+  .filtros .campo--buscar { width: 100%; flex-basis: 100%; }
+  .filtros__fin { margin-left: 0; width: 100%; }
+  .filtros__fin .btn { width: 100%; }
+  .tabla thead { display: none; }
+  .tabla, .tabla tbody { display: block; }
+  .tabla tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px 16px; border-bottom: 1px solid var(--linea); }
+  .tabla tbody tr:last-child { border-bottom: 0; }
+  .tabla td { display: block; padding: 0; border: 0; }
+  .tabla td[data-c="id"] { grid-column: 1; }
+  .tabla td[data-c="estado"] { grid-column: 2; grid-row: 1; justify-self: end; }
+  .tabla td[data-c="items"] { grid-column: 1 / -1; }
+  .tabla td[data-c="urg"] { grid-column: 1; }
+  .tabla td[data-c="fecha"] { grid-column: 2; justify-self: end; text-align: right; }
+  .tabla td.flecha { display: none; }
+  .celda-items strong { max-width: none; white-space: normal; }
+  .tabla tr.is-nueva td:first-child { box-shadow: none; }
+  .tabla tr.is-nueva { box-shadow: inset 3px 0 0 var(--naranja); }
+  .paginacion { justify-content: center; }
+  .tamanio { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · estado:</span>
+  <button type="button" data-modo="datos" aria-pressed="true">Con datos</button>
+  <button type="button" data-modo="nueva" aria-pressed="false">Recién creada</button>
+  <button type="button" data-modo="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-modo="primera" aria-pressed="false">Primera vez (vacío)</button>
+  <button type="button" data-modo="sinresultados" aria-pressed="false">Sin resultados</button>
+  <button type="button" data-modo="error" aria-pressed="false">Error</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal">
+      <a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>
+      <a href="#" aria-current="page">Mis solicitudes</a>
+      <a href="#">Nueva solicitud</a>
+    </nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario">
+      <div class="usuario__datos"><div class="usuario__nombre">Sofía Álvarez</div><div class="usuario__rol">SOLICITANTE · VENTAS</div></div>
+      <span class="avatar" aria-hidden="true">SÁ</span>
+      <button class="btn btn--secundario btn--chico" type="button">Salir</button>
+    </div>
+  </div>
+</header>
+
+<main class="pagina">
+  <div class="encabezado">
+    <div>
+      <h1 class="titulo">Mis solicitudes</h1>
+      <p class="bajada">Lo que pediste y en qué estado está cada pedido.</p>
+    </div>
+    <a class="btn btn--acento btn--grande" href="#"><span aria-hidden="true" style="font:600 18px var(--mono)">+</span> Nueva solicitud</a>
+  </div>
+
+  <div class="pestanias" role="tablist" aria-label="Estado de la solicitud" id="pestanias">
+    <button type="button" role="tab" aria-selected="true" aria-controls="panel" data-estado="">Todas</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="panel" data-estado="EN_REVISION"><span class="pestanias__punto" style="--c:var(--info)" aria-hidden="true"></span>En revisión</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="panel" data-estado="LISTA"><span class="pestanias__punto" style="--c:var(--exito)" aria-hidden="true"></span>Listas</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="panel" data-estado="CERRADA"><span class="pestanias__punto" style="--c:var(--texto-2)" aria-hidden="true"></span>Cerradas</button>
+    <button type="button" role="tab" aria-selected="false" aria-controls="panel" data-estado="CANCELADA"><span class="pestanias__punto" style="--c:var(--inactivo)" aria-hidden="true"></span>Canceladas</button>
+  </div>
+
+  <details class="leyenda">
+    <summary>¿Qué significa cada estado?</summary>
+    <dl id="leyenda"></dl>
+  </details>
+
+  <div class="panel" id="panel" role="tabpanel">
+    <form class="filtros" id="filtros" onsubmit="return false">
+      <div class="campo campo--buscar">
+        <label for="f-q">Buscar</label>
+        <input class="input input--buscar" id="f-q" placeholder="Número o detalle de un ítem" inputmode="search">
+      </div>
+      <div class="campo">
+        <label for="f-urg">Urgencia</label>
+        <select class="select" id="f-urg"><option value="">Todas</option><option value="ALTA">Alta</option><option value="MEDIA">Media</option><option value="BAJA">Baja</option></select>
+      </div>
+      <div class="campo">
+        <label for="f-items">Ítems</label>
+        <select class="select" id="f-items"><option value="">Cualquiera</option><option value="1">1 ítem</option><option value="2-3">2 a 3</option><option value="4+">4 o más</option></select>
+      </div>
+      <div class="campo campo--fecha">
+        <label for="f-desde">Necesaria desde</label>
+        <input class="input" type="date" id="f-desde">
+      </div>
+      <div class="campo campo--fecha">
+        <label for="f-hasta">Hasta</label>
+        <input class="input" type="date" id="f-hasta">
+      </div>
+      <div class="filtros__fin"><button class="btn btn--fantasma" type="button" id="f-limpiar">Limpiar</button></div>
+    </form>
+    <div class="filtros-activos" id="filtros-activos" hidden></div>
+    <div id="cuerpo"></div>
+  </div>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- Datos de ejemplo (forma de SolicitudResumenResponse + resumen de ítems propuesto) ---------- */
+const HOY = new Date(); HOY.setHours(0, 0, 0, 0);
+const dia = n => { const d = new Date(HOY); d.setDate(d.getDate() + n); return d; };
+// [id, creada (días), urgencia, necesaria (días), estado, cantidadItems, primer ítem]
+const BASE = [
+  [1051, -1, 'ALTA', 2, 'EN_REVISION', 2, 'Monitor 27" 4K'],
+  [1049, -2, 'MEDIA', 9, 'EN_REVISION', 1, 'Licencias Adobe Acrobat Pro'],
+  [1047, -4, 'ALTA', -1, 'EN_REVISION', 3, 'Silla ergonómica con apoyabrazos'],
+  [1044, -6, 'BAJA', 20, 'EN_REVISION', 1, 'Notebook 14" i7 16 GB'],
+  [1043, -8, 'MEDIA', 1, 'LISTA', 4, 'Resmas A4 75 g'],
+  [1040, -11, 'BAJA', 12, 'EN_REVISION', 2, 'Disco SSD 1 TB'],
+  [1038, -13, 'BAJA', -3, 'CERRADA', 1, 'Kit de limpieza para oficina'],
+  [1036, -15, 'ALTA', -6, 'LISTA', 2, 'Mantenimiento aire acondicionado planta alta'],
+  [1034, -18, 'MEDIA', -8, 'CERRADA', 5, 'Insumos de cafetería'],
+  [1031, -21, 'BAJA', -2, 'CANCELADA', 1, 'Suscripción Figma (3 asientos)'],
+  [1029, -26, 'MEDIA', -12, 'CERRADA', 2, 'Auriculares con micrófono'],
+  [1026, -30, 'ALTA', -20, 'CERRADA', 1, 'Reparación de impresora Ricoh'],
+  [1022, -34, 'BAJA', -18, 'CANCELADA', 3, 'Plantas para la recepción'],
+  [1019, -40, 'MEDIA', -25, 'CERRADA', 2, 'Cables HDMI y adaptadores USB-C']
+];
+let FILAS = [];
+const armar = (conNueva) => {
+  FILAS = BASE.map(b => ({ id: b[0], creadaEn: dia(b[1]), urgencia: b[2], fechaNecesaria: dia(b[3]), estado: b[4], cantidadItems: b[5], primerItem: b[6] }));
+  if (conNueva) FILAS.unshift({ id: 1052, creadaEn: dia(0), urgencia: 'ALTA', fechaNecesaria: dia(10), estado: 'EN_REVISION', cantidadItems: 3, primerItem: 'Notebook 14", i7, 16 GB RAM, SSD 512 GB', nueva: true });
+};
+
+/* ---------- Badges ---------- */
+const ICONOS = {
+  reloj: '<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  checks: '<circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/>',
+  candado: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  barra: '<circle cx="12" cy="12" r="8"/><path d="M7 17L17 7"/>'
+};
+const ESTADOS = {
+  EN_REVISION: ['revision', 'En revisión', 'reloj', 'Compras está cotizando o algún ítem espera aprobación.'],
+  LISTA: ['lista', 'Lista', 'checks', 'Todos los ítems se resolvieron (comprados o rechazados). Falta enviar alguna orden al proveedor.'],
+  CERRADA: ['cerrada', 'Cerrada', 'candado', 'Se resolvió todo y las órdenes ya se enviaron. No hay nada pendiente.'],
+  CANCELADA: ['cancelada', 'Cancelada', 'barra', 'La cancelaste antes de que se resolviera.']
+};
+const badge = e => { const [c, t, i] = ESTADOS[e]; return `<span class="badge badge--${c}"><svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[i]}</svg>${t}</span>`; };
+const URG = { ALTA: ['alta', 'Alta'], MEDIA: ['media', 'Media'], BAJA: ['baja', 'Baja'] };
+const urgencia = u => `<span class="urg urg--${URG[u][0]}"><span class="urg__barras" aria-hidden="true"><i></i><i></i><i></i></span>${URG[u][1]}</span>`;
+document.getElementById('leyenda').innerHTML = Object.keys(ESTADOS).map(k => `<dt>${badge(k)}</dt><dd>${ESTADOS[k][3]}</dd>`).join('');
+
+/* ---------- Formato ---------- */
+const f2 = n => String(n).padStart(2, '0');
+const fmt = d => `${f2(d.getDate())}/${f2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(2)}`;
+const iso = d => `${d.getFullYear()}-${f2(d.getMonth() + 1)}-${f2(d.getDate())}`;
+function hintFecha(f) {
+  if (f.estado !== 'EN_REVISION') return '';
+  const dias = Math.round((f.fechaNecesaria - HOY) / 864e5);
+  if (dias < 0) return `<span class="fecha__hint fecha__hint--vencida">vencida hace ${-dias} ${-dias === 1 ? 'día' : 'días'}</span>`;
+  if (dias === 0) return '<span class="fecha__hint fecha__hint--pronto">es hoy</span>';
+  if (dias <= 3) return `<span class="fecha__hint fecha__hint--pronto">en ${dias} ${dias === 1 ? 'día' : 'días'}</span>`;
+  return `<span class="fecha__hint">en ${dias} días</span>`;
+}
+const creada = d => { const n = Math.round((HOY - d) / 864e5); return n === 0 ? 'hoy' : n === 1 ? 'ayer' : `hace ${n} días`; };
+
+/* ---------- Estado de la vista ---------- */
+let estado = '', pagina = 1, porPagina = 8, orden = { campo: 'creadaEn', dir: 'desc' }, modo = 'datos';
+const $ = id => document.getElementById(id);
+const ORD_URG = { ALTA: 3, MEDIA: 2, BAJA: 1 };
+
+function filtradas() {
+  const q = $('f-q').value.trim().toLowerCase().replace('#', ''), u = $('f-urg').value, it = $('f-items').value, d = $('f-desde').value, h = $('f-hasta').value;
+  let l = FILAS.filter(f => (!estado || f.estado === estado)
+    && (!q || String(f.id).includes(q) || f.primerItem.toLowerCase().includes(q))
+    && (!u || f.urgencia === u)
+    && (!it || (it === '1' ? f.cantidadItems === 1 : it === '2-3' ? f.cantidadItems >= 2 && f.cantidadItems <= 3 : f.cantidadItems >= 4))
+    && (!d || iso(f.fechaNecesaria) >= d) && (!h || iso(f.fechaNecesaria) <= h));
+  const s = orden.dir === 'asc' ? 1 : -1;
+  const v = f => orden.campo === 'urgencia' ? ORD_URG[f.urgencia] : f[orden.campo];
+  return l.sort((a, b) => (v(a) > v(b) ? 1 : v(a) < v(b) ? -1 : 0) * s);
+}
+
+const thSort = (campo, txt) => `<th scope="col"${orden.campo === campo ? ` aria-sort="${orden.dir === 'asc' ? 'ascending' : 'descending'}"` : ''}><button type="button" data-orden="${campo}">${txt}</button></th>`;
+const cabecera = () => `<thead><tr>${thSort('creadaEn', 'N.º · Creada')}<th scope="col">Ítems</th>${thSort('urgencia', 'Urgencia')}${thSort('fechaNecesaria', 'Necesaria')}<th scope="col">Estado</th><th scope="col"><span class="sr">Abrir</span></th></tr></thead>`;
+
+function vacio(tipo) {
+  const E = {
+    primera: ['estado__icono--naranja', '<path d="M4 7h16l-1.5 12a2 2 0 0 1-2 1.8h-9A2 2 0 0 1 5.5 19z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/>', 'Todavía no hiciste ninguna solicitud', 'Cuando cargues un pedido lo vas a ver acá, con su estado y quién lo está gestionando.', '<a class="btn btn--acento" href="#">+ Nueva solicitud</a>', ''],
+    sinresultados: ['', '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8.5 11h5"/>', 'No hay solicitudes con esos filtros', estado ? `No tenés solicitudes ${ESTADOS[estado][1].toLowerCase()}s que coincidan.` : 'Probá con otra urgencia o ampliá el rango de fechas.', '<button class="btn btn--secundario" type="button" data-limpiar>Limpiar filtros</button>', ''],
+    error: ['estado__icono--error', '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>', 'No pudimos cargar tus solicitudes', 'Puede ser un problema de conexión. Si sigue pasando, avisá a Sistemas.', '<button class="btn btn--secundario" type="button" data-reintentar>Reintentar</button>', '<span class="codigo">ERROR_RED · 503</span>']
+  }[tipo];
+  return `<div class="estado"><div class="estado__icono ${E[0]}"><svg viewBox="0 0 24 24">${E[1]}</svg></div><h3>${E[2]}</h3><p>${E[3]}</p><div class="acciones">${E[4]}</div>${E[5]}</div>`;
+}
+
+function render() {
+  pintarChips();
+  const c = $('cuerpo');
+  const hayFiltros = $('f-q').value || $('f-urg').value || $('f-items').value || $('f-desde').value || $('f-hasta').value;
+  $('filtros').hidden = modo === 'primera' || modo === 'error';
+  if (modo === 'cargando') {
+    const fila = `<tr>${[[60, 70], [260, 90], [60], [70, 60], [90], [10]].map(w => `<td><span class="esq" style="width:${w[0]}px"></span>${w[1] ? `<span class="esq" style="width:${w[1]}px;height:10px;margin-top:8px"></span>` : ''}</td>`).join('')}</tr>`;
+    c.innerHTML = `<table class="tabla" aria-busy="true">${cabecera()}<tbody>${fila.repeat(6)}</tbody></table><span class="sr" role="status">Cargando solicitudes…</span>`;
+    return;
+  }
+  if (modo === 'primera' || modo === 'error') { c.innerHTML = vacio(modo); return; }
+  const lista = modo === 'sinresultados' ? [] : filtradas();
+  if (!lista.length) { c.innerHTML = vacio('sinresultados'); return; }
+  const total = lista.length, paginas = Math.ceil(total / porPagina);
+  pagina = Math.min(pagina, paginas);
+  const desde = (pagina - 1) * porPagina;
+  const filas = lista.slice(desde, desde + porPagina).map(f => `
+    <tr tabindex="0" data-id="${f.id}" class="${f.nueva ? 'is-nueva' : ''}" aria-label="Solicitud ${f.id}, ${ESTADOS[f.estado][1]}, urgencia ${URG[f.urgencia][1]}">
+      <td data-c="id"><span class="celda-id">#${f.id}</span>${f.nueva ? ' <span class="badge badge--nueva">Nueva</span>' : ''}<span class="celda-sub">${fmt(f.creadaEn)} · ${creada(f.creadaEn)}</span></td>
+      <td data-c="items" class="celda-items"><strong>${f.primerItem}</strong><span>${f.cantidadItems === 1 ? '1 ítem' : `y ${f.cantidadItems - 1} ${f.cantidadItems - 1 === 1 ? 'ítem más' : 'ítems más'} · ${f.cantidadItems} en total`}</span></td>
+      <td data-c="urg">${urgencia(f.urgencia)}</td>
+      <td data-c="fecha"><span class="fecha">${fmt(f.fechaNecesaria)}</span>${hintFecha(f)}</td>
+      <td data-c="estado">${badge(f.estado)}</td>
+      <td class="flecha" aria-hidden="true">›</td>
+    </tr>`).join('');
+  let btns = `<button type="button" aria-label="Página anterior" ${pagina === 1 ? 'disabled' : ''} data-pag="${pagina - 1}">←</button>`;
+  for (let i = 1; i <= paginas; i++) btns += `<button type="button" data-pag="${i}" ${i === pagina ? 'aria-current="page"' : ''} aria-label="Página ${i}">${i}</button>`;
+  btns += `<button type="button" aria-label="Página siguiente" ${pagina === paginas ? 'disabled' : ''} data-pag="${pagina + 1}">→</button>`;
+  c.innerHTML = `<table class="tabla">${cabecera()}<tbody>${filas}</tbody></table>
+    <nav class="paginacion" aria-label="Paginación">
+      <span>Mostrando <b class="num" style="color:var(--texto-2)">${desde + 1}–${Math.min(desde + porPagina, total)}</b> de <b class="num" style="color:var(--texto-2)">${total}</b>${hayFiltros || estado ? '' : ''}</span>
+      <div class="paginas">${btns}</div>
+      <label class="tamanio">Por página <select class="select" id="por-pagina">${[8, 20, 50].map(n => `<option ${n === porPagina ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    </nav>`;
+}
+
+function pintarChips() {
+  const chips = [];
+  const q = $('f-q'), u = $('f-urg'), it = $('f-items'), d = $('f-desde'), h = $('f-hasta');
+  if (q.value) chips.push(['f-q', `“${q.value}”`]);
+  if (u.value) chips.push(['f-urg', 'Urgencia: ' + u.selectedOptions[0].text]);
+  if (it.value) chips.push(['f-items', 'Ítems: ' + it.selectedOptions[0].text]);
+  if (d.value) chips.push(['f-desde', 'Desde ' + d.value.split('-').reverse().join('/')]);
+  if (h.value) chips.push(['f-hasta', 'Hasta ' + h.value.split('-').reverse().join('/')]);
+  const box = $('filtros-activos');
+  box.hidden = !chips.length || modo === 'primera' || modo === 'error';
+  box.innerHTML = 'Filtros:' + chips.map(c => `<span class="filtro-chip">${c[1]}<button type="button" aria-label="Quitar filtro ${c[1]}" data-quitar="${c[0]}">×</button></span>`).join('') + ' <button class="btn btn--fantasma btn--chico" type="button" data-limpiar>Limpiar todo</button>';
+}
+
+function limpiar() { $('filtros').reset(); pagina = 1; if (modo === 'sinresultados') setModo('datos'); else render(); }
+function setModo(m) {
+  modo = m;
+  document.querySelectorAll('[data-modo]').forEach(b => b.setAttribute('aria-pressed', b.dataset.modo === m));
+  armar(m === 'nueva');
+  if (m === 'nueva') { estado = ''; marcarPestania(); toast('exito', 'Solicitud #1052 enviada', 'Compras ya la tiene en su bandeja.'); }
+  render();
+}
+function marcarPestania() { document.querySelectorAll('#pestanias [role="tab"]').forEach(t => t.setAttribute('aria-selected', t.dataset.estado === estado)); }
+
+/* ---------- Eventos ---------- */
+$('pestanias').addEventListener('click', e => { const t = e.target.closest('[role="tab"]'); if (!t) return; estado = t.dataset.estado; pagina = 1; marcarPestania(); if (modo !== 'datos' && modo !== 'nueva') setModo('datos'); else render(); });
+$('pestanias').addEventListener('keydown', e => {
+  if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+  const tabs = [...document.querySelectorAll('#pestanias [role="tab"]')], i = tabs.indexOf(document.activeElement);
+  const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]; n.focus(); n.click();
+});
+$('filtros').addEventListener('input', () => { pagina = 1; render(); });
+$('f-limpiar').addEventListener('click', limpiar);
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-limpiar]')) return limpiar();
+  if (e.target.closest('[data-reintentar]')) { setModo('cargando'); setTimeout(() => setModo('datos'), 900); return; }
+  const qx = e.target.closest('[data-quitar]'); if (qx) { $(qx.dataset.quitar).value = ''; render(); return; }
+});
+$('cuerpo').addEventListener('click', e => {
+  const o = e.target.closest('[data-orden]');
+  if (o) { const c = o.dataset.orden; orden = { campo: c, dir: orden.campo === c && orden.dir === 'desc' ? 'asc' : (c === 'fechaNecesaria' && orden.campo !== c ? 'asc' : 'desc') }; render(); return; }
+  const p = e.target.closest('[data-pag]'); if (p && !p.disabled) { pagina = +p.dataset.pag; render(); $('panel').scrollIntoView({ block: 'start' }); return; }
+  const tr = e.target.closest('tbody tr[data-id]'); if (tr) abrir(tr.dataset.id);
+});
+$('cuerpo').addEventListener('keydown', e => { const tr = e.target.closest('tbody tr[data-id]'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir(tr.dataset.id); } });
+$('cuerpo').addEventListener('change', e => { if (e.target.id === 'por-pagina') { porPagina = +e.target.value; pagina = 1; render(); } });
+function abrir(id) { toast('info', `Abrir solicitud #${id}`, 'En la app real navega a /solicitudes/' + id + ' (Detalle de solicitud).'); }
+document.querySelectorAll('[data-modo]').forEach(b => b.addEventListener('click', () => setModo(b.dataset.modo)));
+$('btn-menu').addEventListener('click', e => { const a = $('topbar').classList.toggle('is-abierto'); e.currentTarget.setAttribute('aria-expanded', a); });
+
+/* ---------- Toasts ---------- */
+const ICONO_TOAST = { exito: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>' };
+function toast(tipo, titulo, texto) {
+  const el = document.createElement('div'); el.className = `toast toast--${tipo}`; el.setAttribute('role', 'status');
+  el.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONO_TOAST[tipo]}</svg><div><strong>${titulo}</strong><span>${texto}</span></div><button class="toast__cerrar" type="button" aria-label="Cerrar">×</button>`;
+  el.querySelector('button').onclick = () => el.remove();
+  $('toasts').append(el); setTimeout(() => el.remove(), 5000);
+}
+
+setModo('datos');
+</script>
+</body>
+</html>

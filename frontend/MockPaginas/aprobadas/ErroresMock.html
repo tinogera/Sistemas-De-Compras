@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Error · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* =========================================================
+   Tokens y componentes: copiados de aprobadas/LayoutMock.html
+   y del patrón de lista de aprobadas/MisSolicitudesMock.html
+   ========================================================= */
+:root {
+  --fondo: #1b1916; --superficie: #24221e; --superficie-2: #2b2924;
+  --linea: #2f2c27; --borde: #3a362f; --borde-fuerte: #5a554c;
+  --texto: #fbfaf8; --texto-2: #c9c3b8; --apagado: #a39d92; --tenue: #7d776d;
+  --naranja: #e08a3c; --foco: #8fb3f0;
+  --info: #8fb3f0; --exito: #7fcf97; --peligro: #f08a7e; --aviso: #e8b25c; --curso: #b0a6f2; --neutro: #c9c3b8; --inactivo: #8a857c;
+  --radio: 3px; --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace; --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--texto); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; }
+h1, h2, h3, p { margin: 0; }
+a { color: var(--foco); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* Maqueta */
+.maqueta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde); font: 500 12px var(--mono); color: var(--apagado); }
+.maqueta button { height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde); background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer; }
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__sep { width: 1px; height: 18px; background: var(--borde); margin: 0 4px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 20; background: rgba(27,25,22,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea); }
+.topbar__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; gap: 28px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; flex: none; }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.menu { display: flex; align-items: stretch; gap: 4px; height: 100%; flex: 1; min-width: 0; }
+.menu a { position: relative; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.menu a:hover { color: var(--texto); }
+.menu a[aria-current="page"] { color: var(--texto); font-weight: 600; }
+.menu a[aria-current="page"]::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--naranja); }
+.menu__sep { width: 1px; background: var(--linea); margin: 18px 6px; }
+.contador { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--naranja); color: #1b1916; font: 700 11px/20px var(--mono); text-align: center; }
+.contador--gris { background: var(--superficie-2); color: var(--texto-2); border: 1px solid var(--borde); line-height: 18px; }
+.usuario { display: flex; align-items: center; gap: 14px; flex: none; }
+.usuario__datos { text-align: right; line-height: 1.25; }
+.usuario__nombre { font-size: 14px; font-weight: 600; }
+.usuario__rol { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--apagado); }
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 12px var(--mono); color: var(--texto-2); }
+.topbar .btn-menu { display: none; }
+@media (max-width: 1080px) {
+  .menu { display: none; }
+  .topbar.is-abierto .menu { display: flex; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; height: auto; background: var(--fondo); border-bottom: 1px solid var(--linea); padding: 8px 16px 12px; }
+  .topbar.is-abierto .menu a { min-height: 44px; }
+  .topbar.is-abierto .menu a[aria-current="page"]::after { left: 0; right: auto; top: 12px; bottom: 12px; width: 2px; height: auto; }
+  .topbar.is-abierto .menu__sep { width: auto; height: 1px; margin: 6px 0; }
+  .topbar .btn-menu { display: inline-flex; margin-left: auto; }
+  .usuario__datos { display: none; }
+}
+
+/* Botones */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--radio); border: 1px solid transparent; font: 600 14px var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.btn--chico { height: 32px; padding: 0 12px; font-size: 13px; }
+.btn--primario { background: var(--texto); color: #1e1c19; }
+.btn--secundario { background: transparent; color: var(--texto); border-color: var(--borde-fuerte); }
+.btn--secundario:hover { background: var(--superficie-2); }
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn--fantasma { background: transparent; color: var(--texto-2); }
+.btn--fantasma:hover { color: var(--texto); background: var(--superficie-2); }
+.btn--icono { width: 40px; padding: 0; }
+.btn[disabled] { opacity: .5; cursor: progress; }
+.girador { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+/* Campos */
+.campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo label, .campo__titulo { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.select { height: 40px; padding: 0 32px 0 12px; border-radius: var(--radio); background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 14px var(--sans); width: 100%; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a39d92' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.select:hover { border-color: var(--borde-fuerte); }
+.select:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+/* Interruptor "Solo los míos" */
+.interruptor { display: inline-flex; align-items: center; gap: 10px; height: 40px; cursor: pointer; font-size: 14px; color: var(--texto-2); user-select: none; }
+.interruptor input { position: absolute; opacity: 0; pointer-events: none; }
+.interruptor__pista { width: 36px; height: 20px; border-radius: 999px; background: var(--superficie-2); border: 1px solid var(--borde-fuerte); position: relative; flex: none; transition: background .15s; }
+.interruptor__pista::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--apagado); transition: transform .15s, background .15s; }
+.interruptor input:checked + .interruptor__pista { background: color-mix(in srgb, var(--foco) 25%, transparent); border-color: var(--foco); }
+.interruptor input:checked + .interruptor__pista::after { transform: translateX(16px); background: var(--foco); }
+.interruptor input:focus-visible + .interruptor__pista { outline: 2px solid var(--foco); outline-offset: 2px; }
+.interruptor:hover { color: var(--texto); }
+
+/* Chips de urgencia (filtro) */
+.segmentos { display: inline-flex; border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; height: 40px; }
+.segmentos button { border: 0; border-right: 1px solid var(--borde); background: var(--fondo); color: var(--texto-2); font: 500 13px var(--sans); padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.segmentos button:last-child { border-right: 0; }
+.segmentos button:hover { color: var(--texto); background: var(--superficie-2); }
+.segmentos button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); font-weight: 600; box-shadow: inset 0 -2px 0 var(--texto-2); }
+
+/* Badges y urgencia */
+.badge { --c: var(--neutro); display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px 0 7px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); }
+.badge svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* EstadoGestion del ítem */
+.badge--pendiente { --c: var(--neutro); border-style: dashed; }
+.badge--cotizacion { --c: var(--info); }
+/* EstadoAprobacion */
+.badge--curso { --c: var(--curso); }
+.badge--aprobada { --c: var(--exito); }
+.badge--nueva { --c: var(--naranja); height: 20px; font-size: 11px; padding: 0 7px; }
+.badge--chico { height: 20px; font-size: 11px; padding: 0 7px 0 5px; }
+.urg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.urg__barras { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.urg__barras i { width: 3px; border-radius: 1px; background: var(--borde-fuerte); }
+.urg__barras i:nth-child(1) { height: 5px; } .urg__barras i:nth-child(2) { height: 8px; } .urg__barras i:nth-child(3) { height: 12px; }
+.urg--alta { color: var(--peligro); } .urg--alta i { background: var(--peligro); }
+.urg--media { color: var(--aviso); } .urg--media i:nth-child(-n+2) { background: var(--aviso); }
+.urg--baja { color: var(--texto-2); } .urg--baja i:nth-child(1) { background: var(--texto-2); }
+.vos { font: 700 10px var(--mono); letter-spacing: .06em; color: #1b1916; background: var(--naranja); padding: 2px 6px; border-radius: 3px; }
+
+/* Avisos */
+.aviso { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--c, var(--aviso)) 40%, transparent); background: color-mix(in srgb, var(--c, var(--aviso)) 10%, transparent); }
+.aviso > svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c, var(--aviso)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso__acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.aviso--error { --c: var(--peligro); } .aviso--info { --c: var(--info); }
+
+/* Panel, filtros, tabla, paginación */
+.panel { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-card); overflow: hidden; }
+.filtros { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; padding: 16px; border-bottom: 1px solid var(--borde); }
+.filtros__fin { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--apagado); }
+.orden-fijo { display: inline-flex; align-items: center; gap: 6px; height: 40px; }
+.orden-fijo svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.panel__aviso { padding: 12px 16px 0; }
+.panel__aviso:empty { display: none; }
+
+.tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tabla th { text-align: left; padding: 12px 16px; background: var(--superficie-2); border-bottom: 1px solid var(--borde); font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; white-space: nowrap; }
+.tabla td { padding: 14px 16px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr { cursor: pointer; transition: background .3s; }
+.tabla tbody tr:hover td { background: rgba(251,250,248,.03); }
+.tabla tbody tr:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.tabla tr:last-child td { border-bottom: 0; }
+.tabla tr.is-nueva td { background: rgba(224,138,60,.06); }
+.tabla tr.is-nueva td:first-child { box-shadow: inset 3px 0 0 var(--naranja); }
+.tabla tr.is-mia td:first-child { box-shadow: inset 3px 0 0 var(--borde-fuerte); }
+.tabla tr.is-resaltada td { background: rgba(232,178,92,.08); }
+.tabla .der { text-align: right; }
+
+.celda-item { max-width: 360px; }
+.celda-item strong { font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.celda-item .cant { font: 500 13px var(--mono); color: var(--texto-2); margin-left: 4px; }
+.celda-sub { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--apagado); margin-top: 3px; }
+.celda-sub .num { font-size: 12px; }
+.celda-sub a { color: var(--apagado); text-decoration: none; font-family: var(--mono); }
+.celda-sub a:hover { color: var(--foco); text-decoration: underline; }
+.punto { color: var(--tenue); }
+.tipo { font: 600 10px var(--mono); letter-spacing: .06em; color: var(--tenue); border: 1px solid var(--borde); border-radius: 3px; padding: 0 4px; }
+.fecha { font: 500 13px var(--mono); white-space: nowrap; }
+.fecha__hint { display: block; font: 500 12px var(--sans); color: var(--apagado); }
+.fecha__hint--pronto { color: var(--aviso); }
+.fecha__hint--vencida { color: var(--peligro); }
+.monto { font: 500 13px var(--mono); white-space: nowrap; display: block; }
+.monto__mon { color: var(--apagado); font-size: 11px; margin-right: 4px; }
+.monto--total { color: var(--texto); font-weight: 600; }
+.monto--falta { color: var(--tenue); font-family: var(--sans); font-size: 12px; }
+.monto__et { font: 500 11px var(--sans); color: var(--tenue); margin-right: 4px; }
+.estado-celda { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+.vencidas { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--aviso); }
+.vencidas svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.encargado { display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: 13px; }
+.encargado__sin { color: var(--tenue); font-style: italic; }
+.mini-avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); font: 600 10px var(--mono); color: var(--texto-2); flex: none; }
+.mini-avatar--vacio { border-style: dashed; color: var(--tenue); background: transparent; }
+.celda-accion { width: 1%; white-space: nowrap; text-align: right; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--borde); font-size: 13px; color: var(--apagado); }
+.paginas { display: flex; gap: 4px; align-items: center; }
+.paginas button { min-width: 36px; height: 36px; padding: 0 8px; border-radius: var(--radio); border: 1px solid transparent; background: transparent; color: var(--texto-2); font: 500 13px var(--mono); cursor: pointer; }
+.paginas button:hover:not([disabled]) { background: var(--superficie-2); }
+.paginas button[aria-current="page"] { border-color: var(--borde-fuerte); color: var(--texto); background: var(--fondo); }
+.paginas button[disabled] { opacity: .35; cursor: not-allowed; }
+
+.esq { display: block; height: 12px; border-radius: 3px; background: linear-gradient(90deg, var(--superficie-2) 0%, #36332d 50%, var(--superficie-2) 100%); background-size: 200% 100%; animation: brillo 1.4s ease-in-out infinite; }
+@keyframes brillo { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+.estado { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 64px 24px; }
+.estado__icono { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 6px; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.estado__icono svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.estado__icono--error { color: var(--peligro); border-color: color-mix(in srgb, var(--peligro) 40%, transparent); }
+.estado__icono--exito { color: var(--exito); border-color: color-mix(in srgb, var(--exito) 40%, transparent); }
+.estado h3 { font-size: 18px; font-weight: 700; }
+.estado p { color: var(--texto-2); font-size: 14px; max-width: 440px; }
+.estado .acciones { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; justify-content: center; }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+/* Toasts y modal */
+.toasts { position: fixed; right: 20px; bottom: 20px; z-index: 50; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 40px)); }
+.toast { display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 16px; border-radius: 6px; background: #2b2924; border: 1px solid var(--borde); border-left: 3px solid var(--c); box-shadow: 0 16px 40px rgba(0,0,0,.45); font-size: 14px; }
+.toast svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toast--info { --c: var(--info); } .toast--exito { --c: var(--exito); } .toast--nuevo { --c: var(--naranja); }
+.toast span { color: var(--texto-2); font-size: 13px; display: block; }
+.toast__cerrar { margin-left: auto; border: 0; background: transparent; color: var(--apagado); cursor: pointer; width: 24px; height: 24px; border-radius: 3px; }
+dialog.modal { width: min(520px, calc(100vw - 32px)); padding: 0; border-radius: var(--radio-card); background: var(--superficie); color: var(--texto); border: 1px solid var(--borde-fuerte); box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+dialog.modal::backdrop { background: rgba(10,9,8,.7); backdrop-filter: blur(2px); }
+.modal__cab { padding: 22px 24px 0; } .modal__cab h2 { font-size: 20px; font-weight: 800; }
+.modal__cuerpo { padding: 12px 24px 20px; color: var(--texto-2); font-size: 14px; display: grid; gap: 16px; }
+.modal__pie { display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--borde); background: var(--fondo); border-radius: 0 0 var(--radio-card) var(--radio-card); }
+.resumen-modal { padding: 12px 14px; border-radius: 6px; background: var(--fondo); border: 1px solid var(--borde); display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; font-size: 13px; margin: 0; }
+.resumen-modal dt { color: var(--apagado); } .resumen-modal dd { margin: 0; color: var(--texto); }
+
+
+/* =========================================================
+   Pantalla: Páginas de error (403 · 404 · En construcción)
+   Textos de aprobadas/LayoutMock.html (sección 05); resplandor de aprobadas/LoginMock.html
+   ========================================================= */
+body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.escena { flex: 1; display: grid; place-items: center; padding: 48px 20px 72px; position: relative; overflow: hidden; }
+.fondo-codigo { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; user-select: none; }
+.fondo-codigo span { font: 800 clamp(160px, 28vw, 380px)/1 var(--mono); letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 1px #3a362f; opacity: .7; transform: translateY(-4%); }
+.bloque { position: relative; width: min(540px, 100%); text-align: center; }
+.resplandor { position: absolute; z-index: 0; pointer-events: none; left: 50%; top: 50%; width: calc(100% + 60px); height: calc(100% + 80px); transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(ellipse closest-side, rgba(224,138,60,.9) 0%, rgba(224,138,60,.8) 70%, rgba(224,138,60,0) 100%); filter: blur(22px); opacity: .22; }
+.tarjeta { position: relative; z-index: 1; padding: 36px 32px 28px; border-radius: var(--radio-card); background: var(--superficie); border: 1px solid #4a463f; box-shadow: 0 0 0 6px rgba(251,250,248,.04); }
+.icono { width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 50%; display: grid; place-items: center; background: var(--superficie-2); border: 1px solid var(--borde); color: var(--texto-2); }
+.icono svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.icono--naranja { color: var(--naranja); border-color: color-mix(in srgb, var(--naranja) 40%, transparent); background: rgba(224,138,60,.08); }
+.chip { display: inline-block; font: 600 11px/1.4 var(--mono); letter-spacing: .06em; color: var(--texto-2); border: 1px solid #3a362f; background: var(--fondo); border-radius: 999px; padding: 4px 10px; margin-bottom: 14px; }
+.tarjeta h1:focus { outline: none; }
+.tarjeta h1 { font-size: clamp(26px, 20px + 1.4vw, 34px); line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.tarjeta p { margin-top: 10px; color: var(--texto-2); font-size: 15px; }
+.ruta { display: inline-block; margin-top: 14px; padding: 6px 10px; border-radius: 4px; background: var(--fondo); border: 1px dashed var(--borde-fuerte); font: 500 13px var(--mono); color: var(--apagado); max-width: 100%; overflow-wrap: anywhere; }
+.acciones { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+.ayuda { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--linea); text-align: left; }
+.ayuda__tit { font: 600 11px var(--mono); letter-spacing: .06em; color: var(--apagado); text-transform: uppercase; margin-bottom: 8px; }
+.atajos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.atajos a { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo); color: var(--texto-2); text-decoration: none; font-size: 14px; }
+.atajos a:hover { border-color: var(--borde-fuerte); color: var(--texto); }
+.atajos small { font-size: 12px; color: var(--apagado); }
+.proximo { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 14px; color: var(--texto-2); }
+.proximo li { display: flex; gap: 8px; align-items: flex-start; }
+.proximo li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--borde-fuerte); margin-top: 8px; flex: none; }
+.codigo-pie { display: block; margin-top: 18px; font: 500 11px var(--mono); color: var(--tenue); }
+.codigo-pie a { color: var(--tenue); }
+@media (max-width: 520px) {
+  .tarjeta { padding: 28px 20px 22px; }
+  .acciones .btn { width: 100%; }
+  .maqueta { padding: 8px 16px; }
+}
+/* Inicio en el menú (pantalla 16) */
+.menu a.menu__inicio { gap: 6px; }
+.menu a.menu__inicio svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; }
+</style>
+</head>
+<body>
+
+<!-- Solo para la maqueta -->
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · página:</span>
+  <button type="button" data-pag="403" aria-pressed="true">403 Sin permiso</button>
+  <button type="button" data-pag="404" aria-pressed="false">404 Página</button>
+  <button type="button" data-pag="404r" aria-pressed="false">404 Solicitud inexistente</button>
+  <button type="button" data-pag="obra" aria-pressed="false">En construcción</button>
+  <span class="maqueta__sep" aria-hidden="true"></span>
+  <span>rol:</span>
+  <button type="button" data-rol="SOLICITANTE" aria-pressed="true">Solicitante</button>
+  <button type="button" data-rol="ENCARGADO" aria-pressed="false">Encargado</button>
+  <button type="button" data-rol="ADMIN" aria-pressed="false">Admin</button>
+</div>
+
+<header class="topbar" id="topbar">
+  <div class="topbar__inner">
+    <a class="logo" href="InicioMock.html" aria-label="Compras · ir al inicio"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <nav class="menu" id="menu" aria-label="Principal"></nav>
+    <button class="btn btn--secundario btn--icono btn-menu" type="button" aria-label="Menú" aria-expanded="false" aria-controls="menu" id="btn-menu">≡</button>
+    <div class="usuario" id="usuario"></div>
+  </div>
+</header>
+
+<main class="escena" id="escena"></main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+const INICIO_MENU = '<a href="InicioMock.html" class="menu__inicio"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>Inicio</a><span class="menu__sep" aria-hidden="true"></span>';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ICONOS = {
+  candado: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  brujula: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
+  doc: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13l4 4M14 13l-4 4"/>',
+  obra: '<path d="M4 20h16"/><path d="M6 20V10l6-6 6 6v10"/><path d="M10 20v-5h4v5"/>'
+};
+const ico = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONOS[k]}</svg>`;
+
+/* Rol: menú, usuario y "inicio" (mismo destino que después del login) */
+const ROLES = {
+  SOLICITANTE: { nombre: 'Sofía Álvarez', ini: 'SÁ', etq: 'SOLICITANTE · VENTAS', inicio: ['Mis solicitudes', '/solicitudes'],
+    menu: ['Mis solicitudes', 'Nueva solicitud'], atajos: [['Mis solicitudes', 'tus pedidos y en qué estado están'], ['Nueva solicitud', 'pedir algo nuevo']] },
+  ENCARGADO: { nombre: 'Martín Ruiz', ini: 'MR', etq: 'ENCARGADO · COMPRAS', inicio: ['Bandeja', '/bandeja'],
+    menu: ['Bandeja', 'Órdenes', 'Catálogo', 'Reportes', '|', 'Mis solicitudes', 'Nueva solicitud'], atajos: [['Bandeja', 'ítems para cotizar y comprar'], ['Órdenes', 'las que faltan enviar'], ['Mis solicitudes', 'tus propios pedidos']] },
+  ADMIN: { nombre: 'Pablo Ferreyra', ini: 'PF', etq: 'ADMIN · SISTEMAS', inicio: ['Usuarios', '/admin/usuarios'],
+    menu: ['Usuarios', 'Sectores', 'Reglas', 'Reportes'], atajos: [['Usuarios', 'cuentas y roles'], ['Reglas', 'quién aprueba qué']] }
+};
+const P = new URLSearchParams(location.search);
+const V = { pag: ['403', '404', '404r', 'obra'].includes(P.get('pag')) ? P.get('pag') : '403', rol: ROLES[P.get('rol')] ? P.get('rol') : 'SOLICITANTE' };
+
+// Qué se pidió en cada caso (para que el texto sea concreto)
+const PEDIDO = {
+  SOLICITANTE: { ruta: '/bandeja', seccion: 'la Bandeja', para: 'el equipo de Compras (Encargados)' },
+  ENCARGADO: { ruta: '/admin/reglas', seccion: 'Reglas de aprobación', para: 'los administradores' },
+  ADMIN: { ruta: '/bandeja/3312', seccion: 'la gestión de ítems', para: 'el equipo de Compras (Encargados)' }
+};
+
+function render() {
+  const r = ROLES[V.rol];
+  $('menu').innerHTML = INICIO_MENU + r.menu.map(m => m === '|' ? '<span class="menu__sep" aria-hidden="true"></span>' : `<a href="#">${m}</a>`).join('');
+  $('usuario').innerHTML = `<div class="usuario__datos"><div class="usuario__nombre">${r.nombre}</div><div class="usuario__rol">${r.etq}</div></div><span class="avatar" aria-hidden="true">${r.ini}</span><button class="btn btn--secundario btn--chico" type="button">Salir</button>`;
+  const inicio = `<a class="btn btn--primario" href="InicioMock.html" data-ir>Ir al inicio</a>`;
+  const atras = `<button class="btn btn--secundario" type="button" data-atras>← Volver atrás</button>`;
+  const atajos = `<div class="ayuda"><div class="ayuda__tit">Lo que sí podés hacer</div><ul class="atajos">${r.atajos.map(([n, d]) => `<li><a href="#">${n}<small>${d} →</small></a></li>`).join('')}</ul></div>`;
+  const ped = PEDIDO[V.rol];
+  let fondo, cuerpo, titulo;
+  if (V.pag === '403') {
+    fondo = '403'; titulo = 'No tenés permiso';
+    cuerpo = `<div class="icono icono--naranja">${ico('candado')}</div>
+      <span class="chip">SIN PERMISO</span>
+      <h1>No tenés permiso para ver esto</h1>
+      <p>${ped.seccion[0].toUpperCase() + ped.seccion.slice(1)} es para ${ped.para}. Si creés que deberías tener acceso, hablá con un administrador.</p>
+      <span class="ruta">${ped.ruta}</span>
+      <div class="acciones">${inicio}${atras}</div>
+      ${atajos}
+      <span class="codigo-pie">403 · SIN_PERMISO · Tu rol: ${V.rol.toLowerCase()}</span>`;
+  } else if (V.pag === '404') {
+    fondo = '404'; titulo = 'Página no encontrada';
+    cuerpo = `<div class="icono">${ico('brujula')}</div>
+      <span class="chip">NO ENCONTRADA</span>
+      <h1>Esta página no existe</h1>
+      <p>Puede que la dirección tenga un error de tipeo o que el link sea viejo.</p>
+      <span class="ruta">/solicitudes/nueba</span>
+      <div class="acciones">${inicio}${atras}</div>
+      ${atajos}
+      <span class="codigo-pie">404 · Si llegaste desde un link del sistema, avisá a <a href="#">sistemas@empresa.com</a></span>`;
+  } else if (V.pag === '404r') {
+    fondo = '404'; titulo = 'Solicitud no encontrada';
+    cuerpo = `<div class="icono">${ico('doc')}</div>
+      <span class="chip">NO ENCONTRADA</span>
+      <h1>No existe la solicitud #9999</h1>
+      <p>Revisá el número. Si te pasaron el link, puede que sea de otro sistema o que el número esté mal copiado.</p>
+      <span class="ruta">/solicitudes/9999</span>
+      <div class="acciones"><a class="btn btn--primario" href="#">Ver ${V.rol === 'SOLICITANTE' ? 'mis solicitudes' : r.inicio[0].toLowerCase()}</a>${atras}</div>
+      <span class="codigo-pie">404 · NO_ENCONTRADO · "No existe la solicitud 9999"</span>`;
+  } else {
+    fondo = '···'; titulo = 'En construcción';
+    cuerpo = `<div class="icono">${ico('obra')}</div>
+      <span class="chip">EN CONSTRUCCIÓN</span>
+      <h1>Esta pantalla todavía no está disponible</h1>
+      <p>La estamos terminando. Mientras tanto, ${V.rol === 'SOLICITANTE' ? 'podés seguir tus pedidos desde Mis solicitudes' : `seguí desde ${r.inicio[0]}`}.</p>
+      <div class="ayuda" style="border-top:0;padding-top:0;margin-top:18px"><div class="ayuda__tit">Qué va a tener</div>
+        <ul class="proximo"><li>Avisos dentro del sistema cuando cambia algo de tus pedidos.</li><li>Elegir qué avisos te llegan por mail.</li></ul></div>
+      <div class="acciones">${inicio}${atras}</div>
+      <span class="codigo-pie">Notificaciones · próximamente</span>`;
+  }
+  document.title = `${titulo} · Compras`;
+  $('escena').innerHTML = `<div class="fondo-codigo" aria-hidden="true"><span>${fondo}</span></div>
+    <div class="bloque"><div class="resplandor" aria-hidden="true"></div><div class="tarjeta">${cuerpo.replace('<h1>', '<h1 id="t" tabindex="-1">')}</div></div>`;
+  // El foco va al título para que el lector de pantalla anuncie qué pasó
+  const h = $('t'); if (h) h.focus({ preventScroll: true });
+}
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  const p = t.closest('[data-pag]'); if (p) { V.pag = p.dataset.pag; document.querySelectorAll('[data-pag]').forEach(b => b.setAttribute('aria-pressed', b === p)); render(); return; }
+  const r = t.closest('[data-rol]'); if (r) { V.rol = r.dataset.rol; document.querySelectorAll('[data-rol]').forEach(b => b.setAttribute('aria-pressed', b === r)); render(); return; }
+  if (t.closest('[data-atras]')) { toast('En la app real vuelve a la página anterior (history.back).'); return; }
+  if (t.closest('[data-ir]')) { e.preventDefault(); toast('En la app real va al inicio (/inicio).'); }
+});
+function toast(texto) {
+  const t = document.createElement('div');
+  t.className = 'toast toast--info';
+  t.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><b>Maqueta</b><span>${esc(texto)}</span></div><button class="toast__cerrar" aria-label="Cerrar">×</button>`;
+  t.querySelector('button').onclick = () => t.remove();
+  $('toasts').append(t); setTimeout(() => t.remove(), 4000);
+}
+$('btn-menu').onclick = () => { const t = $('topbar'); const a = t.classList.toggle('is-abierto'); $('btn-menu').setAttribute('aria-expanded', a); };
+document.querySelectorAll('[data-pag]').forEach(b => b.setAttribute('aria-pressed', b.dataset.pag === V.pag));
+document.querySelectorAll('[data-rol]').forEach(b => b.setAttribute('aria-pressed', b.dataset.rol === V.rol));
+render();
+</script>
+</body>
+</html>
