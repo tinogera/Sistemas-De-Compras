@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ingresar · Compras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Tokens: copiados de aprobadas/LayoutMock.html */
+:root {
+  --fondo: #1b1916;
+  --superficie: #24221e;
+  --superficie-2: #2b2924;
+  --linea: #2f2c27;
+  --borde: #3a362f;
+  --borde-fuerte: #5a554c;
+  --texto: #fbfaf8;
+  --texto-2: #c9c3b8;
+  --apagado: #a39d92;
+  --tenue: #7d776d;
+  --naranja: #e08a3c;
+  --foco: #8fb3f0;
+  --info: #8fb3f0;
+  --exito: #7fcf97;
+  --peligro: #f08a7e;
+  --aviso: #e8b25c;
+  --radio: 3px;
+  --radio-card: 8px;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --sans: 'Public Sans', system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  margin: 0; background: var(--fondo); color: var(--texto);
+  font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+}
+h1, p { margin: 0; }
+a { color: var(--foco); }
+a:hover { color: #b7cdf5; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* Barra de maqueta (no es parte del diseño) */
+.maqueta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 24px; background: #12110f; border-bottom: 1px dashed var(--borde);
+  font: 500 12px var(--mono); color: var(--apagado);
+}
+.maqueta button {
+  height: 28px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--borde);
+  background: transparent; color: var(--apagado); font: 500 12px var(--mono); cursor: pointer;
+}
+.maqueta button[aria-pressed="true"] { background: var(--superficie-2); color: var(--texto); border-color: var(--borde-fuerte); }
+.maqueta__ayuda { margin-left: auto; color: var(--tenue); }
+
+/* Nav mínima, igual a la home */
+.nav { border-bottom: 1px solid var(--linea); }
+.nav__inner { max-width: 1280px; margin: 0 auto; height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--texto); text-decoration: none; }
+.logo:hover { color: var(--texto); }
+.logo__marca { width: 22px; height: 22px; border-radius: 3px; background: var(--texto); box-shadow: inset -6px -6px 0 var(--naranja); }
+.logo__texto { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+.volver { color: var(--texto-2); text-decoration: none; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.volver:hover { color: var(--texto); }
+
+/* Pantalla dividida: foto a la izquierda, login a la derecha */
+.dividida { flex: 1; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+
+/* Panel de la foto con parallax según el mouse */
+.foto {
+  position: relative; overflow: hidden; background: #12110f;
+  border-right: 1px solid var(--linea); isolation: isolate;
+  --mx: 0; --my: 0; /* -1..1, los escribe el JS */
+}
+.foto__capa { position: absolute; inset: 0; will-change: transform; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.foto__img {
+  inset: -6%; background: url("https://images.unsplash.com/photo-1553413077-190dd305871c?w=1600&q=80&auto=format&fit=crop") center / cover no-repeat;
+  transform: translate3d(calc(var(--mx) * -22px), calc(var(--my) * -16px), 0) scale(1.06);
+  filter: saturate(.55) contrast(1.05) brightness(.8);
+}
+/* Tinte cálido + oscurecido hacia los bordes para que entre en el tema oscuro */
+.foto__tinte {
+  background:
+    linear-gradient(180deg, rgba(27,25,22,.55) 0%, rgba(27,25,22,.05) 35%, rgba(27,25,22,.15) 60%, rgba(27,25,22,.92) 100%),
+    linear-gradient(90deg, rgba(27,25,22,0) 70%, rgba(27,25,22,.7) 100%);
+  mix-blend-mode: normal;
+}
+.foto__naranja {
+  background: radial-gradient(circle at calc(50% + var(--mx) * 18%) calc(45% + var(--my) * 18%), rgba(224,138,60,.38), rgba(224,138,60,0) 45%);
+  mix-blend-mode: soft-light; transition: background .2s linear;
+}
+/* Tarjetitas flotantes: más cerca = se mueven más */
+.flota {
+  position: absolute; z-index: 2; display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: var(--radio-card);
+  background: rgba(36,34,30,.82); border: 1px solid #4a463f; backdrop-filter: blur(8px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.35); font-size: 13px; color: var(--texto-2);
+  transition: transform .6s cubic-bezier(.2,.7,.2,1); will-change: transform;
+}
+.flota strong { color: var(--texto); font-weight: 600; display: block; font-size: 13px; }
+.flota .mono { font: 500 11px var(--mono); color: var(--apagado); }
+.flota__punto { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.flota__punto svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.flota--1 { top: 18%; left: 9%; transform: translate3d(calc(var(--mx) * 34px), calc(var(--my) * 26px), 0); animation: flotar 6s ease-in-out infinite; }
+.flota--2 { top: 44%; right: 10%; transform: translate3d(calc(var(--mx) * 52px), calc(var(--my) * 40px), 0); animation: flotar 7s ease-in-out -2s infinite; }
+.flota--1 .flota__punto { background: rgba(127,207,151,.15); color: var(--exito); }
+.flota--2 .flota__punto { background: rgba(224,138,60,.18); color: var(--naranja); }
+@keyframes flotar { 50% { translate: 0 -8px; } }
+
+.foto__texto { position: absolute; z-index: 2; left: 40px; right: 40px; bottom: 40px; max-width: 460px; }
+.foto__texto p { font-size: clamp(22px, 16px + 1.1vw, 30px); line-height: 1.15; font-weight: 800; letter-spacing: -0.02em; }
+.foto__texto p span { color: var(--naranja); }
+.foto__texto small { display: block; margin-top: 12px; font: 500 12px var(--mono); color: var(--apagado); letter-spacing: .04em; }
+
+/* Escena */
+.escena { display: grid; place-items: center; padding: 56px 20px 72px; overflow-x: clip; }
+
+@media (max-width: 960px) {
+  .dividida { grid-template-columns: minmax(0, 1fr); }
+  .foto { min-height: 220px; border-right: 0; border-bottom: 1px solid var(--linea); }
+  .flota--2, .foto__texto small { display: none; }
+  .flota--1 { top: 20px; left: 20px; }
+  .foto__texto { left: 20px; right: 20px; bottom: 20px; }
+}
+@media (max-width: 480px) { .foto { min-height: 160px; } .flota { display: none; } }
+.contenido { width: min(420px, 100%); }
+.cabecera { text-align: center; margin-bottom: 28px; }
+.chip {
+  display: inline-block; font: 600 11px/1.4 var(--mono); letter-spacing: .06em; color: var(--texto-2);
+  border: 1px solid #3a362f; background: #24221e; border-radius: 999px; padding: 4px 10px;
+}
+.titulo { margin-top: 16px; font-size: clamp(32px, 26px + 1.6vw, 40px); line-height: 1.05; font-weight: 800; letter-spacing: -0.03em; }
+.titulo span { color: var(--apagado); }
+.bajada { margin-top: 10px; color: var(--texto-2); font-size: 15px; }
+
+/* Tarjeta con resplandor naranja detrás (mismo recurso que la imagen de la home) */
+.tarjeta-wrap { position: relative; }
+.resplandor {
+  position: absolute; z-index: 0; pointer-events: none; left: 50%; top: 50%;
+  width: calc(100% + 56px); height: calc(100% + 72px); transform: translate(-50%, -50%); border-radius: 50%;
+  background: radial-gradient(ellipse closest-side, rgba(224,138,60,.95) 0%, rgba(224,138,60,.9) 78%, rgba(224,138,60,.45) 90%, rgba(224,138,60,0) 100%);
+  filter: blur(14px); opacity: .55;
+}
+.tarjeta {
+  position: relative; z-index: 1; padding: 28px; border-radius: var(--radio-card);
+  background: var(--superficie); border: 1px solid #4a463f;
+  box-shadow: 0 0 0 6px rgba(251,250,248,.04);
+}
+
+/* Avisos (de LayoutMock) */
+.aviso {
+  display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: 6px; margin-bottom: 20px;
+  border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+  background: color-mix(in srgb, var(--c) 10%, transparent);
+}
+.aviso svg { width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.aviso__cuerpo { flex: 1; font-size: 14px; color: var(--texto-2); }
+.aviso__cuerpo strong { display: block; color: var(--texto); margin-bottom: 2px; }
+.aviso--error { --c: var(--peligro); }
+.aviso--aviso { --c: var(--aviso); }
+.aviso--exito { --c: var(--exito); }
+.codigo { font: 500 11px var(--mono); color: var(--tenue); }
+
+/* Campos (de LayoutMock) */
+form { display: grid; gap: 18px; }
+.campo { display: flex; flex-direction: column; gap: 6px; }
+.campo label { font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.campo__error { font-size: 12px; color: var(--peligro); }
+.campo__ayuda { font-size: 12px; color: var(--aviso); display: flex; gap: 6px; align-items: center; }
+.input {
+  width: 100%; height: 44px; padding: 0 12px; border-radius: var(--radio);
+  background: var(--fondo); border: 1px solid var(--borde); color: var(--texto); font: 400 15px var(--sans);
+}
+.input::placeholder { color: var(--tenue); }
+.input:hover { border-color: var(--borde-fuerte); }
+.input:focus { border-color: var(--foco); outline: none; box-shadow: 0 0 0 3px rgba(143,179,240,.18); }
+.input[aria-invalid="true"] { border-color: var(--peligro); }
+.input:disabled { opacity: .6; }
+.clave { position: relative; }
+.clave .input { padding-right: 84px; }
+.clave__ver {
+  position: absolute; right: 4px; top: 4px; height: 36px; padding: 0 10px; border: 0; border-radius: 2px;
+  background: transparent; color: var(--apagado); font: 600 12px var(--sans); cursor: pointer;
+}
+.clave__ver:hover { color: var(--texto); background: var(--superficie-2); }
+
+/* Botón (de LayoutMock) */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+  height: 52px; padding: 0 28px; border-radius: var(--radio); border: 0;
+  font: 700 16px var(--sans); cursor: pointer;
+}
+.btn--acento { background: var(--naranja); color: #1b1916; }
+.btn--acento:hover { background: #eb9a50; }
+.btn[aria-busy="true"] { cursor: progress; opacity: .85; }
+.spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .7s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.pie-tarjeta { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--linea); font-size: 13px; color: var(--apagado); text-align: center; }
+
+.footer { border-top: 1px solid var(--linea); }
+.footer__inner { max-width: 1280px; margin: 0 auto; padding: 16px 24px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font: 500 12px var(--mono); color: var(--tenue); }
+
+@media (max-width: 480px) {
+  .tarjeta { padding: 22px 18px; }
+  .resplandor { width: calc(100% + 32px); height: calc(100% + 48px); }
+  .maqueta__ayuda { margin-left: 0; flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Solo para la maqueta -->
+<div class="maqueta" role="region" aria-label="Controles de la maqueta">
+  <span>MAQUETA · estado:</span>
+  <button type="button" data-estado="normal" aria-pressed="true">Normal</button>
+  <button type="button" data-estado="invalido" aria-pressed="false">Campos inválidos</button>
+  <button type="button" data-estado="cargando" aria-pressed="false">Cargando</button>
+  <button type="button" data-estado="credenciales" aria-pressed="false">Credenciales</button>
+  <button type="button" data-estado="desactivado" aria-pressed="false">Usuario desactivado</button>
+  <button type="button" data-estado="red" aria-pressed="false">Sin conexión</button>
+  <button type="button" data-estado="expirada" aria-pressed="false">Sesión vencida</button>
+  <span class="maqueta__ayuda">probá: martin@empresa.com · compras123</span>
+</div>
+
+<header class="nav">
+  <div class="nav__inner">
+    <a class="logo" href="#"><span class="logo__marca" aria-hidden="true"></span><span class="logo__texto">Compras</span></a>
+    <a class="volver" href="#"><span aria-hidden="true">←</span> Volver al inicio</a>
+  </div>
+</header>
+
+<div class="dividida">
+<aside class="foto" id="foto" aria-hidden="true">
+  <div class="foto__capa foto__img"></div>
+  <div class="foto__capa foto__naranja"></div>
+  <div class="foto__capa foto__tinte"></div>
+  <div class="flota flota--1">
+    <span class="flota__punto"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <div><strong>Solicitud #1042 aprobada</strong><span class="mono">3 ítems · ARS 1.284.500</span></div>
+  </div>
+  <div class="flota flota--2">
+    <span class="flota__punto"><svg viewBox="0 0 24 24"><path d="M3 7h13l5 5v5H3z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg></span>
+    <div><strong>OC-2291 en camino</strong><span class="mono">Llega el jueves</span></div>
+  </div>
+  <div class="foto__texto">
+    <p>Pedís, se aprueba y <span>llega</span>. Todo en un solo lugar.</p>
+    <small>SOLICITUDES · APROBACIONES · ÓRDENES</small>
+  </div>
+</aside>
+
+<main class="escena">
+  <div class="contenido">
+    <div class="cabecera">
+      <span class="chip">SISTEMA INTERNO DE COMPRAS</span>
+      <h1 class="titulo">Ingresá a <span>Compras</span></h1>
+      <p class="bajada">Usá el email y la contraseña de tu cuenta de la empresa.</p>
+    </div>
+
+    <div class="tarjeta-wrap">
+      <div class="resplandor" aria-hidden="true"></div>
+      <div class="tarjeta">
+        <div id="aviso" role="alert" hidden></div>
+
+        <form id="form" novalidate>
+          <div class="campo">
+            <label for="email">Email</label>
+            <input class="input" id="email" name="email" type="email" autocomplete="username" inputmode="email" placeholder="nombre@empresa.com" required>
+            <span class="campo__error" id="email-err" hidden></span>
+          </div>
+          <div class="campo">
+            <label for="clave">Contraseña</label>
+            <div class="clave">
+              <input class="input" id="clave" name="clave" type="password" autocomplete="current-password" required>
+              <button class="clave__ver" type="button" id="ver" aria-controls="clave" aria-pressed="false">Mostrar</button>
+            </div>
+            <span class="campo__error" id="clave-err" hidden></span>
+            <span class="campo__ayuda" id="mayus" hidden>⇪ Tenés activado Bloq Mayús</span>
+          </div>
+          <button class="btn btn--acento" type="submit" id="enviar">Ingresar <span aria-hidden="true">→</span></button>
+        </form>
+
+        <div class="pie-tarjeta">
+          <p><strong style="color:var(--texto-2)">¿No tenés cuenta?</strong> Pedísela a un administrador de tu área.</p>
+          <p style="margin-top:6px">¿Problemas para entrar? Escribile a <a href="#">sistemas@empresa.com</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<footer class="footer">
+  <div class="footer__inner"><span>COMPRAS · USO INTERNO</span><span>v0.1</span></div>
+</footer>
+
+<script>
+const form = document.getElementById('form');
+const email = document.getElementById('email');
+const clave = document.getElementById('clave');
+const enviar = document.getElementById('enviar');
+const aviso = document.getElementById('aviso');
+const ICONO = {
+  error: '<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/>',
+  aviso: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  exito: '<path d="M5 12.5l4.5 4.5L19 7.5"/>'
+};
+// Mensajes como los devolvería el backend: { codigo, mensaje }
+const ERRORES = {
+  credenciales: ['error', 'Email o contraseña incorrectos', 'Revisá los datos e intentá de nuevo.', 'CREDENCIALES_INVALIDAS · 401'],
+  desactivado: ['error', 'Tu usuario está desactivado', 'Pedile a un administrador que lo vuelva a activar.', 'USUARIO_INACTIVO · 403'],
+  red: ['aviso', 'No pudimos conectarnos', 'Revisá tu conexión e intentá de nuevo. Si sigue pasando, avisá a Sistemas.', 'ERROR_RED'],
+  expirada: ['aviso', 'Tu sesión venció', 'Por seguridad, volvé a ingresar para continuar.', 'SESION_EXPIRADA']
+};
+// Usuarios de prueba de la maqueta → adónde va cada rol después del login
+const USUARIOS = {
+  'sofia@empresa.com': ['Sofía Álvarez', 'Solicitante', 'Mis solicitudes'],
+  'martin@empresa.com': ['Martín Ruiz', 'Encargado', 'Bandeja'],
+  'laura@empresa.com': ['Laura Méndez', 'Supervisor', 'Mis solicitudes'],
+  'pablo@empresa.com': ['Pablo Ferreyra', 'Admin', 'Usuarios'],
+  'baja@empresa.com': null
+};
+
+function mostrarAviso(tipo, titulo, texto, codigo) {
+  aviso.className = 'aviso aviso--' + tipo;
+  aviso.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONO[tipo]}</svg><div class="aviso__cuerpo"><strong>${titulo}</strong>${texto}${codigo ? ` <span class="codigo">${codigo}</span>` : ''}</div>`;
+  aviso.hidden = false;
+}
+function errorCampo(input, msg) {
+  const err = document.getElementById(input.id + '-err');
+  if (msg) { input.setAttribute('aria-invalid', 'true'); input.setAttribute('aria-describedby', err.id); err.textContent = msg; err.hidden = false; }
+  else { input.removeAttribute('aria-invalid'); input.removeAttribute('aria-describedby'); err.hidden = true; }
+}
+function cargando(si) {
+  enviar.setAttribute('aria-busy', si);
+  enviar.disabled = si; email.disabled = si; clave.disabled = si;
+  enviar.innerHTML = si ? '<span class="spinner" aria-hidden="true"></span>Ingresando…' : 'Ingresar <span aria-hidden="true">→</span>';
+}
+function limpiar() { aviso.hidden = true; errorCampo(email); errorCampo(clave); cargando(false); }
+
+function validar() {
+  let ok = true;
+  const v = email.value.trim();
+  if (!v) { errorCampo(email, 'Escribí tu email.'); ok = false; }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { errorCampo(email, 'Ese email no parece válido. Ej: nombre@empresa.com'); ok = false; }
+  else errorCampo(email);
+  if (!clave.value) { errorCampo(clave, 'Escribí tu contraseña.'); ok = false; } else errorCampo(clave);
+  if (!ok) (email.getAttribute('aria-invalid') ? email : clave).focus();
+  return ok;
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  aviso.hidden = true;
+  if (!validar()) return;
+  cargando(true);
+  setTimeout(() => {
+    cargando(false);
+    const k = email.value.trim().toLowerCase();
+    if (k in USUARIOS && USUARIOS[k] === null) { mostrarAviso(...ERRORES.desactivado); return; }
+    if (USUARIOS[k] && clave.value === 'compras123') {
+      const [nombre, rol, destino] = USUARIOS[k];
+      mostrarAviso('exito', `Hola, ${nombre.split(' ')[0]}`, `Entrando como ${rol}… te llevamos al inicio.`);
+      return;
+    }
+    mostrarAviso(...ERRORES.credenciales);
+    clave.value = ''; clave.focus();
+  }, 1200);
+});
+email.addEventListener('input', () => email.hasAttribute('aria-invalid') && errorCampo(email));
+clave.addEventListener('input', () => clave.hasAttribute('aria-invalid') && errorCampo(clave));
+
+// Mostrar / ocultar contraseña
+document.getElementById('ver').addEventListener('click', e => {
+  const ver = clave.type === 'password';
+  clave.type = ver ? 'text' : 'password';
+  e.currentTarget.textContent = ver ? 'Ocultar' : 'Mostrar';
+  e.currentTarget.setAttribute('aria-pressed', ver);
+  clave.focus();
+});
+// Aviso de Bloq Mayús
+['keydown', 'keyup'].forEach(t => clave.addEventListener(t, e => {
+  if (e.getModifierState) document.getElementById('mayus').hidden = !e.getModifierState('CapsLock');
+}));
+
+// Parallax de la foto: el mouse en cualquier parte de la página mueve las capas.
+// Escribe --mx/--my (-1..1) en el panel; el CSS decide cuánto se mueve cada capa.
+(() => {
+  const foto = document.getElementById('foto');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || matchMedia('(hover: none)').matches) return;
+  let raf = 0, x = 0, y = 0;
+  addEventListener('pointermove', e => {
+    x = (e.clientX / innerWidth) * 2 - 1;
+    y = (e.clientY / innerHeight) * 2 - 1;
+    if (!raf) raf = requestAnimationFrame(() => {
+      raf = 0;
+      foto.style.setProperty('--mx', x.toFixed(3));
+      foto.style.setProperty('--my', y.toFixed(3));
+    });
+  });
+  document.addEventListener('pointerleave', () => { foto.style.setProperty('--mx', 0); foto.style.setProperty('--my', 0); });
+})();
+
+// Estados de la maqueta
+document.querySelectorAll('[data-estado]').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-estado]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  limpiar();
+  const s = b.dataset.estado;
+  if (s === 'normal') { email.value = ''; clave.value = ''; return; }
+  if (s === 'invalido') { email.value = 'martin@empresa'; clave.value = ''; validar(); return; }
+  email.value = 'martin@empresa.com'; clave.value = 'secreto';
+  if (s === 'cargando') { cargando(true); return; }
+  if (s === 'expirada') clave.value = '';
+  mostrarAviso(...ERRORES[s]);
+}));
+</script>
+</body>
+</html>
